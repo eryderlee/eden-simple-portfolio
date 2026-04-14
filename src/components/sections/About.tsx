@@ -96,7 +96,7 @@ export default function About() {
     <section
       ref={sectionRef}
       id="about"
-      className="section-grain relative border-t border-white/[0.04] pt-24 pb-16 md:pt-28 md:pb-20 px-5"
+      className="section-grain relative border-t border-white/[0.04] pt-24 pb-0 md:pt-28 px-5"
     >
 
       {/* Subtle left accent line */}
@@ -213,8 +213,8 @@ export default function About() {
         </div>
       </div>
 
-      {/* Scrolling ticker */}
-      <div className="relative mt-16 border-t border-b border-[#e63946]/35 overflow-hidden">
+      {/* Scrolling ticker — full bleed, flush at section bottom */}
+      <div className="relative mt-16 -mx-5 border-t border-b border-[#e63946]/35 overflow-hidden">
         <div className="ticker-track flex whitespace-nowrap py-3.5">
           {[...TICKER_WORDS, ...TICKER_WORDS].map((word, i) => (
             <span key={i} className="inline-flex items-center gap-3 mx-6 text-[0.6rem] tracking-[0.22em] uppercase font-sans text-[#f0f0f0]/55">
