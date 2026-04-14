@@ -733,7 +733,7 @@ export default function Projects() {
             <div className="mb-2 flex items-center gap-3">
               <div className="h-px w-12 bg-[#e63946]" />
               <span className="font-sans text-[0.6rem] tracking-[0.25em] uppercase text-[#f0f0f0]/20">
-                {PROJECTS.length} total
+                {PROJECTS.filter((p) => p.category !== 'Automation').length + WORKFLOWS.length} total
               </span>
             </div>
           </div>
