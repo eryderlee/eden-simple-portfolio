@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -29,12 +29,11 @@ const SOCIALS = [
     ),
   },
   {
-    label: 'Agency',
-    href: 'https://ryderagency.com',
+    label: 'Upwork',
+    href: 'https://www.upwork.com/freelancers/eryderlee',
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7">
+        <path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-2.539 0-4.51 1.649-5.31 4.366-1.22-1.834-2.148-4.036-2.687-5.892H7.828v7.112c-.002 1.406-1.141 2.546-2.547 2.546-1.405 0-2.543-1.14-2.545-2.546V3.492H0v7.112c0 2.914 2.37 5.303 5.281 5.303 2.913 0 5.283-2.389 5.283-5.303v-1.19c.529 1.107 1.182 2.229 1.974 3.221l-1.673 7.873h2.797l1.213-5.71c1.063.679 2.285 1.109 3.686 1.109 3 0 5.439-2.452 5.439-5.45 0-3-2.439-5.439-5.439-5.439z" />
       </svg>
     ),
   },
@@ -49,8 +48,21 @@ const SOCIALS = [
   },
 ];
 
+const INPUT_CLASS =
+  'w-full bg-[#161616] border border-white/[0.08] px-4 py-3 font-sans text-[0.85rem] text-[#f0f0f0]/80 placeholder:text-[#f0f0f0]/25 focus:border-[#e63946]/50 focus:outline-none transition-colors duration-200';
+
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const subject = encodeURIComponent(`Portfolio Contact from ${form.name}`);
+    const body = encodeURIComponent(
+      `Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`
+    );
+    window.location.href = `mailto:eden@ryderlee.me?subject=${subject}&body=${body}`;
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -83,21 +95,27 @@ export default function Contact() {
         ease: 'power3.out',
         scrollTrigger: {
           trigger: '.contact-email',
-          start: 'top 86%',
+          start: 'top 90%',
         },
       });
 
-      gsap.from('.contact-social-btn', {
-        opacity: 0,
-        y: 24,
-        duration: 0.55,
-        ease: 'power3.out',
-        stagger: 0.1,
-        scrollTrigger: {
-          trigger: '.contact-socials',
-          start: 'top 82%',
-        },
-      });
+      // Use fromTo + once:true so social buttons always end at opacity 1
+      gsap.fromTo(
+        '.contact-social-btn',
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+          ease: 'power3.out',
+          stagger: 0.1,
+          scrollTrigger: {
+            trigger: '.contact-socials',
+            start: 'top 95%',
+            once: true,
+          },
+        }
+      );
     }, sectionRef);
 
     return () => ctx.revert();
@@ -120,43 +138,106 @@ export default function Contact() {
 
       <div className="relative max-w-6xl mx-auto px-6 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
-        {/* Section label */}
-        <div className="contact-label flex items-center gap-4 mb-16">
-          <div className="h-px w-8 bg-[#e63946]" />
-          <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
-            Contact
-          </span>
-        </div>
+        {/* Split layout: heading left (1fr), content right (2fr) */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
 
-        {/* Two-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-28 items-start">
-
-          {/* Left: CTA + email + video */}
+          {/* Left: label + heading */}
           <div>
-            <h2 className="contact-heading font-display font-black text-[clamp(2.8rem,6vw,5.5rem)] leading-[0.88] tracking-tight text-[#f0f0f0] mb-8">
+            <div className="contact-label flex items-center gap-4 mb-16">
+              <div className="h-px w-8 bg-[#e63946]" />
+              <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
+                Contact
+              </span>
+            </div>
+            <h2 className="contact-heading font-display font-black text-[clamp(2.8rem,6vw,5.5rem)] leading-[0.88] tracking-tight text-[#f0f0f0]">
               Let&apos;s build<br />
               <span className="text-[#e63946]">something.</span>
             </h2>
+          </div>
 
-            <p className="font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/50 max-w-[44ch] mb-12">
+          {/* Right: CTA + email + form + socials + video */}
+          <div className="space-y-10">
+
+            {/* Description */}
+            <p className="font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/50 max-w-[44ch]">
               Open to freelance projects, full-time roles, and interesting
               collaborations. Based in Point Cook, VIC — available remotely
               worldwide.
             </p>
 
-            {/* Big email */}
+            {/* Email */}
             <a
-              href="mailto:eden@ryderagency.com"
-              className="contact-email group block mb-8"
+              href="mailto:eden@ryderlee.me"
+              className="contact-email group block"
             >
               <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-2">
                 Email
               </span>
               <span className="font-display font-bold text-[clamp(1.1rem,2.5vw,1.65rem)] text-[#f0f0f0]/80 group-hover:text-[#e63946] transition-colors duration-300 relative">
-                eden@ryderagency.com
+                eden@ryderlee.me
                 <span className="absolute -bottom-1 left-0 h-px w-0 bg-[#e63946] group-hover:w-full transition-all duration-400" />
               </span>
             </a>
+
+            {/* Contact form */}
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <input
+                type="text"
+                placeholder="Name"
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                required
+                className={INPUT_CLASS}
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                required
+                className={INPUT_CLASS}
+              />
+              <textarea
+                placeholder="Message"
+                value={form.message}
+                onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
+                required
+                rows={5}
+                className={`${INPUT_CLASS} resize-none`}
+              />
+              <button
+                type="submit"
+                className="w-full py-3 bg-[#e63946] text-[#f0f0f0] font-sans text-[0.72rem] tracking-[0.22em] uppercase hover:bg-[#ff4d5a] active:bg-[#c8303c] transition-colors duration-200"
+              >
+                Send Message
+              </button>
+            </form>
+
+            {/* Social icon grid */}
+            <div>
+              <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-5">
+                Socials
+              </span>
+              <div className="contact-socials grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {SOCIALS.map(({ label, href, icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ opacity: 1 }}
+                    className="contact-social-btn group flex flex-col items-center justify-center gap-3 py-7 border border-white/[0.07] hover:border-[#e63946]/60 hover:bg-[#e63946]/[0.05] transition-all duration-300"
+                  >
+                    <span className="text-[#f0f0f0]/35 group-hover:text-[#e63946] transition-colors duration-300">
+                      {icon}
+                    </span>
+                    <span className="text-[0.62rem] tracking-[0.18em] uppercase font-sans text-[#f0f0f0]/30 group-hover:text-[#f0f0f0]/60 transition-colors duration-300">
+                      {label}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
 
             {/* Watch intro link */}
             <a
@@ -165,7 +246,6 @@ export default function Contact() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 group"
             >
-              {/* Play button circle */}
               <span className="flex items-center justify-center w-10 h-10 rounded-full border border-[#e63946]/50 group-hover:bg-[#e63946]/10 group-hover:border-[#e63946] transition-all duration-300">
                 <svg width="10" height="12" viewBox="0 0 10 12" fill="none" aria-hidden="true">
                   <path d="M1 1l8 5-8 5V1z" fill="#e63946" />
@@ -190,35 +270,11 @@ export default function Contact() {
                 <path d="M1 11L11 1M11 1H4M11 1V8" stroke="#e63946" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </a>
-          </div>
 
-          {/* Right: social icon buttons */}
-          <div>
-            <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-8">
-              Socials
-            </span>
-            <div className="contact-socials grid grid-cols-2 gap-4">
-              {SOCIALS.map(({ label, href, icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="contact-social-btn group flex flex-col items-center justify-center gap-3 py-8 border border-white/[0.07] hover:border-[#e63946]/60 hover:bg-[#e63946]/[0.05] transition-all duration-300"
-                >
-                  <span className="text-[#f0f0f0]/35 group-hover:text-[#e63946] transition-colors duration-300">
-                    {icon}
-                  </span>
-                  <span className="text-[0.62rem] tracking-[0.18em] uppercase font-sans text-[#f0f0f0]/30 group-hover:text-[#f0f0f0]/60 transition-colors duration-300">
-                    {label}
-                  </span>
-                </a>
-              ))}
-            </div>
           </div>
         </div>
 
-        {/* Divider — visual separator before footer */}
+        {/* Divider */}
         <div className="mt-28 flex items-center gap-6">
           <div className="h-px flex-1 bg-gradient-to-r from-[#e63946]/30 to-transparent" />
           <span className="font-display font-black text-[0.65rem] tracking-[0.4em] uppercase text-[#e63946]/25 select-none">

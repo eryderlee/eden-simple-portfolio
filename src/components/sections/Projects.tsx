@@ -491,7 +491,7 @@ export default function Projects() {
 
       <div className="relative max-w-6xl mx-auto px-6 md:px-8" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
         {/* Section heading */}
-        <div ref={headingRef} className="mb-14">
+        <div ref={headingRef} className="mb-20">
           <p className="font-sans text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/25 mb-4">
             Selected work
           </p>

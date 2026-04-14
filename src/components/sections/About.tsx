@@ -174,7 +174,7 @@ export default function About() {
         </div>
 
         {/* Stats row */}
-        <div className="stats-row mt-20 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.06] border border-white/[0.06]">
+        <div className="stats-row mt-16 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.06] border border-white/[0.06]">
           {STATS.map(({ value, label }) => (
             <div
               key={label}
