@@ -815,7 +815,7 @@ export default function Projects() {
               {AUTOMATION_TABS.map((tab) => {
                 const count =
                   tab === 'All'
-                    ? FEATURED_WORKFLOWS.length
+                    ? WORKFLOWS.length
                     : WORKFLOWS.filter((w) => w.category === tab).length;
                 const isActive = activeWorkflowTab === tab;
                 return (
