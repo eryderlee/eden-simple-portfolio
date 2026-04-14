@@ -148,7 +148,7 @@ export default function Experience() {
     <section
       ref={sectionRef}
       id="experience"
-      className="relative border-t border-white/[0.04] py-36"
+      className="relative border-t border-white/[0.04] py-48"
     >
       {/* Grain */}
       <div
@@ -161,14 +161,14 @@ export default function Experience() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
 
             {/* LEFT: section heading */}
-            <div className="lg:sticky lg:top-32">
+            <div>
               <div className="exp-label flex items-center gap-4 mb-8">
                 <div className="h-px w-8 bg-[#e63946]" />
                 <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
                   Experience
                 </span>
               </div>
-              <h2 className="exp-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
+              <h2 className="exp-heading font-display font-black text-[clamp(1.8rem,4vw,3.5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
                 Where I&apos;ve<br />
                 <span className="text-[#e63946]">Been</span>
               </h2>

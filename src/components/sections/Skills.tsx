@@ -31,11 +31,9 @@ const SKILL_GROUPS = [
     label: 'Tools & Platforms',
     skills: ['Git', 'Vercel', 'Netlify', 'Stripe', 'GitHub', 'Figma'],
   },
-  {
-    label: 'Hobbies',
-    skills: ['Gym', 'Dragon Dancing', 'Tai Chi', 'Badminton', 'Volleyball', 'Jiu-jitsu', 'PC Building', 'Photoshop'],
-  },
 ];
+
+const HOBBIES_SKILLS = ['Gym', 'Dragon Dancing', 'Tai Chi', 'Badminton', 'Volleyball', 'Jiu-jitsu', 'PC Building', 'Photoshop'];
 
 const GRAIN_SVG =
   "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")";
@@ -92,7 +90,7 @@ export default function Skills() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative border-t border-white/[0.04] py-36"
+      className="relative border-t border-white/[0.04] py-48"
     >
       {/* Grain texture */}
       <div
@@ -108,52 +106,79 @@ export default function Skills() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
 
             {/* LEFT: section heading */}
-            <div className="lg:sticky lg:top-32">
+            <div>
               <div className="skills-label flex items-center gap-4 mb-8">
                 <div className="h-px w-8 bg-[#e63946]" />
                 <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
                   Skills
                 </span>
               </div>
-              <h2 className="skills-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
+              <h2 className="skills-heading font-display font-black text-[clamp(1.8rem,4vw,3.5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
                 Tools of<br />
                 <span className="text-[#e63946]">the trade</span>
               </h2>
             </div>
 
-            {/* RIGHT: editorial skill rows */}
-            <div className="skills-rows">
-              {SKILL_GROUPS.map(({ label, skills }) => (
-                <div
-                  key={label}
-                  className="skill-row group border-t border-white/[0.05] hover:bg-white/[0.015] transition-colors duration-300 last:border-b last:border-white/[0.05]"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-0 py-8">
-                    {/* Category label */}
-                    <div className="sm:w-40 shrink-0 flex items-center gap-3">
-                      <div className="h-px w-4 bg-[#e63946]/50 hidden sm:block" />
-                      <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/70 font-sans">
-                        {label}
-                      </span>
-                    </div>
+            {/* RIGHT: skill rows + hobbies side by side */}
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-10 items-start">
 
-                    {/* Separator — desktop only */}
-                    <div className="hidden sm:block w-px bg-white/[0.05] self-stretch mx-6" />
-
-                    {/* Skills */}
-                    <div className="flex flex-wrap gap-2 flex-1">
-                      {skills.map((skill) => (
-                        <span
-                          key={skill}
-                          className="inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/55 hover:border-[#e63946]/30 hover:text-[#f0f0f0]/85 transition-all duration-200"
-                        >
-                          {skill}
+              {/* Main skill rows */}
+              <div className="skills-rows">
+                {SKILL_GROUPS.map(({ label, skills }) => (
+                  <div
+                    key={label}
+                    className="skill-row group border-t border-white/[0.05] hover:bg-white/[0.015] transition-colors duration-300 last:border-b last:border-white/[0.05]"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-0 py-8">
+                      {/* Category label */}
+                      <div className="sm:w-40 shrink-0 flex items-center gap-3">
+                        <div className="h-px w-4 bg-[#e63946]/50 hidden sm:block" />
+                        <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/70 font-sans">
+                          {label}
                         </span>
-                      ))}
+                      </div>
+
+                      {/* Separator — desktop only */}
+                      <div className="hidden sm:block w-px bg-white/[0.05] self-stretch mx-6" />
+
+                      {/* Skills */}
+                      <div className="flex flex-wrap gap-2 flex-1">
+                        {skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className="inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/55 hover:border-[#e63946]/30 hover:text-[#f0f0f0]/85 transition-all duration-200"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+
+              {/* Hobbies column */}
+              <div className="lg:border-l lg:border-white/[0.05] lg:pl-10 pt-8 lg:pt-0">
+                <div className="border-t border-white/[0.05] pt-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="h-px w-4 bg-[#e63946]/50" />
+                    <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/70 font-sans">
+                      Hobbies
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {HOBBIES_SKILLS.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/55 hover:border-[#e63946]/30 hover:text-[#f0f0f0]/85 transition-all duration-200"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              ))}
+              </div>
+
             </div>
 
           </div>

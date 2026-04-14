@@ -37,6 +37,8 @@ interface Project {
 interface Workflow {
   name: string;
   category: WorkflowCategory;
+  description?: string;
+  tech?: string[];
 }
 
 /* ── Projects data ──────────────────────────────────────────── */
@@ -300,21 +302,21 @@ const WORKFLOWS: Workflow[] = [
 
 /* ── 15 featured workflows for the "All" subtab ─────────────── */
 const FEATURED_WORKFLOWS: Workflow[] = [
-  { name: 'AI Lead Generation - Google Maps Scraper', category: 'Lead Generation' },
-  { name: 'LinkedIn Lead Builder — Apollo Method', category: 'Lead Generation' },
-  { name: 'Data Enricher', category: 'Lead Generation' },
-  { name: 'Newsletter Automation', category: 'Email & CRM' },
-  { name: 'Email Inbox Manager', category: 'Email & CRM' },
-  { name: 'Instant Confirmation', category: 'Email & CRM' },
-  { name: 'AI Content Research Agent with Tools', category: 'Content Creation' },
-  { name: 'LinkedIn Post Generator', category: 'Content Creation' },
-  { name: 'Article Generator', category: 'Content Creation' },
-  { name: 'CA Orchestrator — Complete', category: 'AI Agents' },
-  { name: 'AI Voice Agent (Vapi + n8n)', category: 'AI Agents' },
-  { name: 'Proposal Generator', category: 'Client Workflows' },
-  { name: 'Cal.com Event Handler', category: 'Client Workflows' },
-  { name: 'Bookeep AI — Weekly Equity Allocator', category: 'Finance' },
-  { name: 'Crypto Market Analyzer — BTC/ETH (v1)', category: 'Finance' },
+  { name: 'AI Lead Generation - Google Maps Scraper', category: 'Lead Generation', description: 'Scrapes 144k+ leads/day from Google Maps, enriches with contact data, and pushes directly to CRM', tech: ['n8n', 'Google Maps API'] },
+  { name: 'LinkedIn Lead Builder — Apollo Method', category: 'Lead Generation', description: 'Builds targeted LinkedIn lead lists using Apollo data enrichment for precision outbound campaigns', tech: ['n8n', 'LinkedIn', 'Apollo'] },
+  { name: 'Data Enricher', category: 'Lead Generation', description: 'Enriches raw lead data with verified emails, company info, and contact details via API lookups', tech: ['n8n', 'Hunter.io', 'API'] },
+  { name: 'Newsletter Automation', category: 'Email & CRM', description: 'Automated newsletter system with audience segmentation, content personalization, and engagement tracking', tech: ['n8n', 'Email API'] },
+  { name: 'Email Inbox Manager', category: 'Email & CRM', description: 'AI-powered inbox that sorts, labels, and drafts context-aware replies to inbound sales emails', tech: ['n8n', 'OpenAI', 'Gmail'] },
+  { name: 'Instant Confirmation', category: 'Email & CRM', description: 'Fires instant booking confirmations with onboarding materials the moment a Cal.com event is created', tech: ['n8n', 'Cal.com'] },
+  { name: 'AI Content Research Agent with Tools', category: 'Content Creation', description: 'Agentic workflow that researches topics, scrapes competitor content, and delivers structured content briefs', tech: ['n8n', 'OpenAI', 'Perplexity'] },
+  { name: 'LinkedIn Post Generator', category: 'Content Creation', description: 'Generates hook-driven LinkedIn posts from trending topics and auto-schedules for peak engagement times', tech: ['n8n', 'OpenAI', 'LinkedIn'] },
+  { name: 'Article Generator', category: 'Content Creation', description: 'Full SEO pipeline: researches keywords, generates optimized long-form articles, publishes to GitHub CMS', tech: ['n8n', 'OpenAI', 'GitHub'] },
+  { name: 'CA Orchestrator — Complete', category: 'AI Agents', description: 'Master orchestrator coordinating multiple sub-agents across the full client acquisition pipeline', tech: ['n8n', 'OpenAI', 'Webhooks'] },
+  { name: 'AI Voice Agent (Vapi + n8n)', category: 'AI Agents', description: 'Voice AI that handles inbound calls, qualifies leads, and books appointments without human intervention', tech: ['Vapi', 'n8n', 'Cal.com'] },
+  { name: 'Proposal Generator', category: 'Client Workflows', description: 'Generates custom proposals from CRM data and sends for e-signature via SignNow with team notifications', tech: ['n8n', 'OpenAI', 'SignNow'] },
+  { name: 'Cal.com Event Handler', category: 'Client Workflows', description: 'Central handler for Cal.com bookings: CRM updates, Slack alerts, and pre-meeting email sequences', tech: ['n8n', 'Cal.com', 'HubSpot'] },
+  { name: 'Bookeep AI — Weekly Equity Allocator', category: 'Finance', description: 'Tracks weekly equity allocation across accounts and generates AI-powered financial performance reports', tech: ['n8n', 'OpenAI', 'Sheets'] },
+  { name: 'Crypto Market Analyzer — BTC/ETH (v1)', category: 'Finance', description: 'Analyzes BTC/ETH market conditions and delivers trading signals to Discord and Telegram', tech: ['n8n', 'CoinGecko API'] },
 ];
 
 /* ── Automation subtabs ─────────────────────────────────────── */
@@ -454,27 +456,67 @@ function ProjectCard({ project, index, onOpenModal }: CardProps) {
 
 /* ── Workflow Card ───────────────────────────────────────────── */
 function WorkflowCard({ workflow, index }: { workflow: Workflow; index: number }) {
-  const CATEGORY_COLORS: Record<WorkflowCategory, string> = {
-    'Lead Generation': 'text-[#e63946]/70 border-[#e63946]/25',
-    'Email & CRM': 'text-[#f0a500]/70 border-[#f0a500]/25',
-    'Content Creation': 'text-[#4ecdc4]/70 border-[#4ecdc4]/25',
-    'AI Agents': 'text-[#a855f7]/70 border-[#a855f7]/25',
-    'Client Workflows': 'text-[#22c55e]/70 border-[#22c55e]/25',
-    'Finance': 'text-[#3b82f6]/70 border-[#3b82f6]/25',
-    'Other': 'text-[#f0f0f0]/30 border-white/[0.1]',
+  const WORKFLOW_CATEGORY_BADGE_COLORS: Record<WorkflowCategory, string> = {
+    'Lead Generation': 'text-[#e63946]',
+    'Email & CRM': 'text-[#f0a500]',
+    'Content Creation': 'text-[#4ecdc4]',
+    'AI Agents': 'text-[#a855f7]',
+    'Client Workflows': 'text-[#22c55e]',
+    'Finance': 'text-[#3b82f6]',
+    'Other': 'text-[#f0f0f0]/30',
   };
 
   return (
-    <div className="group bg-[#161616] border border-white/[0.05] p-4 hover:border-white/[0.1] hover:bg-white/[0.02] transition-all duration-200 flex flex-col gap-2.5">
-      <span className="font-sans text-[0.78rem] text-[#f0f0f0]/70 leading-snug group-hover:text-[#f0f0f0]/90 transition-colors duration-200">
-        {workflow.name}
+    <article
+      className="project-card group relative flex flex-col bg-[#1a1a1a] border border-white/[0.06] rounded-sm p-6 transition-all duration-300 hover:border-[#e63946]/40 hover:-translate-y-1"
+      style={{
+        boxShadow: '0 0 0 0 rgba(230,57,70,0)',
+        transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.boxShadow =
+          '0 8px 32px rgba(230,57,70,0.12), 0 0 0 1px rgba(230,57,70,0.15)';
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.boxShadow =
+          '0 0 0 0 rgba(230,57,70,0)';
+      }}
+    >
+      {/* Index */}
+      <span className="absolute top-4 right-5 text-[0.55rem] tracking-[0.2em] uppercase text-[#f0f0f0]/15 font-sans tabular-nums">
+        {String(index + 1).padStart(2, '0')}
       </span>
-      <span
-        className={`self-start text-[0.52rem] tracking-[0.18em] uppercase font-sans border px-1.5 py-0.5 ${CATEGORY_COLORS[workflow.category]}`}
-      >
+
+      {/* Category badge */}
+      <span className={`inline-flex self-start mb-4 text-[0.55rem] tracking-[0.2em] uppercase font-sans ${WORKFLOW_CATEGORY_BADGE_COLORS[workflow.category]}`}>
         {workflow.category}
       </span>
-    </div>
+
+      {/* Name */}
+      <h3 className="font-display font-bold text-[1.05rem] leading-snug text-[#f0f0f0] mb-3 tracking-tight">
+        {workflow.name}
+      </h3>
+
+      {/* Description */}
+      {workflow.description ? (
+        <p className="font-sans text-[0.8rem] leading-relaxed text-[#f0f0f0]/55 mb-5 flex-1">
+          {workflow.description}
+        </p>
+      ) : (
+        <div className="flex-1" />
+      )}
+
+      {/* Tech pills */}
+      {workflow.tech && workflow.tech.length > 0 && (
+        <div className="mt-auto pt-4 border-t border-white/[0.05]">
+          <div className="flex flex-wrap gap-1.5">
+            {workflow.tech.map((t) => (
+              <TechPill key={t} label={t} />
+            ))}
+          </div>
+        </div>
+      )}
+    </article>
   );
 }
 
@@ -680,7 +722,7 @@ export default function Projects() {
 
       <div className="relative max-w-6xl mx-auto px-6 md:px-8" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
         {/* Section heading */}
-        <div ref={headingRef} className="mb-40">
+        <div ref={headingRef} className="mb-6">
           <p className="font-sans text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/25 mb-4">
             Selected work
           </p>
@@ -796,7 +838,7 @@ export default function Projects() {
             </div>
 
             {/* Workflow cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredWorkflows.map((workflow, i) => (
                 <WorkflowCard key={`${workflow.category}-${workflow.name}-${i}`} workflow={workflow} index={i} />
               ))}

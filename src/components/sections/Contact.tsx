@@ -111,7 +111,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative border-t border-white/[0.04] py-36"
+      className="relative border-t border-white/[0.04] py-48"
     >
       {/* Grain texture */}
       <div
@@ -127,14 +127,14 @@ export default function Contact() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
 
             {/* LEFT: section heading */}
-            <div className="lg:sticky lg:top-32">
+            <div>
               <div className="contact-label flex items-center gap-4 mb-8">
                 <div className="h-px w-8 bg-[#e63946]" />
                 <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
                   Contact
                 </span>
               </div>
-              <h2 className="contact-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
+              <h2 className="contact-heading font-display font-black text-[clamp(1.8rem,4vw,3.5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
                 Let&apos;s build<br />
                 <span className="text-[#e63946]">something.</span>
               </h2>
@@ -166,10 +166,10 @@ export default function Contact() {
                     </span>
                   </a>
 
-                  {/* CTA email button — natural styling */}
+                  {/* CTA email button — red outlined, hover fills */}
                   <a
                     href="mailto:eden@ryderlee.me"
-                    className="inline-flex items-center gap-2.5 group px-5 py-2.5 rounded bg-white/[0.05] border border-white/[0.1] hover:border-[#e63946]/40 hover:bg-[#e63946]/[0.07] transition-all duration-300"
+                    className="inline-flex items-center gap-2.5 group px-6 py-3 border border-[#e63946] text-[#e63946] hover:bg-[#e63946] hover:text-white transition-all duration-300"
                   >
                     <svg
                       width="13"
@@ -177,11 +177,11 @@ export default function Contact() {
                       viewBox="0 0 13 10"
                       fill="none"
                       aria-hidden="true"
-                      className="text-[#f0f0f0]/50 group-hover:text-[#e63946] transition-colors duration-300"
+                      className="transition-colors duration-300"
                     >
                       <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h10A1.5 1.5 0 0 1 13 1.5v7A1.5 1.5 0 0 1 11.5 10h-10A1.5 1.5 0 0 1 0 8.5v-7zm1.5 0L6.5 5l5-3.5M1.5 8.5h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    <span className="font-sans text-[0.73rem] tracking-[0.12em] uppercase text-[#f0f0f0]/55 group-hover:text-[#f0f0f0]/80 transition-colors duration-300">
+                    <span className="font-sans text-[0.73rem] tracking-[0.12em] uppercase font-medium transition-colors duration-300">
                       Send me an email
                     </span>
                   </a>
