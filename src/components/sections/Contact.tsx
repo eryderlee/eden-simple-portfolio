@@ -111,7 +111,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative border-t border-white/[0.04] pt-24 pb-16 md:py-48"
+      className="relative border-t border-white/[0.04] pt-24 pb-16 md:py-48 px-5"
     >
       {/* Grain texture */}
       <div
@@ -167,7 +167,7 @@ export default function Contact() {
                   </a>
 
                   {/* CTA email button — red outlined, hover fills */}
-                  <div className="flex justify-center md:justify-start">
+                  <div className="flex justify-center md:justify-start mt-8">
                     <a
                       href="mailto:eden@ryderlee.me"
                       className="inline-flex items-center gap-2.5 group px-6 py-3 border border-[#e63946] text-[#e63946] hover:bg-[#e63946] hover:text-white transition-all duration-300"

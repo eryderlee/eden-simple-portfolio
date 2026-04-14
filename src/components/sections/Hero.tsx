@@ -109,7 +109,7 @@ export default function Hero() {
       <div className="relative text-center px-6 max-w-[95vw]">
         {/* Name */}
         <h1 className="font-display font-black leading-[0.85] tracking-[-0.03em] text-[#f0f0f0] mb-6 select-none">
-          <div className="text-[clamp(1.8rem,8vw,10rem)] whitespace-nowrap">
+          <div className="text-[clamp(0.95rem,6.5vw,10rem)] whitespace-nowrap" style={{ whiteSpace: 'nowrap' }}>
             <LetterSpans text={NAME} />
           </div>
         </h1>

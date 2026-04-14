@@ -705,7 +705,7 @@ export default function Projects() {
     <section
       ref={sectionRef}
       id="projects"
-      className="relative min-h-screen bg-[#111111] pt-24 pb-20 md:py-32 border-t border-white/[0.04]"
+      className="relative min-h-screen bg-[#111111] pt-24 pb-20 md:py-32 border-t border-white/[0.04] px-5"
     >
       {/* Grain texture */}
       <div

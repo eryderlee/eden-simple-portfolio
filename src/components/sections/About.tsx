@@ -86,7 +86,7 @@ export default function About() {
     <section
       ref={sectionRef}
       id="about"
-      className="relative border-t border-white/[0.04] pt-20 pb-16 md:py-28"
+      className="relative border-t border-white/[0.04] pt-24 pb-16 md:py-28 px-5"
     >
       {/* Grain texture */}
       <div
