@@ -12,7 +12,7 @@ export default function Home() {
     <main>
       {/* Single ASCII instance spans Hero + About seamlessly, fades before ticker */}
       <div className="relative">
-        <AsciiBackground opacity={0.18} maskBottom="94%" />
+        <AsciiBackground opacity={0.24} maskBottom="90%" />
         <Hero />
         <About />
       </div>
