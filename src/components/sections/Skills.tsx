@@ -63,17 +63,22 @@ export default function Skills() {
         },
       });
 
-      gsap.from('.skill-group', {
-        opacity: 0,
-        y: 28,
-        duration: 0.6,
-        ease: 'power3.out',
-        stagger: 0.1,
-        scrollTrigger: {
-          trigger: '.skills-grid',
-          start: 'top 78%',
-        },
-      });
+      gsap.fromTo(
+        '.skill-row',
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+          ease: 'power3.out',
+          stagger: 0.09,
+          scrollTrigger: {
+            trigger: '.skills-rows',
+            start: 'top 90%',
+            once: true,
+          },
+        }
+      );
     }, sectionRef);
 
     return () => ctx.revert();
@@ -83,7 +88,7 @@ export default function Skills() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative border-t border-white/[0.04] py-36 px-8"
+      className="relative border-t border-white/[0.04] py-36"
     >
       {/* Grain texture */}
       <div
@@ -94,50 +99,53 @@ export default function Skills() {
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative max-w-6xl mx-auto px-6 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+      {/* Full-width bleeding heading */}
+      <div className="relative px-8 mb-16">
+        <div className="skills-label flex items-center gap-4 mb-8">
+          <div className="h-px w-8 bg-[#e63946]" />
+          <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
+            Skills
+          </span>
+        </div>
+        <h2 className="skills-heading font-display font-black text-[clamp(3.5rem,9vw,9rem)] leading-[0.85] tracking-[-0.03em] text-[#f0f0f0]">
+          Tools of<br />
+          <span className="text-[#e63946]">the trade</span>
+        </h2>
+      </div>
 
-        {/* Split layout: heading left (1fr), content right (2fr) */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
-
-          {/* Left: label + heading */}
-          <div>
-            <div className="skills-label flex items-center gap-4 mb-14">
-              <div className="h-px w-8 bg-[#e63946]" />
-              <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
-                Skills
-              </span>
-            </div>
-            <h2 className="skills-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-tight text-[#f0f0f0]">
-              Tools of<br />
-              <span className="text-[#e63946]">the trade</span>
-            </h2>
-          </div>
-
-          {/* Right: skills grid */}
-          <div className="skills-grid grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/[0.04]">
-            {SKILL_GROUPS.map(({ label, skills }) => (
-              <div
-                key={label}
-                className="skill-group bg-[#111111] p-10 hover:bg-white/[0.015] transition-colors duration-300"
-              >
-                <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/70 font-sans block mb-5">
+      {/* Editorial skill rows — full section width */}
+      <div className="skills-rows relative">
+        {SKILL_GROUPS.map(({ label, skills }) => (
+          <div
+            key={label}
+            className="skill-row group border-t border-white/[0.05] hover:bg-white/[0.015] transition-colors duration-300 last:border-b last:border-white/[0.05]"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-0 px-8 py-8">
+              {/* Category label */}
+              <div className="sm:w-48 shrink-0 flex items-center gap-3">
+                <div className="h-px w-4 bg-[#e63946]/50 hidden sm:block" />
+                <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/70 font-sans">
                   {label}
                 </span>
-                <div className="flex flex-wrap gap-2">
-                  {skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="inline-flex items-center px-2.5 py-1 text-[0.7rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/55 hover:border-[#e63946]/30 hover:text-[#f0f0f0]/80 transition-all duration-200"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
               </div>
-            ))}
-          </div>
 
-        </div>
+              {/* Separator — desktop only */}
+              <div className="hidden sm:block w-px bg-white/[0.05] self-stretch mx-6" />
+
+              {/* Skills */}
+              <div className="flex flex-wrap gap-2 flex-1">
+                {skills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/55 hover:border-[#e63946]/30 hover:text-[#f0f0f0]/85 transition-all duration-200"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

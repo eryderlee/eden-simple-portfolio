@@ -8,6 +8,15 @@ gsap.registerPlugin(ScrollTrigger);
 
 /* ── Types ──────────────────────────────────────────────────── */
 type Category = 'All' | 'Web' | 'Automation' | 'Academic';
+type WorkflowCategory =
+  | 'All'
+  | 'Lead Generation'
+  | 'Email & CRM'
+  | 'Content Creation'
+  | 'AI Agents'
+  | 'Client Workflows'
+  | 'Finance'
+  | 'Other';
 
 interface ModalContent {
   title: string;
@@ -24,7 +33,12 @@ interface Project {
   modalContent?: ModalContent;
 }
 
-/* ── Data ───────────────────────────────────────────────────── */
+interface Workflow {
+  name: string;
+  category: Exclude<WorkflowCategory, 'All'>;
+}
+
+/* ── Projects data ──────────────────────────────────────────── */
 const PROJECTS: Project[] = [
   // Web
   {
@@ -157,37 +171,141 @@ const PROJECTS: Project[] = [
   },
 ];
 
-const WORKFLOW_CATEGORIES = [
-  {
-    name: 'Lead Generation',
-    count: 27,
-    examples: ['Google Maps scraping', 'LinkedIn builders', 'Data enrichment'],
-  },
-  {
-    name: 'Email / CRM',
-    count: 18,
-    examples: ['Email classification', 'Reminder sequences', 'SMS follow-ups'],
-  },
-  {
-    name: 'Content Creation',
-    count: 11,
-    examples: ['Article generation', 'LinkedIn posting', 'Image generation'],
-  },
-  {
-    name: 'AI Agents',
-    count: 10,
-    examples: ['Voice agents', 'Chatbots', 'RAG systems'],
-  },
-  {
-    name: 'Client Workflows',
-    count: 8,
-    examples: ['Proposal generation', 'Contract automation', 'Audit tools'],
-  },
-  {
-    name: 'Finance & Other',
-    count: 5,
-    examples: ['Crypto analysis', 'Equity tracking'],
-  },
+/* ── All 109 n8n workflows ──────────────────────────────────── */
+const WORKFLOWS: Workflow[] = [
+  // Lead Generation (18)
+  { name: 'AI Lead Generation - Google Maps Scraper', category: 'Lead Generation' },
+  { name: 'Google Maps Lead Scraper (v2)', category: 'Lead Generation' },
+  { name: 'Google Maps Lead Scraper (v3)', category: 'Lead Generation' },
+  { name: 'Lead Enrichment', category: 'Lead Generation' },
+  { name: 'LinkedIn Lead Builder — Apollo Method', category: 'Lead Generation' },
+  { name: 'LinkedIn Lead Builder', category: 'Lead Generation' },
+  { name: 'Collect LinkedIn Data', category: 'Lead Generation' },
+  { name: 'Lead Gen', category: 'Lead Generation' },
+  { name: 'Lead Research', category: 'Lead Generation' },
+  { name: 'Find and Create Email', category: 'Lead Generation' },
+  { name: 'Email Enrichment', category: 'Lead Generation' },
+  { name: 'ZIP Code Checker — Google Sheets', category: 'Lead Generation' },
+  { name: 'Data Enricher', category: 'Lead Generation' },
+  { name: 'Data Enricher (Firecrawl)', category: 'Lead Generation' },
+  { name: 'Queue Setup', category: 'Lead Generation' },
+  { name: 'Queue Update', category: 'Lead Generation' },
+  { name: 'Ample LinkedIn Gen', category: 'Lead Generation' },
+  { name: 'Website Crawler', category: 'Lead Generation' },
+
+  // Email & CRM (20)
+  { name: 'WhatsApp Reminder', category: 'Email & CRM' },
+  { name: 'Newsletter Automation', category: 'Email & CRM' },
+  { name: 'Email Sequence 1 — Australia Timezone', category: 'Email & CRM' },
+  { name: 'Email Sequence 2 — Australia Timezone', category: 'Email & CRM' },
+  { name: 'Email Sequence 3 — Australia Timezone', category: 'Email & CRM' },
+  { name: 'Opt-Out Link Handler', category: 'Email & CRM' },
+  { name: 'Tally CRM', category: 'Email & CRM' },
+  { name: 'Facebook CRM', category: 'Email & CRM' },
+  { name: 'Email Inbox Manager', category: 'Email & CRM' },
+  { name: 'Email Management Level 3', category: 'Email & CRM' },
+  { name: 'Instant Confirmation', category: 'Email & CRM' },
+  { name: 'Reminder — Preframe & Attend Booked Call', category: 'Email & CRM' },
+  { name: 'Reminder — Leads Who Haven\'t Signed', category: 'Email & CRM' },
+  { name: 'Reminder — Signed But Not Paid', category: 'Email & CRM' },
+  { name: 'Perpetual Emails', category: 'Email & CRM' },
+  { name: 'Reminder Sequences After Instant Confirmation', category: 'Email & CRM' },
+  { name: 'Reminder Sequence — No Shows', category: 'Email & CRM' },
+  { name: 'Baseaim SMS Follow-Up (Legacy)', category: 'Email & CRM' },
+  { name: 'Baseaim SMS Confirmation', category: 'Email & CRM' },
+  { name: 'Baseaim SMS Reminder Poller', category: 'Email & CRM' },
+
+  // Content Creation (27)
+  { name: 'Content Research with Native Nodes', category: 'Content Creation' },
+  { name: 'AI Content Research Agent with Tools', category: 'Content Creation' },
+  { name: 'Smart Content Generator with OpenAI', category: 'Content Creation' },
+  { name: 'LinkedIn Carousel Creator & Poster', category: 'Content Creation' },
+  { name: 'Perplexity Research Tool', category: 'Content Creation' },
+  { name: 'LinkedIn Post Generator', category: 'Content Creation' },
+  { name: 'Reddit Story Maker', category: 'Content Creation' },
+  { name: 'LinkedIn Post Automation', category: 'Content Creation' },
+  { name: 'TikTok Scraper', category: 'Content Creation' },
+  { name: 'AI Story Generator', category: 'Content Creation' },
+  { name: 'Mass Image Generator', category: 'Content Creation' },
+  { name: 'YouTube Growth Automation', category: 'Content Creation' },
+  { name: 'LinkedIn Parasite System — AI Content', category: 'Content Creation' },
+  { name: 'Article Generator', category: 'Content Creation' },
+  { name: 'Creatives Stealer / Rebrander', category: 'Content Creation' },
+  { name: 'Linked Image Auto Desc Gen & Post', category: 'Content Creation' },
+  { name: 'Creative Stealer Folder Mover', category: 'Content Creation' },
+  { name: 'Reddit Scraper', category: 'Content Creation' },
+  { name: 'Reddit Scraper 1/4 — Client Topics', category: 'Content Creation' },
+  { name: 'Reddit Scraper 2/4 — Practice & Business', category: 'Content Creation' },
+  { name: 'Reddit Scraper 3/4 — Operations & Day-to-Day', category: 'Content Creation' },
+  { name: 'Reddit Scraper 4/4 — Industry & Career', category: 'Content Creation' },
+  { name: 'Reddit Scraper — Client Audience', category: 'Content Creation' },
+  { name: 'Client Audience 1/4 — Accountant Relationship', category: 'Content Creation' },
+  { name: 'Client Audience 2/4 — Tax & Compliance', category: 'Content Creation' },
+  { name: 'Client Audience 3/4 — Business Finance & Cash Flow', category: 'Content Creation' },
+  { name: 'Client Audience 4/4 — Freelancer, Payroll & Rants', category: 'Content Creation' },
+
+  // AI Agents (10)
+  { name: 'CA Orchestrator — Complete', category: 'AI Agents' },
+  { name: 'Restaurant Voice Agent — Reservations & Service', category: 'AI Agents' },
+  { name: 'AI Voice Agent (Vapi + n8n)', category: 'AI Agents' },
+  { name: 'Chatbot for Booking Appointments', category: 'AI Agents' },
+  { name: 'Chatbot for Baseaim', category: 'AI Agents' },
+  { name: 'RAG for Baseaim', category: 'AI Agents' },
+  { name: 'Baseaim Voice Assistant', category: 'AI Agents' },
+  { name: 'Notion AI Assistant', category: 'AI Agents' },
+  { name: 'AI Day Planner', category: 'AI Agents' },
+  { name: 'AI Day Planner (v2)', category: 'AI Agents' },
+
+  // Client Workflows (11)
+  { name: 'Notion Internal Docs', category: 'Client Workflows' },
+  { name: 'Retell AI — Cal.com Appointment Management', category: 'Client Workflows' },
+  { name: 'Proposal Generator', category: 'Client Workflows' },
+  { name: 'After-Meeting Proposal Generator', category: 'Client Workflows' },
+  { name: 'Proposal Generator v3', category: 'Client Workflows' },
+  { name: 'Baseaim Assistant Call Report', category: 'Client Workflows' },
+  { name: 'Create Audit', category: 'Client Workflows' },
+  { name: 'Cal.com Event Handler', category: 'Client Workflows' },
+  { name: 'Baseaim — Prefill Form to SignNow JSON', category: 'Client Workflows' },
+  { name: 'Draft Guesty Booking Confirmation & Review', category: 'Client Workflows' },
+  { name: 'VSL Form Handler', category: 'Client Workflows' },
+
+  // Finance (4)
+  { name: 'Bookeep AI — Weekly Equity Allocator', category: 'Finance' },
+  { name: 'Crypto Market Analyzer — BTC/ETH (v1)', category: 'Finance' },
+  { name: 'Crypto Market Analyzer — BTC/ETH (v2)', category: 'Finance' },
+  { name: 'Crypto Market Analyzer — BTC/ETH RSS → Discord+Telegram', category: 'Finance' },
+
+  // Other (19)
+  { name: 'Error Handler', category: 'Other' },
+  { name: 'Workflow Prototype 1', category: 'Other' },
+  { name: 'Workflow Prototype 2', category: 'Other' },
+  { name: 'Workflow Prototype 3', category: 'Other' },
+  { name: 'Test Workflow — API Connection', category: 'Other' },
+  { name: 'Test Workflow — Basic Demo', category: 'Other' },
+  { name: 'Workflow Prototype 4', category: 'Other' },
+  { name: 'Workflow Prototype 5', category: 'Other' },
+  { name: 'Workflow Prototype 6', category: 'Other' },
+  { name: 'Workflow Prototype 7', category: 'Other' },
+  { name: 'Workflow Prototype 8', category: 'Other' },
+  { name: 'Workflow Prototype 9', category: 'Other' },
+  { name: 'Workflow Prototype 10', category: 'Other' },
+  { name: 'Workflow Prototype 11', category: 'Other' },
+  { name: 'Wallpaper Generator', category: 'Other' },
+  { name: 'Motivation Workflow', category: 'Other' },
+  { name: 'HTTP Request Node', category: 'Other' },
+  { name: 'Workflow Prototype 12', category: 'Other' },
+  { name: 'Workflow Prototype 13', category: 'Other' },
+];
+
+const WORKFLOW_TABS: WorkflowCategory[] = [
+  'All',
+  'Lead Generation',
+  'Email & CRM',
+  'Content Creation',
+  'AI Agents',
+  'Client Workflows',
+  'Finance',
+  'Other',
 ];
 
 const CATEGORIES: Category[] = ['All', 'Web', 'Automation', 'Academic'];
@@ -296,6 +414,32 @@ function ProjectCard({ project, index, onOpenModal }: CardProps) {
   );
 }
 
+/* ── Workflow Card ───────────────────────────────────────────── */
+function WorkflowCard({ workflow, index }: { workflow: Workflow; index: number }) {
+  const CATEGORY_COLORS: Record<Exclude<WorkflowCategory, 'All'>, string> = {
+    'Lead Generation': 'text-[#e63946]/70 border-[#e63946]/25',
+    'Email & CRM': 'text-[#f0a500]/70 border-[#f0a500]/25',
+    'Content Creation': 'text-[#4ecdc4]/70 border-[#4ecdc4]/25',
+    'AI Agents': 'text-[#a855f7]/70 border-[#a855f7]/25',
+    'Client Workflows': 'text-[#22c55e]/70 border-[#22c55e]/25',
+    'Finance': 'text-[#3b82f6]/70 border-[#3b82f6]/25',
+    'Other': 'text-[#f0f0f0]/30 border-white/[0.1]',
+  };
+
+  return (
+    <div className="group bg-[#161616] border border-white/[0.05] p-4 hover:border-white/[0.1] hover:bg-white/[0.02] transition-all duration-200 flex flex-col gap-2.5">
+      <span className="font-sans text-[0.78rem] text-[#f0f0f0]/70 leading-snug group-hover:text-[#f0f0f0]/90 transition-colors duration-200">
+        {workflow.name}
+      </span>
+      <span
+        className={`self-start text-[0.52rem] tracking-[0.18em] uppercase font-sans border px-1.5 py-0.5 ${CATEGORY_COLORS[workflow.category]}`}
+      >
+        {workflow.category}
+      </span>
+    </div>
+  );
+}
+
 /* ── Research Modal ─────────────────────────────────────────── */
 function ResearchModal({ content, onClose }: { content: ModalContent; onClose: () => void }) {
   return (
@@ -356,12 +500,18 @@ export default function Projects() {
   const [activeCategory, setActiveCategory] = useState<Category>('All');
   const [displayCategory, setDisplayCategory] = useState<Category>('All');
   const [openModal, setOpenModal] = useState<ModalContent | null>(null);
-  const [showMoreAutomations, setShowMoreAutomations] = useState(false);
+  const [showWorkflows, setShowWorkflows] = useState(false);
+  const [activeWorkflowTab, setActiveWorkflowTab] = useState<WorkflowCategory>('All');
   const hasAnimatedRef = useRef(false);
 
   const filtered = PROJECTS.filter(
     (p) => displayCategory === 'All' || p.category === displayCategory
   );
+
+  const filteredWorkflows =
+    activeWorkflowTab === 'All'
+      ? WORKFLOWS
+      : WORKFLOWS.filter((w) => w.category === activeWorkflowTab);
 
   /* Close modal on Escape */
   useEffect(() => {
@@ -491,7 +641,7 @@ export default function Projects() {
 
       <div className="relative max-w-6xl mx-auto px-6 md:px-8" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
         {/* Section heading */}
-        <div ref={headingRef} className="mb-20">
+        <div ref={headingRef} className="mb-28">
           <p className="font-sans text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/25 mb-4">
             Selected work
           </p>
@@ -561,8 +711,8 @@ export default function Projects() {
           ))}
         </div>
 
-        {/* ── More Automations section ─────────────────────── */}
-        <div className="mt-16 border-t border-white/[0.05] pt-12">
+        {/* ── 109+ Workflows section ───────────────────────── */}
+        <div className="mt-20 border-t border-white/[0.05] pt-12">
           <div className="flex items-center justify-between gap-6 mb-2">
             <div className="flex items-center gap-4">
               <div className="h-px w-6 bg-[#e63946]" />
@@ -574,18 +724,18 @@ export default function Projects() {
               </span>
             </div>
             <button
-              onClick={() => setShowMoreAutomations((v) => !v)}
+              onClick={() => setShowWorkflows((v) => !v)}
               className="inline-flex items-center gap-2 text-[0.65rem] tracking-[0.14em] uppercase font-sans text-[#f0f0f0]/35 hover:text-[#e63946] transition-colors duration-200"
-              aria-expanded={showMoreAutomations}
+              aria-expanded={showWorkflows}
             >
-              {showMoreAutomations ? 'Collapse' : 'Expand'}
+              {showWorkflows ? 'Collapse' : 'Expand'}
               <svg
                 width="10"
                 height="10"
                 viewBox="0 0 10 10"
                 fill="none"
                 aria-hidden="true"
-                className={`transition-transform duration-300 ${showMoreAutomations ? 'rotate-180' : ''}`}
+                className={`transition-transform duration-300 ${showWorkflows ? 'rotate-180' : ''}`}
               >
                 <path d="M1 3l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -593,37 +743,43 @@ export default function Projects() {
           </div>
 
           <p className="font-sans text-[0.8rem] text-[#f0f0f0]/30 mb-6 ml-10">
-            Full breakdown of automation workflows across all categories
+            Full breakdown of all automation workflows
           </p>
 
-          {showMoreAutomations && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {WORKFLOW_CATEGORIES.map(({ name, count, examples }) => (
-                <div
-                  key={name}
-                  className="bg-[#161616] border border-white/[0.06] p-5 hover:border-white/[0.1] hover:bg-white/[0.02] transition-all duration-200"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-display font-bold text-[0.88rem] text-[#f0f0f0]/80">
-                      {name}
-                    </span>
-                    <span className="font-display font-black text-[#e63946] text-[1rem] tabular-nums">
-                      {count}
-                    </span>
-                  </div>
-                  <ul className="space-y-1">
-                    {examples.map((ex) => (
-                      <li
-                        key={ex}
-                        className="text-[0.72rem] text-[#f0f0f0]/35 font-sans flex items-center gap-2"
-                      >
-                        <span className="w-1 h-1 rounded-full bg-[#e63946]/40 shrink-0" />
-                        {ex}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+          {showWorkflows && (
+            <div>
+              {/* Category sub-tabs */}
+              <div className="flex flex-wrap gap-2 mb-8" role="tablist" aria-label="Filter workflows by category">
+                {WORKFLOW_TABS.map((tab) => {
+                  const count = tab === 'All' ? WORKFLOWS.length : WORKFLOWS.filter((w) => w.category === tab).length;
+                  const isActive = activeWorkflowTab === tab;
+                  return (
+                    <button
+                      key={tab}
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => setActiveWorkflowTab(tab)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.6rem] tracking-[0.12em] uppercase font-sans transition-all duration-200 border rounded-sm ${
+                        isActive
+                          ? 'border-[#e63946] text-[#e63946] bg-[#e63946]/[0.08]'
+                          : 'border-white/[0.07] text-[#f0f0f0]/35 hover:border-white/[0.14] hover:text-[#f0f0f0]/60'
+                      }`}
+                    >
+                      {tab}
+                      <span className={`text-[0.5rem] tabular-nums ${isActive ? 'text-[#e63946]/60' : 'text-[#f0f0f0]/18'}`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Workflow cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                {filteredWorkflows.map((workflow, i) => (
+                  <WorkflowCard key={`${workflow.category}-${workflow.name}`} workflow={workflow} index={i} />
+                ))}
+              </div>
             </div>
           )}
         </div>

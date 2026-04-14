@@ -152,13 +152,13 @@ export default function About() {
             </div>
           </div>
 
-          {/* Right: profile photo */}
-          <div className="about-image flex justify-center lg:justify-end">
-            <div className="relative w-[260px] h-[330px] lg:w-[300px] lg:h-[390px] shrink-0">
-              {/* Red offset frame — more prominent */}
-              <div className="absolute inset-0 translate-x-5 translate-y-5 border-2 border-[#e63946]/50" />
+          {/* Right: profile photo + watch intro */}
+          <div className="about-image flex flex-col items-center lg:items-end gap-5">
+            <div className="relative w-[220px] h-[240px] lg:w-[260px] lg:h-[280px] shrink-0">
+              {/* Red offset frame */}
+              <div className="absolute inset-0 translate-x-4 translate-y-4 border-2 border-[#e63946]/50" />
               {/* Corner accent dot */}
-              <div className="absolute top-[calc(100%+5px)] left-[calc(100%+5px)] w-2 h-2 bg-[#e63946]/70 translate-x-[3px] translate-y-[3px]" />
+              <div className="absolute top-[calc(100%+4px)] left-[calc(100%+4px)] w-2 h-2 bg-[#e63946]/70 translate-x-[3px] translate-y-[3px]" />
               {/* Photo box */}
               <div className="absolute inset-0 bg-[#181818] border border-[#e63946]/20 overflow-hidden">
                 <Image
@@ -166,10 +166,27 @@ export default function About() {
                   alt="Eden Ryder Lee"
                   fill
                   className="object-cover"
-                  sizes="(max-width: 1024px) 240px, 280px"
+                  sizes="(max-width: 1024px) 220px, 260px"
                 />
               </div>
             </div>
+
+            {/* Watch my intro — directly below photo */}
+            <a
+              href="https://youtu.be/HAOkVh_K5Kk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 group"
+            >
+              <span className="flex items-center justify-center w-8 h-8 rounded-full border border-[#e63946]/50 group-hover:bg-[#e63946]/10 group-hover:border-[#e63946] transition-all duration-300">
+                <svg width="8" height="10" viewBox="0 0 10 12" fill="none" aria-hidden="true">
+                  <path d="M1 1l8 5-8 5V1z" fill="#e63946" />
+                </svg>
+              </span>
+              <span className="font-sans text-[0.78rem] text-[#f0f0f0]/45 group-hover:text-[#f0f0f0]/75 transition-colors duration-200">
+                Watch my intro
+              </span>
+            </a>
           </div>
         </div>
 

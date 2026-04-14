@@ -93,19 +93,23 @@ export default function Experience() {
         },
       });
 
-      gsap.from('.timeline-entry', {
-        opacity: 0,
-        x: -24,
-        duration: 0.55,
-        ease: 'power3.out',
-        stagger: 0.11,
-        scrollTrigger: {
-          trigger: '.timeline-container',
-          start: 'top 72%',
-        },
-      });
+      gsap.fromTo(
+        '.timeline-entry',
+        { opacity: 0, x: -24 },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.55,
+          ease: 'power3.out',
+          stagger: 0.11,
+          scrollTrigger: {
+            trigger: '.timeline-container',
+            start: 'top 90%',
+            once: true,
+          },
+        }
+      );
 
-      // Use fromTo so edu-items always end at opacity 1, fire early to avoid missed triggers
       gsap.fromTo(
         '.edu-item',
         { opacity: 0, y: 20 },
@@ -144,7 +148,7 @@ export default function Experience() {
     <section
       ref={sectionRef}
       id="experience"
-      className="relative border-t border-white/[0.04] py-36 px-8"
+      className="relative border-t border-white/[0.04] py-36"
     >
       {/* Grain */}
       <div
@@ -152,67 +156,57 @@ export default function Experience() {
         style={{ backgroundImage: GRAIN_SVG, opacity: 0.04 }}
       />
 
-      <div className="relative max-w-6xl mx-auto px-6 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+      {/* Full-width bleeding heading */}
+      <div className="relative px-8 mb-20">
+        <div className="exp-label flex items-center gap-4 mb-8">
+          <div className="h-px w-8 bg-[#e63946]" />
+          <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
+            Experience
+          </span>
+        </div>
+        <h2 className="exp-heading font-display font-black text-[clamp(3.5rem,9vw,9rem)] leading-[0.85] tracking-[-0.03em] text-[#f0f0f0]">
+          Where I&apos;ve<br />
+          <span className="text-[#e63946]">Been</span>
+        </h2>
+      </div>
 
-        {/* Split layout: heading left (1fr), content right (2fr) */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
+      {/* 3-column content: Work | Education + Certifications */}
+      <div className="relative px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 max-w-6xl mx-auto">
 
-          {/* Left: label + heading */}
+          {/* Left: Work timeline (no dots, no line) */}
           <div>
-            <div className="exp-label flex items-center gap-4 mb-14">
-              <div className="h-px w-8 bg-[#e63946]" />
-              <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
-                Experience
-              </span>
+            <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-8">
+              Work
+            </span>
+            <div className="timeline-container space-y-3">
+              {WORK.map((item, i) => (
+                <div key={i} className="timeline-entry border border-white/[0.06] p-6 hover:bg-white/[0.02] hover:border-white/[0.1] transition-all duration-300">
+                  <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 mb-2">
+                    <div>
+                      <span className="font-display font-bold text-[0.95rem] text-[#f0f0f0]">
+                        {item.title}
+                      </span>
+                      <span className="font-sans text-[0.82rem] text-[#e63946] ml-2">
+                        — {item.org}
+                      </span>
+                    </div>
+                    <span className="text-[0.62rem] tracking-[0.16em] uppercase text-[#f0f0f0]/28 font-sans shrink-0">
+                      {item.period}
+                    </span>
+                  </div>
+                  {item.desc && (
+                    <p className="font-sans text-[0.82rem] leading-relaxed text-[#f0f0f0]/46">
+                      {item.desc}
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
-            <h2 className="exp-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-tight text-[#f0f0f0]">
-              Where I&apos;ve<br />
-              <span className="text-[#e63946]">Been</span>
-            </h2>
           </div>
 
-          {/* Right: work timeline + education + certs */}
-          <div className="space-y-16">
-
-            {/* Work timeline */}
-            <div>
-              <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-8">
-                Work
-              </span>
-              <div className="timeline-container relative pl-7">
-                <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-[#e63946]/50 via-[#e63946]/20 to-transparent" />
-                <div className="space-y-0">
-                  {WORK.map((item, i) => (
-                    <div key={i} className="timeline-entry relative pb-10 last:pb-0">
-                      <div
-                        className="absolute top-[0.45rem] rounded-full bg-[#e63946]"
-                        style={{ left: '-1.85rem', width: 7, height: 7 }}
-                      />
-                      <div className="border border-white/[0.06] p-6 hover:bg-white/[0.02] hover:border-white/[0.1] transition-all duration-300">
-                        <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 mb-2">
-                          <div>
-                            <span className="font-display font-bold text-[0.95rem] text-[#f0f0f0]">
-                              {item.title}
-                            </span>
-                            <span className="font-sans text-[0.82rem] text-[#e63946] ml-2">
-                              — {item.org}
-                            </span>
-                          </div>
-                          <span className="text-[0.62rem] tracking-[0.16em] uppercase text-[#f0f0f0]/28 font-sans shrink-0">
-                            {item.period}
-                          </span>
-                        </div>
-                        {item.desc && (
-                          <p className="font-sans text-[0.82rem] leading-relaxed text-[#f0f0f0]/46">
-                            {item.desc}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+          {/* Right: Education + Certifications */}
+          <div className="space-y-12">
 
             {/* Education */}
             <div className="edu-section">

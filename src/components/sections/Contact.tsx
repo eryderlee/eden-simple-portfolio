@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -48,21 +48,8 @@ const SOCIALS = [
   },
 ];
 
-const INPUT_CLASS =
-  'w-full bg-[#161616] border border-white/[0.08] px-4 py-3 font-sans text-[0.85rem] text-[#f0f0f0]/80 placeholder:text-[#f0f0f0]/25 focus:border-[#e63946]/50 focus:outline-none transition-colors duration-200';
-
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const subject = encodeURIComponent(`Portfolio Contact from ${form.name}`);
-    const body = encodeURIComponent(
-      `Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`
-    );
-    window.location.href = `mailto:eden@ryderlee.me?subject=${subject}&body=${body}`;
-  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -99,7 +86,6 @@ export default function Contact() {
         },
       });
 
-      // Use fromTo + once:true so social buttons always end at opacity 1
       gsap.fromTo(
         '.contact-social-btn',
         { opacity: 0, y: 24 },
@@ -125,7 +111,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative border-t border-white/[0.04] py-40 px-8"
+      className="relative border-t border-white/[0.04] py-36"
     >
       {/* Grain texture */}
       <div
@@ -136,36 +122,34 @@ export default function Contact() {
       {/* Left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative max-w-6xl mx-auto px-6 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+      {/* Full-width bleeding heading */}
+      <div className="relative px-8 mb-20">
+        <div className="contact-label flex items-center gap-4 mb-8">
+          <div className="h-px w-8 bg-[#e63946]" />
+          <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
+            Contact
+          </span>
+        </div>
+        <h2 className="contact-heading font-display font-black text-[clamp(3.5rem,9vw,9rem)] leading-[0.85] tracking-[-0.03em] text-[#f0f0f0]">
+          Let&apos;s build<br />
+          <span className="text-[#e63946]">something.</span>
+        </h2>
+      </div>
 
-        {/* Split layout: heading left (1fr), content right (2fr) */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
+      {/* Content */}
+      <div className="relative max-w-6xl mx-auto px-8 w-full">
 
-          {/* Left: label + heading */}
-          <div>
-            <div className="contact-label flex items-center gap-4 mb-16">
-              <div className="h-px w-8 bg-[#e63946]" />
-              <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
-                Contact
-              </span>
-            </div>
-            <h2 className="contact-heading font-display font-black text-[clamp(2.8rem,6vw,5.5rem)] leading-[0.88] tracking-tight text-[#f0f0f0]">
-              Let&apos;s build<br />
-              <span className="text-[#e63946]">something.</span>
-            </h2>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-16 lg:gap-24">
 
-          {/* Right: CTA + email + form + socials + video */}
+          {/* Left: description + email button */}
           <div className="space-y-10">
-
-            {/* Description */}
             <p className="font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/50 max-w-[44ch]">
               Open to freelance projects, full-time roles, and interesting
               collaborations. Based in Point Cook, VIC — available remotely
               worldwide.
             </p>
 
-            {/* Email */}
+            {/* Email display link */}
             <a
               href="mailto:eden@ryderlee.me"
               className="contact-email group block"
@@ -179,46 +163,34 @@ export default function Contact() {
               </span>
             </a>
 
-            {/* Contact form */}
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <input
-                type="text"
-                placeholder="Name"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                required
-                className={INPUT_CLASS}
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                required
-                className={INPUT_CLASS}
-              />
-              <textarea
-                placeholder="Message"
-                value={form.message}
-                onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
-                required
-                rows={5}
-                className={`${INPUT_CLASS} resize-none`}
-              />
-              <button
-                type="submit"
-                className="w-full py-3 bg-[#e63946] text-[#f0f0f0] font-sans text-[0.72rem] tracking-[0.22em] uppercase hover:bg-[#ff4d5a] active:bg-[#c8303c] transition-colors duration-200"
+            {/* CTA email button */}
+            <a
+              href="mailto:eden@ryderlee.me"
+              className="inline-flex items-center gap-3 group border border-[#e63946]/50 px-8 py-4 hover:bg-[#e63946] transition-all duration-300"
+            >
+              <span className="font-sans text-[0.72rem] tracking-[0.22em] uppercase text-[#e63946] group-hover:text-[#f0f0f0] transition-colors duration-300">
+                Send me an email
+              </span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                aria-hidden="true"
+                className="text-[#e63946] group-hover:text-[#f0f0f0] transition-colors duration-300"
               >
-                Send Message
-              </button>
-            </form>
+                <path d="M1 13L13 1M13 1H4M13 1V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+          </div>
 
-            {/* Social icon grid */}
+          {/* Right: socials */}
+          <div className="space-y-8">
             <div>
               <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-5">
                 Socials
               </span>
-              <div className="contact-socials grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="contact-socials grid grid-cols-2 gap-3">
                 {SOCIALS.map(({ label, href, icon }) => (
                   <a
                     key={label}
@@ -238,40 +210,8 @@ export default function Contact() {
                 ))}
               </div>
             </div>
-
-            {/* Watch intro link */}
-            <a
-              href="https://youtu.be/HAOkVh_K5Kk"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 group"
-            >
-              <span className="flex items-center justify-center w-10 h-10 rounded-full border border-[#e63946]/50 group-hover:bg-[#e63946]/10 group-hover:border-[#e63946] transition-all duration-300">
-                <svg width="10" height="12" viewBox="0 0 10 12" fill="none" aria-hidden="true">
-                  <path d="M1 1l8 5-8 5V1z" fill="#e63946" />
-                </svg>
-              </span>
-              <div>
-                <span className="text-[0.6rem] tracking-[0.22em] uppercase text-[#f0f0f0]/25 font-sans block mb-0.5">
-                  Video
-                </span>
-                <span className="font-sans text-[0.85rem] text-[#f0f0f0]/55 group-hover:text-[#f0f0f0]/80 transition-colors duration-200">
-                  Watch my intro
-                </span>
-              </div>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                aria-hidden="true"
-                className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-1"
-              >
-                <path d="M1 11L11 1M11 1H4M11 1V8" stroke="#e63946" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </a>
-
           </div>
+
         </div>
 
         {/* Divider */}
