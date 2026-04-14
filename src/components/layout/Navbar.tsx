@@ -22,8 +22,8 @@ export default function Navbar() {
           : 'bg-transparent'
       }`}
     >
-      <nav className="max-w-screen-xl mx-auto px-8 py-5 relative flex items-center">
-        {/* Logo */}
+      <nav className="max-w-screen-xl mx-auto px-8 py-5 grid grid-cols-[1fr_auto_1fr] items-center">
+        {/* Col 1: Logo — left-aligned */}
         <a
           href="#"
           className="font-display text-xl font-black tracking-[0.25em] text-[#f0f0f0] hover:text-[#e63946] transition-colors duration-300 uppercase"
@@ -31,8 +31,8 @@ export default function Navbar() {
           Eden
         </a>
 
-        {/* Desktop links — absolutely centred in the viewport */}
-        <ul className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
+        {/* Col 2: Desktop links — naturally centered */}
+        <ul className="hidden md:flex items-center gap-10">
           {NAV_LINKS.map((link) => (
             <li key={link}>
               <a
@@ -46,29 +46,31 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => setMobileOpen((o) => !o)}
-          aria-label="Toggle navigation"
-          aria-expanded={mobileOpen}
-          className="md:hidden flex flex-col justify-center gap-[5px] w-8 h-8 p-0.5"
-        >
-          <span
-            className={`block h-px bg-[#f0f0f0] transition-all duration-300 origin-center ${
-              mobileOpen ? 'rotate-45 translate-y-[6px]' : 'w-full'
-            }`}
-          />
-          <span
-            className={`block h-px bg-[#f0f0f0] transition-all duration-300 ${
-              mobileOpen ? 'opacity-0 w-0' : 'w-2/3'
-            }`}
-          />
-          <span
-            className={`block h-px bg-[#f0f0f0] transition-all duration-300 origin-center ${
-              mobileOpen ? '-rotate-45 -translate-y-[6px]' : 'w-full'
-            }`}
-          />
-        </button>
+        {/* Col 3: Right placeholder — mobile hamburger only */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-label="Toggle navigation"
+            aria-expanded={mobileOpen}
+            className="md:hidden flex flex-col justify-center gap-[5px] w-8 h-8 p-0.5"
+          >
+            <span
+              className={`block h-px bg-[#f0f0f0] transition-all duration-300 origin-center ${
+                mobileOpen ? 'rotate-45 translate-y-[6px]' : 'w-full'
+              }`}
+            />
+            <span
+              className={`block h-px bg-[#f0f0f0] transition-all duration-300 ${
+                mobileOpen ? 'opacity-0 w-0' : 'w-2/3'
+              }`}
+            />
+            <span
+              className={`block h-px bg-[#f0f0f0] transition-all duration-300 origin-center ${
+                mobileOpen ? '-rotate-45 -translate-y-[6px]' : 'w-full'
+              }`}
+            />
+          </button>
+        </div>
       </nav>
 
       {/* Mobile drawer */}

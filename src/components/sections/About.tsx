@@ -154,11 +154,13 @@ export default function About() {
 
           {/* Right: profile photo */}
           <div className="about-image flex justify-center lg:justify-end">
-            <div className="relative w-[240px] h-[300px] lg:w-[280px] lg:h-[360px] shrink-0">
-              {/* Red offset frame */}
-              <div className="absolute inset-0 translate-x-3 translate-y-3 border border-[#e63946]/25" />
+            <div className="relative w-[260px] h-[330px] lg:w-[300px] lg:h-[390px] shrink-0">
+              {/* Red offset frame — more prominent */}
+              <div className="absolute inset-0 translate-x-5 translate-y-5 border-2 border-[#e63946]/50" />
+              {/* Corner accent dot */}
+              <div className="absolute top-[calc(100%+5px)] left-[calc(100%+5px)] w-2 h-2 bg-[#e63946]/70 translate-x-[3px] translate-y-[3px]" />
               {/* Photo box */}
-              <div className="absolute inset-0 bg-[#181818] border border-white/[0.07] overflow-hidden">
+              <div className="absolute inset-0 bg-[#181818] border border-[#e63946]/20 overflow-hidden">
                 <Image
                   src="/images/profile.jpg"
                   alt="Eden Ryder Lee"

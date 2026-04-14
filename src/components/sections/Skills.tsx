@@ -83,7 +83,7 @@ export default function Skills() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative border-t border-white/[0.04] py-28 px-8"
+      className="relative border-t border-white/[0.04] py-36 px-8"
     >
       {/* Grain texture */}
       <div
@@ -115,7 +115,7 @@ export default function Skills() {
           {SKILL_GROUPS.map(({ label, skills }) => (
             <div
               key={label}
-              className="skill-group bg-[#111111] p-8 hover:bg-white/[0.015] transition-colors duration-300"
+              className="skill-group bg-[#111111] p-10 hover:bg-white/[0.015] transition-colors duration-300"
             >
               <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/70 font-sans block mb-5">
                 {label}

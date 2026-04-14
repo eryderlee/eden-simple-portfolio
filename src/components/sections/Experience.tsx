@@ -45,12 +45,14 @@ const EDUCATION = [
     institution: 'University of Melbourne',
     period: '2025',
     note: null,
+    activities: null,
   },
   {
     degree: 'International Baccalaureate',
     institution: 'Queensland Academy of Health Science',
     period: '2021 – 2023',
     note: 'Grade: High',
+    activities: 'Dragon dancing · Tai chi · Badminton · Volleyball · Jiu-jitsu',
   },
 ];
 
@@ -69,7 +71,6 @@ export default function Experience() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Section header
       gsap.from('.exp-label', {
         opacity: 0,
         x: -16,
@@ -92,7 +93,6 @@ export default function Experience() {
         },
       });
 
-      // Timeline entries scroll-reveal one by one
       gsap.from('.timeline-entry', {
         opacity: 0,
         x: -24,
@@ -105,7 +105,6 @@ export default function Experience() {
         },
       });
 
-      // Education
       gsap.from('.edu-item', {
         opacity: 0,
         y: 20,
@@ -114,11 +113,11 @@ export default function Experience() {
         stagger: 0.1,
         scrollTrigger: {
           trigger: '.edu-section',
-          start: 'top 78%',
+          start: 'top 85%',
+          once: true,
         },
       });
 
-      // Certs
       gsap.from('.cert-item', {
         opacity: 0,
         y: 16,
@@ -127,7 +126,8 @@ export default function Experience() {
         stagger: 0.08,
         scrollTrigger: {
           trigger: '.cert-section',
-          start: 'top 80%',
+          start: 'top 85%',
+          once: true,
         },
       });
     }, sectionRef);
@@ -139,7 +139,7 @@ export default function Experience() {
     <section
       ref={sectionRef}
       id="experience"
-      className="relative border-t border-white/[0.04] py-28 px-8"
+      className="relative border-t border-white/[0.04] py-36 px-8"
     >
       {/* Grain */}
       <div
@@ -158,7 +158,7 @@ export default function Experience() {
         </div>
 
         {/* Heading */}
-        <h2 className="exp-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-tight text-[#f0f0f0] mb-16">
+        <h2 className="exp-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-tight text-[#f0f0f0] mb-20">
           Where I&apos;ve<br />
           <span className="text-[#e63946]">Been</span>
         </h2>
@@ -177,14 +177,14 @@ export default function Experience() {
 
               <div className="space-y-0">
                 {WORK.map((item, i) => (
-                  <div key={i} className="timeline-entry relative pb-8 last:pb-0">
+                  <div key={i} className="timeline-entry relative pb-10 last:pb-0">
                     {/* Dot */}
                     <div
                       className="absolute top-[0.45rem] rounded-full bg-[#e63946]"
                       style={{ left: '-1.85rem', width: 7, height: 7 }}
                     />
 
-                    <div className="border border-white/[0.06] p-5 hover:bg-white/[0.02] hover:border-white/[0.1] transition-all duration-300">
+                    <div className="border border-white/[0.06] p-6 hover:bg-white/[0.02] hover:border-white/[0.1] transition-all duration-300">
                       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 mb-2">
                         <div>
                           <span className="font-display font-bold text-[0.95rem] text-[#f0f0f0]">
@@ -210,27 +210,27 @@ export default function Experience() {
             </div>
           </div>
 
-          {/* Right: education + certs stacked */}
-          <div className="space-y-14">
+          {/* Right: education + certs */}
+          <div className="space-y-16">
 
             {/* Education */}
             <div className="edu-section">
               <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-6">
                 Education
               </span>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {EDUCATION.map((item, i) => (
                   <div
                     key={i}
-                    className="edu-item border border-white/[0.06] p-5 hover:bg-white/[0.02] hover:border-white/[0.1] transition-all duration-300"
+                    className="edu-item border border-white/[0.06] p-6 hover:bg-white/[0.02] hover:border-white/[0.1] transition-all duration-300"
                   >
                     <div className="font-display font-bold text-[0.9rem] text-[#f0f0f0] mb-1 leading-snug">
                       {item.degree}
                     </div>
-                    <div className="font-sans text-[0.78rem] text-[#f0f0f0]/48 mb-2">
+                    <div className="font-sans text-[0.78rem] text-[#f0f0f0]/48 mb-3">
                       {item.institution}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
                       <span className="text-[0.6rem] tracking-[0.18em] uppercase text-[#f0f0f0]/28 font-sans">
                         {item.period}
                       </span>
@@ -240,6 +240,11 @@ export default function Experience() {
                         </span>
                       )}
                     </div>
+                    {item.activities && (
+                      <p className="font-sans text-[0.72rem] leading-relaxed text-[#f0f0f0]/32 mt-2">
+                        {item.activities}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -254,7 +259,7 @@ export default function Experience() {
                 {CERTIFICATIONS.map((cert, i) => (
                   <div
                     key={i}
-                    className="cert-item flex items-start justify-between gap-4 py-3.5 first:pt-0 last:pb-0"
+                    className="cert-item flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-sans text-[0.82rem] text-[#f0f0f0]/62">
