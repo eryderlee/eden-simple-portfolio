@@ -57,10 +57,10 @@ const EDUCATION = [
 ];
 
 const CERTIFICATIONS = [
-  { name: 'Lyra Certified Full-Stack Engineer', badge: 'Top 5%', date: 'Mar 2026' },
-  { name: 'HubSpot Inbound Marketing', badge: null, date: 'Feb 2026' },
-  { name: 'Cert III Laboratory Skills', badge: null, date: 'Jun 2021' },
-  { name: 'Cert II Sampling & Measurement', badge: null, date: 'Jun 2021' },
+  { name: 'Lyra Certified Full-Stack Engineer', badge: 'Top 5%', date: 'Mar 2026', href: 'https://www.lyratechnologies.ai/certificate/A73RYX2Y' },
+  { name: 'HubSpot Inbound Marketing', badge: null, date: 'Feb 2026', href: null },
+  { name: 'Cert III Laboratory Skills', badge: null, date: 'Jun 2021', href: null },
+  { name: 'Cert II Sampling & Measurement', badge: null, date: 'Jun 2021', href: null },
 ];
 
 const GRAIN_SVG =
@@ -257,9 +257,20 @@ export default function Experience() {
                         className="cert-item flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
                       >
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-sans text-[0.82rem] text-[#f0f0f0]/62">
-                            {cert.name}
-                          </span>
+                          {cert.href ? (
+                            <a
+                              href={cert.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-sans text-[0.82rem] text-[#f0f0f0]/62 hover:text-[#e63946] transition-colors duration-200 underline underline-offset-2 decoration-[#f0f0f0]/20 hover:decoration-[#e63946]/50"
+                            >
+                              {cert.name}
+                            </a>
+                          ) : (
+                            <span className="font-sans text-[0.82rem] text-[#f0f0f0]/62">
+                              {cert.name}
+                            </span>
+                          )}
                           {cert.badge && (
                             <span className="text-[0.55rem] tracking-[0.18em] uppercase text-[#e63946] font-sans border border-[#e63946]/30 px-1.5 py-0.5">
                               {cert.badge}
