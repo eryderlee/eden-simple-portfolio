@@ -47,12 +47,12 @@ export default function Navbar() {
         </ul>
 
         {/* Col 3: Right placeholder — mobile hamburger only */}
-        <div className="flex justify-end">
+        <div className="flex justify-end col-start-3">
           <button
             onClick={() => setMobileOpen((o) => !o)}
             aria-label="Toggle navigation"
             aria-expanded={mobileOpen}
-            className="md:hidden flex flex-col justify-center gap-[5px] w-8 h-8 p-0.5"
+            className="md:hidden flex flex-col justify-center gap-[5px] w-8 h-8 p-0.5 [transform:scaleX(-1)]"
           >
             <span
               className={`block h-px bg-[#f0f0f0] transition-all duration-300 origin-center ${
@@ -61,7 +61,7 @@ export default function Navbar() {
             />
             <span
               className={`block h-px bg-[#f0f0f0] transition-all duration-300 ${
-                mobileOpen ? 'opacity-0 w-0' : 'w-2/3 ml-auto'
+                mobileOpen ? 'opacity-0 w-0' : 'w-2/3'
               }`}
             />
             <span
