@@ -5,12 +5,17 @@ import Experience from '@/components/sections/Experience';
 import Skills from '@/components/sections/Skills';
 import Contact from '@/components/sections/Contact';
 import Footer from '@/components/layout/Footer';
+import AsciiBackground from '@/components/ui/AsciiBackground';
 
 export default function Home() {
   return (
     <main>
-      <Hero />
-      <About />
+      {/* Single ASCII instance spans Hero + About seamlessly, fades before ticker */}
+      <div className="relative">
+        <AsciiBackground opacity={0.18} maskBottom="94%" />
+        <Hero />
+        <About />
+      </div>
       <Projects />
       <Experience />
       <Skills />

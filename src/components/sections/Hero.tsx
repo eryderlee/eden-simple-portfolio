@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import AsciiBackground from '@/components/ui/AsciiBackground';
 
 const NAME = 'EDEN RYDER LEE';
 
@@ -83,9 +82,6 @@ export default function Hero() {
       ref={sectionRef}
       className="section-grain relative flex flex-col items-center justify-center min-h-screen bg-[#111111] overflow-hidden"
     >
-
-      {/* ASCII moving background */}
-      <AsciiBackground opacity={0.18} />
 
       {/* Left architectural accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/40 to-transparent" />

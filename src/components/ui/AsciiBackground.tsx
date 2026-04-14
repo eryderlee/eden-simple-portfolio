@@ -4,9 +4,11 @@ import { useEffect, useRef } from 'react';
 
 interface Props {
   opacity?: number;
+  /** Percentage at which the bottom fade starts, e.g. "94%" */
+  maskBottom?: string;
 }
 
-export default function AsciiBackground({ opacity = 0.18 }: Props) {
+export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -295,14 +297,22 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
     };
   }, []);
 
+  const sideMask = 'linear-gradient(to right, black 0%, black 18%, transparent 36%, transparent 64%, black 82%, black 100%)';
+  const bottomMask = maskBottom
+    ? `linear-gradient(to bottom, black 0%, black ${maskBottom}, transparent 100%)`
+    : null;
+  const combinedMask = bottomMask ? `${sideMask}, ${bottomMask}` : sideMask;
+
   return (
     <div
       ref={containerRef}
       className="absolute inset-0 overflow-hidden pointer-events-none"
       style={{
         opacity,
-        maskImage: 'linear-gradient(to right, black 0%, black 18%, transparent 36%, transparent 64%, black 82%, black 100%)',
-        WebkitMaskImage: 'linear-gradient(to right, black 0%, black 18%, transparent 36%, transparent 64%, black 82%, black 100%)',
+        maskImage: combinedMask,
+        WebkitMaskImage: combinedMask,
+        maskComposite: bottomMask ? 'intersect' : undefined,
+        WebkitMaskComposite: bottomMask ? 'source-in' : undefined,
       }}
     />
   );
