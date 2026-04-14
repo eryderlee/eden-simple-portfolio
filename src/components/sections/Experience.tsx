@@ -148,7 +148,7 @@ export default function Experience() {
     <section
       ref={sectionRef}
       id="experience"
-      className="relative border-t border-white/[0.04] pt-24 pb-16 md:py-48 px-5"
+      className="relative border-t border-white/[0.04] pt-24 pb-28 md:py-36 px-5"
     >
       {/* Grain */}
       <div
@@ -156,26 +156,22 @@ export default function Experience() {
         style={{ backgroundImage: GRAIN_SVG, opacity: 0.04 }}
       />
 
-      <div className="relative px-5 md:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
-            {/* LEFT: section heading */}
-            <div>
-              <div className="exp-label flex items-center gap-4 mb-8">
-                <div className="h-px w-8 bg-[#e63946]" />
-                <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
-                  Experience
-                </span>
-              </div>
-              <h2 className="exp-heading font-display font-black text-[clamp(1.8rem,4vw,3.5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
-                Where I&apos;ve<br />
-                <span className="text-[#e63946]">Been</span>
-              </h2>
-            </div>
+          {/* Heading — full width, above content */}
+          <div className="exp-label flex items-center gap-4 mb-6">
+            <div className="h-px w-8 bg-[#e63946]" />
+            <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
+              Experience
+            </span>
+          </div>
+          <h2 className="exp-heading font-display font-black text-[clamp(2rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0] mb-16">
+            Where I&apos;ve<br />
+            <span className="text-[#e63946]">Been</span>
+          </h2>
 
-            {/* RIGHT: content */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+          {/* Content: Work | Education+Certs */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
 
               {/* Work timeline */}
               <div>
@@ -280,9 +276,8 @@ export default function Experience() {
 
               </div>
             </div>
-          </div>
         </div>
-      </div>
     </section>
+
   );
 }

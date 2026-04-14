@@ -55,16 +55,21 @@ export default function About() {
         },
       });
 
-      gsap.from('.about-image', {
-        opacity: 0,
-        scale: 0.96,
-        duration: 0.8,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '.about-image',
-          start: 'top 80%',
-        },
-      });
+      gsap.fromTo(
+        '.about-image',
+        { opacity: 0, scale: 0.96 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '.about-image',
+            start: 'top 90%',
+            once: true,
+          },
+        }
+      );
 
       gsap.from('.stat-item', {
         opacity: 0,
@@ -86,7 +91,7 @@ export default function About() {
     <section
       ref={sectionRef}
       id="about"
-      className="relative border-t border-white/[0.04] pt-24 pb-16 md:py-28 px-5"
+      className="relative border-t border-white/[0.04] pt-24 pb-28 md:py-28 px-5"
     >
       {/* Grain texture */}
       <div

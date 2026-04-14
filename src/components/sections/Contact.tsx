@@ -111,7 +111,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative border-t border-white/[0.04] pt-24 pb-16 md:py-48 px-5"
+      className="relative border-t border-white/[0.04] pt-24 pb-28 md:py-36 px-5"
     >
       {/* Grain texture */}
       <div
@@ -122,27 +122,23 @@ export default function Contact() {
       {/* Left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative px-5 md:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
-            {/* LEFT: section heading */}
-            <div>
-              <div className="contact-label flex items-center gap-4 mb-8">
-                <div className="h-px w-8 bg-[#e63946]" />
-                <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
-                  Contact
-                </span>
-              </div>
-              <h2 className="contact-heading font-display font-black text-[clamp(1.8rem,4vw,3.5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
-                Let&apos;s build<br />
-                <span className="text-[#e63946]">something.</span>
-              </h2>
-            </div>
+          {/* Heading — full width, above content */}
+          <div className="contact-label flex items-center gap-4 mb-6">
+            <div className="h-px w-8 bg-[#e63946]" />
+            <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
+              Contact
+            </span>
+          </div>
+          <h2 className="contact-heading font-display font-black text-[clamp(2rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0] mb-16">
+            Let&apos;s build<br />
+            <span className="text-[#e63946]">something.</span>
+          </h2>
 
-            {/* RIGHT: content */}
-            <div>
-              <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-16 lg:gap-20">
+          {/* Content */}
+          <div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-16 lg:gap-20">
 
                 {/* Left: description + email */}
                 <div className="space-y-10">
@@ -234,9 +230,7 @@ export default function Contact() {
               </div>
 
             </div>
-          </div>
         </div>
-      </div>
     </section>
   );
 }

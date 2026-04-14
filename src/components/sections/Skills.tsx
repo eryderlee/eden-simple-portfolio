@@ -90,7 +90,7 @@ export default function Skills() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative border-t border-white/[0.04] pt-24 pb-16 md:py-48 px-5"
+      className="relative border-t border-white/[0.04] pt-24 pb-28 md:py-36 px-5"
     >
       {/* Grain texture */}
       <div
@@ -101,26 +101,22 @@ export default function Skills() {
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative px-5 md:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
-            {/* LEFT: section heading */}
-            <div>
-              <div className="skills-label flex items-center gap-4 mb-8">
-                <div className="h-px w-8 bg-[#e63946]" />
-                <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
-                  Skills
-                </span>
-              </div>
-              <h2 className="skills-heading font-display font-black text-[clamp(1.8rem,4vw,3.5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
-                Tools of<br />
-                <span className="text-[#e63946]">the trade</span>
-              </h2>
-            </div>
+          {/* Heading — full width, above content */}
+          <div className="skills-label flex items-center gap-4 mb-6">
+            <div className="h-px w-8 bg-[#e63946]" />
+            <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
+              Skills
+            </span>
+          </div>
+          <h2 className="skills-heading font-display font-black text-[clamp(2rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0] mb-12">
+            Tools of<br />
+            <span className="text-[#e63946]">the trade</span>
+          </h2>
 
-            {/* RIGHT: skill rows + hobbies side by side */}
-            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-10 items-start">
+          {/* Skills rows + hobbies */}
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-10 items-start">
 
               {/* Main skill rows */}
               <div className="skills-rows">
@@ -181,9 +177,7 @@ export default function Skills() {
 
             </div>
 
-          </div>
         </div>
-      </div>
     </section>
   );
 }
