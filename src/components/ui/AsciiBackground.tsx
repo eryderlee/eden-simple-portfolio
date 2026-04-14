@@ -299,7 +299,11 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
     <div
       ref={containerRef}
       className="absolute inset-0 overflow-hidden pointer-events-none"
-      style={{ opacity }}
+      style={{
+        opacity,
+        maskImage: 'linear-gradient(to right, black 0%, black 18%, transparent 36%, transparent 64%, black 82%, black 100%)',
+        WebkitMaskImage: 'linear-gradient(to right, black 0%, black 18%, transparent 36%, transparent 64%, black 82%, black 100%)',
+      }}
     />
   );
 }
