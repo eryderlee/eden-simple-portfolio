@@ -90,7 +90,7 @@ export default function Skills() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative border-t border-white/[0.04] pt-24 pb-28 md:py-36 px-5"
+      className="relative border-t border-white/[0.04] pt-24 pb-36 md:pt-36 md:pb-52 px-5"
     >
       {/* Grain texture */}
       <div
