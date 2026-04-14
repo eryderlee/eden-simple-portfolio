@@ -22,17 +22,17 @@ export default function Navbar() {
           : 'bg-transparent'
       }`}
     >
-      <nav className="max-w-screen-xl mx-auto px-8 py-5 flex items-center justify-between">
-        {/* Logo */}
+      <nav className="max-w-screen-xl mx-auto px-8 py-5 grid grid-cols-3 items-center">
+        {/* Col 1 — Logo (left) */}
         <a
           href="#"
-          className="font-display text-xl font-black tracking-[0.25em] text-[#f0f0f0] hover:text-[#e63946] transition-colors duration-300 uppercase"
+          className="font-display text-xl font-black tracking-[0.25em] text-[#f0f0f0] hover:text-[#e63946] transition-colors duration-300 uppercase justify-self-start"
         >
           Eden
         </a>
 
-        {/* Desktop links */}
-        <ul className="hidden md:flex items-center gap-10">
+        {/* Col 2 — Desktop links (truly centered) */}
+        <ul className="hidden md:flex items-center justify-center gap-10">
           {NAV_LINKS.map((link) => (
             <li key={link}>
               <a
@@ -46,7 +46,8 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* Mobile hamburger */}
+        {/* Col 3 — Mobile hamburger (right) */}
+        <div className="flex justify-end">
         <button
           onClick={() => setMobileOpen((o) => !o)}
           aria-label="Toggle navigation"
@@ -69,6 +70,7 @@ export default function Navbar() {
             }`}
           />
         </button>
+        </div>
       </nav>
 
       {/* Mobile drawer */}
