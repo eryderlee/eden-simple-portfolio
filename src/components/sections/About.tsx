@@ -96,7 +96,7 @@ export default function About() {
       {/* Grain texture */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ backgroundImage: GRAIN_SVG, opacity: 0.04 }}
+        style={{ backgroundImage: GRAIN_SVG, backgroundSize: '256px 256px', backgroundRepeat: 'repeat', opacity: 0.08, mixBlendMode: 'overlay' }}
       />
 
       {/* Subtle left accent line */}
