@@ -63,8 +63,6 @@ const CERTIFICATIONS = [
   { name: 'Cert II Sampling & Measurement', badge: null, date: 'Jun 2021', href: null },
 ];
 
-const GRAIN_SVG =
-  "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")";
 
 export default function Experience() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -150,11 +148,6 @@ export default function Experience() {
       id="experience"
       className="relative bg-black border-t border-white/[0.04] pt-24 pb-28 md:pt-36 md:pb-44 px-5"
     >
-      {/* Grain */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ backgroundImage: GRAIN_SVG, opacity: 0.04 }}
-      />
 
       <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 

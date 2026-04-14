@@ -707,6 +707,7 @@ export default function Projects() {
       id="projects"
       className="relative min-h-screen bg-black pt-24 pb-20 md:py-32 border-t border-white/[0.04] px-5"
     >
+
       {/* Grain texture */}
       <div
         className="absolute inset-0 pointer-events-none"
