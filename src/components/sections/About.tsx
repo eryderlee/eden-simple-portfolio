@@ -13,8 +13,13 @@ const STATS = [
   { value: 'Top 5%', label: 'Lyra Challenge' },
 ];
 
-const GRAIN_SVG =
-  "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")";
+const TICKER_WORDS = [
+  'Clean Code', 'Type Safety', 'RESTful APIs', 'CI/CD Pipelines',
+  'Test-Driven Dev', 'Git Flow', 'Performance First', 'Security Mindset',
+  'DRY Principles', 'Component Architecture', 'API Design',
+  'Database Optimisation', 'Responsive Design', 'Accessibility',
+  'Error Handling', 'Code Reviews', 'Scalable Systems', 'Version Control',
+];
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -91,13 +96,8 @@ export default function About() {
     <section
       ref={sectionRef}
       id="about"
-      className="relative border-t border-white/[0.04] pt-24 pb-28 md:pt-28 md:pb-36 px-5"
+      className="section-grain relative border-t border-white/[0.04] pt-24 pb-16 md:pt-28 md:pb-20 px-5"
     >
-      {/* Grain texture */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ backgroundImage: GRAIN_SVG, backgroundSize: '256px 256px', backgroundRepeat: 'repeat', opacity: 0.04 }}
-      />
 
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
@@ -209,6 +209,18 @@ export default function About() {
                 {label}
               </div>
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Scrolling ticker */}
+      <div className="relative mt-16 border-t border-b border-[#e63946]/35 overflow-hidden">
+        <div className="ticker-track flex whitespace-nowrap py-3.5">
+          {[...TICKER_WORDS, ...TICKER_WORDS].map((word, i) => (
+            <span key={i} className="inline-flex items-center gap-3 mx-6 text-[0.6rem] tracking-[0.22em] uppercase font-sans text-[#f0f0f0]/55">
+              {word}
+              <span className="text-[#e63946]/50">✦</span>
+            </span>
           ))}
         </div>
       </div>
