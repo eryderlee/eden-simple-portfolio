@@ -705,18 +705,9 @@ export default function Projects() {
     <section
       ref={sectionRef}
       id="projects"
-      className="relative min-h-screen bg-black pt-24 pb-20 md:py-32 border-t border-white/[0.04] px-5"
+      className="section-grain relative min-h-screen bg-black pt-24 pb-20 md:py-32 border-t border-white/[0.04] px-5"
     >
 
-      {/* Grain texture */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        aria-hidden="true"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
-          opacity: 0.04,
-        }}
-      />
 
       {/* Left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/30 to-transparent" />

@@ -146,7 +146,7 @@ export default function Experience() {
     <section
       ref={sectionRef}
       id="experience"
-      className="relative bg-black border-t border-white/[0.04] pt-24 pb-28 md:pt-36 md:pb-44 px-5"
+      className="section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-28 md:pt-36 md:pb-44 px-5"
     >
 
       <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>

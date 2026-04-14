@@ -109,7 +109,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative bg-black border-t border-white/[0.04] pt-24 pb-28 md:pt-36 md:pb-44 px-5"
+      className="section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-28 md:pt-36 md:pb-44 px-5"
     >
 
       {/* Left accent line */}
