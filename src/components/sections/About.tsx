@@ -214,8 +214,8 @@ export default function About() {
       </div>
 
       {/* Scrolling ticker — full bleed, flush at section bottom */}
-      <div className="relative mt-16 -mx-5 border-t border-b border-[#e63946]/35 overflow-hidden">
-        <div className="ticker-track flex whitespace-nowrap py-3.5">
+      <div className="ticker-wrap relative mt-16 -mx-5 border-t border-b border-[#e63946]/35 overflow-hidden">
+        <div className="flex whitespace-nowrap py-3.5" style={{ animation: 'ticker 40s linear infinite' }}>
           {[...TICKER_WORDS, ...TICKER_WORDS].map((word, i) => (
             <span key={i} className="inline-flex items-center gap-3 mx-6 text-[0.6rem] tracking-[0.22em] uppercase font-sans text-[#f0f0f0]/55">
               {word}
