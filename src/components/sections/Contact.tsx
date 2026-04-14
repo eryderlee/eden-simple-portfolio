@@ -111,7 +111,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative border-t border-white/[0.04] py-48"
+      className="relative border-t border-white/[0.04] pt-24 pb-16 md:py-48"
     >
       {/* Grain texture */}
       <div
@@ -122,7 +122,7 @@ export default function Contact() {
       {/* Left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative px-8">
+      <div className="relative px-5 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
 
@@ -167,24 +167,26 @@ export default function Contact() {
                   </a>
 
                   {/* CTA email button — red outlined, hover fills */}
-                  <a
-                    href="mailto:eden@ryderlee.me"
-                    className="inline-flex items-center gap-2.5 group px-6 py-3 border border-[#e63946] text-[#e63946] hover:bg-[#e63946] hover:text-white transition-all duration-300"
-                  >
-                    <svg
-                      width="13"
-                      height="10"
-                      viewBox="0 0 13 10"
-                      fill="none"
-                      aria-hidden="true"
-                      className="transition-colors duration-300"
+                  <div className="flex justify-center md:justify-start">
+                    <a
+                      href="mailto:eden@ryderlee.me"
+                      className="inline-flex items-center gap-2.5 group px-6 py-3 border border-[#e63946] text-[#e63946] hover:bg-[#e63946] hover:text-white transition-all duration-300"
                     >
-                      <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h10A1.5 1.5 0 0 1 13 1.5v7A1.5 1.5 0 0 1 11.5 10h-10A1.5 1.5 0 0 1 0 8.5v-7zm1.5 0L6.5 5l5-3.5M1.5 8.5h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    <span className="font-sans text-[0.73rem] tracking-[0.12em] uppercase font-medium transition-colors duration-300">
-                      Send me an email
-                    </span>
-                  </a>
+                      <svg
+                        width="13"
+                        height="10"
+                        viewBox="0 0 13 10"
+                        fill="none"
+                        aria-hidden="true"
+                        className="transition-colors duration-300"
+                      >
+                        <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h10A1.5 1.5 0 0 1 13 1.5v7A1.5 1.5 0 0 1 11.5 10h-10A1.5 1.5 0 0 1 0 8.5v-7zm1.5 0L6.5 5l5-3.5M1.5 8.5h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <span className="font-sans text-[0.73rem] tracking-[0.12em] uppercase font-medium transition-colors duration-300">
+                        Send me an email
+                      </span>
+                    </a>
+                  </div>
                 </div>
 
                 {/* Right: socials */}

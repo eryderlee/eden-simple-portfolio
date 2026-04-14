@@ -86,7 +86,7 @@ export default function About() {
     <section
       ref={sectionRef}
       id="about"
-      className="relative border-t border-white/[0.04] py-28 px-8"
+      className="relative border-t border-white/[0.04] pt-20 pb-16 md:py-28"
     >
       {/* Grain texture */}
       <div
@@ -97,7 +97,7 @@ export default function About() {
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative max-w-6xl mx-auto px-6 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
         {/* Section label */}
         <div className="about-label flex items-center gap-4 mb-14">

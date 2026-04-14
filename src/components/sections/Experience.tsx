@@ -148,7 +148,7 @@ export default function Experience() {
     <section
       ref={sectionRef}
       id="experience"
-      className="relative border-t border-white/[0.04] py-48"
+      className="relative border-t border-white/[0.04] pt-24 pb-16 md:py-48"
     >
       {/* Grain */}
       <div
@@ -156,7 +156,7 @@ export default function Experience() {
         style={{ backgroundImage: GRAIN_SVG, opacity: 0.04 }}
       />
 
-      <div className="relative px-8">
+      <div className="relative px-5 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
 

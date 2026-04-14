@@ -61,7 +61,7 @@ export default function Navbar() {
             />
             <span
               className={`block h-px bg-[#f0f0f0] transition-all duration-300 ${
-                mobileOpen ? 'opacity-0 w-0' : 'w-2/3'
+                mobileOpen ? 'opacity-0 w-0' : 'w-2/3 ml-auto'
               }`}
             />
             <span

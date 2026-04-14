@@ -90,7 +90,7 @@ export default function Skills() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative border-t border-white/[0.04] py-48"
+      className="relative border-t border-white/[0.04] pt-24 pb-16 md:py-48"
     >
       {/* Grain texture */}
       <div
@@ -101,7 +101,7 @@ export default function Skills() {
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative px-8">
+      <div className="relative px-5 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
 

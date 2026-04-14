@@ -705,7 +705,7 @@ export default function Projects() {
     <section
       ref={sectionRef}
       id="projects"
-      className="relative min-h-screen bg-[#111111] py-32 px-6 border-t border-white/[0.04]"
+      className="relative min-h-screen bg-[#111111] pt-24 pb-20 md:py-32 border-t border-white/[0.04]"
     >
       {/* Grain texture */}
       <div
@@ -720,7 +720,7 @@ export default function Projects() {
       {/* Left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/30 to-transparent" />
 
-      <div className="relative max-w-6xl mx-auto px-6 md:px-8" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
         {/* Section heading */}
         <div ref={headingRef} className="mb-6">
           <p className="font-sans text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/25 mb-4">
