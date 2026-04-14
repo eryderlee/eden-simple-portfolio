@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -96,7 +97,7 @@ export default function About() {
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative max-w-screen-xl mx-auto w-full">
+      <div className="relative max-w-6xl mx-auto px-6 w-full">
 
         {/* Section label */}
         <div className="about-label flex items-center gap-4 mb-14">
@@ -151,28 +152,20 @@ export default function About() {
             </div>
           </div>
 
-          {/* Right: profile photo placeholder */}
+          {/* Right: profile photo */}
           <div className="about-image flex justify-center lg:justify-end">
             <div className="relative w-[240px] h-[300px] lg:w-[280px] lg:h-[360px] shrink-0">
               {/* Red offset frame */}
               <div className="absolute inset-0 translate-x-3 translate-y-3 border border-[#e63946]/25" />
               {/* Photo box */}
-              <div className="absolute inset-0 bg-[#181818] border border-white/[0.07] flex flex-col items-center justify-center gap-3 overflow-hidden">
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#f0f0f0"
-                  strokeWidth="0.8"
-                  opacity="0.2"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                <span className="text-[0.55rem] tracking-[0.28em] uppercase text-[#f0f0f0]/18 font-sans">
-                  Eden Ryder Lee
-                </span>
+              <div className="absolute inset-0 bg-[#181818] border border-white/[0.07] overflow-hidden">
+                <Image
+                  src="/images/profile.jpg"
+                  alt="Eden Ryder Lee"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 240px, 280px"
+                />
               </div>
             </div>
           </div>

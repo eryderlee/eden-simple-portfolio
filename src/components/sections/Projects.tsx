@@ -21,6 +21,14 @@ interface Project {
 const PROJECTS: Project[] = [
   // Web
   {
+    name: 'RyderAgency',
+    description:
+      'Web development agency delivering responsive websites, SEO optimisation, and full project lifecycle management.',
+    tech: ['Next.js', 'HTML', 'CSS', 'SEO'],
+    url: 'https://ryderagency.com',
+    category: 'Web',
+  },
+  {
     name: 'Airtable Clone',
     description:
       'Airtable-inspired data grid with 100k+ row virtualization, Google auth, dynamic columns, keyboard navigation',
