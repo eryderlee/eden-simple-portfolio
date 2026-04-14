@@ -22,7 +22,7 @@ export default function Navbar() {
           : 'bg-transparent'
       }`}
     >
-      <nav className="max-w-screen-xl mx-auto px-8 py-5 flex items-center justify-between">
+      <nav className="max-w-screen-xl mx-auto px-8 py-5 relative flex items-center">
         {/* Logo */}
         <a
           href="#"
@@ -31,8 +31,8 @@ export default function Navbar() {
           Eden
         </a>
 
-        {/* Desktop links */}
-        <ul className="hidden md:flex items-center gap-10">
+        {/* Desktop links — absolutely centred in the viewport */}
+        <ul className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
           {NAV_LINKS.map((link) => (
             <li key={link}>
               <a
