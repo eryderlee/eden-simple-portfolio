@@ -31,6 +31,10 @@ const SKILL_GROUPS = [
     label: 'Tools & Platforms',
     skills: ['Git', 'Vercel', 'Netlify', 'Stripe', 'GitHub', 'Figma'],
   },
+  {
+    label: 'Hobbies',
+    skills: ['Gym', 'Dragon Dancing', 'Tai Chi', 'Badminton', 'Volleyball', 'Jiu-jitsu', 'PC Building', 'Photoshop'],
+  },
 ];
 
 const GRAIN_SVG =
@@ -99,53 +103,61 @@ export default function Skills() {
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      {/* Full-width bleeding heading */}
-      <div className="relative px-8 mb-16">
-        <div className="skills-label flex items-center gap-4 mb-8">
-          <div className="h-px w-8 bg-[#e63946]" />
-          <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
-            Skills
-          </span>
-        </div>
-        <h2 className="skills-heading font-display font-black text-[clamp(3.5rem,9vw,9rem)] leading-[0.85] tracking-[-0.03em] text-[#f0f0f0]">
-          Tools of<br />
-          <span className="text-[#e63946]">the trade</span>
-        </h2>
-      </div>
+      <div className="relative px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
 
-      {/* Editorial skill rows — full section width */}
-      <div className="skills-rows relative">
-        {SKILL_GROUPS.map(({ label, skills }) => (
-          <div
-            key={label}
-            className="skill-row group border-t border-white/[0.05] hover:bg-white/[0.015] transition-colors duration-300 last:border-b last:border-white/[0.05]"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-0 px-8 py-8">
-              {/* Category label */}
-              <div className="sm:w-48 shrink-0 flex items-center gap-3">
-                <div className="h-px w-4 bg-[#e63946]/50 hidden sm:block" />
-                <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/70 font-sans">
-                  {label}
+            {/* LEFT: section heading */}
+            <div className="lg:sticky lg:top-32">
+              <div className="skills-label flex items-center gap-4 mb-8">
+                <div className="h-px w-8 bg-[#e63946]" />
+                <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
+                  Skills
                 </span>
               </div>
-
-              {/* Separator — desktop only */}
-              <div className="hidden sm:block w-px bg-white/[0.05] self-stretch mx-6" />
-
-              {/* Skills */}
-              <div className="flex flex-wrap gap-2 flex-1">
-                {skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/55 hover:border-[#e63946]/30 hover:text-[#f0f0f0]/85 transition-all duration-200"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
+              <h2 className="skills-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
+                Tools of<br />
+                <span className="text-[#e63946]">the trade</span>
+              </h2>
             </div>
+
+            {/* RIGHT: editorial skill rows */}
+            <div className="skills-rows">
+              {SKILL_GROUPS.map(({ label, skills }) => (
+                <div
+                  key={label}
+                  className="skill-row group border-t border-white/[0.05] hover:bg-white/[0.015] transition-colors duration-300 last:border-b last:border-white/[0.05]"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-0 py-8">
+                    {/* Category label */}
+                    <div className="sm:w-40 shrink-0 flex items-center gap-3">
+                      <div className="h-px w-4 bg-[#e63946]/50 hidden sm:block" />
+                      <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/70 font-sans">
+                        {label}
+                      </span>
+                    </div>
+
+                    {/* Separator — desktop only */}
+                    <div className="hidden sm:block w-px bg-white/[0.05] self-stretch mx-6" />
+
+                    {/* Skills */}
+                    <div className="flex flex-wrap gap-2 flex-1">
+                      {skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/55 hover:border-[#e63946]/30 hover:text-[#f0f0f0]/85 transition-all duration-200"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
           </div>
-        ))}
+        </div>
       </div>
     </section>
   );

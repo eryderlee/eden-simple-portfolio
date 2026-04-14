@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}
     >
       <body className="min-h-full bg-[#111111] text-[#f0f0f0]">
         <SmoothScrollProvider>

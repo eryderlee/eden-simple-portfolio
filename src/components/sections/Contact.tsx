@@ -122,114 +122,118 @@ export default function Contact() {
       {/* Left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      {/* Full-width bleeding heading */}
-      <div className="relative px-8 mb-20">
-        <div className="contact-label flex items-center gap-4 mb-8">
-          <div className="h-px w-8 bg-[#e63946]" />
-          <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
-            Contact
-          </span>
-        </div>
-        <h2 className="contact-heading font-display font-black text-[clamp(3.5rem,9vw,9rem)] leading-[0.85] tracking-[-0.03em] text-[#f0f0f0]">
-          Let&apos;s build<br />
-          <span className="text-[#e63946]">something.</span>
-        </h2>
-      </div>
+      <div className="relative px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 lg:gap-24 items-start">
 
-      {/* Content */}
-      <div className="relative max-w-6xl mx-auto px-8 w-full">
+            {/* LEFT: section heading */}
+            <div className="lg:sticky lg:top-32">
+              <div className="contact-label flex items-center gap-4 mb-8">
+                <div className="h-px w-8 bg-[#e63946]" />
+                <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
+                  Contact
+                </span>
+              </div>
+              <h2 className="contact-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
+                Let&apos;s build<br />
+                <span className="text-[#e63946]">something.</span>
+              </h2>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-16 lg:gap-24">
-
-          {/* Left: description + email button */}
-          <div className="space-y-10">
-            <p className="font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/50 max-w-[44ch]">
-              Open to freelance projects, full-time roles, and interesting
-              collaborations. Based in Point Cook, VIC — available remotely
-              worldwide.
-            </p>
-
-            {/* Email display link */}
-            <a
-              href="mailto:eden@ryderlee.me"
-              className="contact-email group block"
-            >
-              <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-2">
-                Email
-              </span>
-              <span className="font-display font-bold text-[clamp(1.1rem,2.5vw,1.65rem)] text-[#f0f0f0]/80 group-hover:text-[#e63946] transition-colors duration-300 relative">
-                eden@ryderlee.me
-                <span className="absolute -bottom-1 left-0 h-px w-0 bg-[#e63946] group-hover:w-full transition-all duration-400" />
-              </span>
-            </a>
-
-            {/* CTA email button */}
-            <a
-              href="mailto:eden@ryderlee.me"
-              className="inline-flex items-center gap-3 group border border-[#e63946]/50 px-8 py-4 hover:bg-[#e63946] transition-all duration-300"
-            >
-              <span className="font-sans text-[0.72rem] tracking-[0.22em] uppercase text-[#e63946] group-hover:text-[#f0f0f0] transition-colors duration-300">
-                Send me an email
-              </span>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                aria-hidden="true"
-                className="text-[#e63946] group-hover:text-[#f0f0f0] transition-colors duration-300"
-              >
-                <path d="M1 13L13 1M13 1H4M13 1V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </a>
-          </div>
-
-          {/* Right: socials */}
-          <div className="space-y-8">
+            {/* RIGHT: content */}
             <div>
-              <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-5">
-                Socials
-              </span>
-              <div className="contact-socials grid grid-cols-2 gap-3">
-                {SOCIALS.map(({ label, href, icon }) => (
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-16 lg:gap-20">
+
+                {/* Left: description + email */}
+                <div className="space-y-10">
+                  <p className="font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/50 max-w-[44ch]">
+                    Open to freelance projects, full-time roles, and interesting
+                    collaborations. Based in Point Cook, VIC — available remotely
+                    worldwide.
+                  </p>
+
+                  {/* Email display link */}
                   <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ opacity: 1 }}
-                    className="contact-social-btn group flex flex-col items-center justify-center gap-3 py-7 border border-white/[0.07] hover:border-[#e63946]/60 hover:bg-[#e63946]/[0.05] transition-all duration-300"
+                    href="mailto:eden@ryderlee.me"
+                    className="contact-email group block"
                   >
-                    <span className="text-[#f0f0f0]/35 group-hover:text-[#e63946] transition-colors duration-300">
-                      {icon}
+                    <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-2">
+                      Email
                     </span>
-                    <span className="text-[0.62rem] tracking-[0.18em] uppercase font-sans text-[#f0f0f0]/30 group-hover:text-[#f0f0f0]/60 transition-colors duration-300">
-                      {label}
+                    <span className="font-display font-bold text-[clamp(1.1rem,2.5vw,1.65rem)] text-[#f0f0f0]/80 group-hover:text-[#e63946] transition-colors duration-300 relative">
+                      eden@ryderlee.me
+                      <span className="absolute -bottom-1 left-0 h-px w-0 bg-[#e63946] group-hover:w-full transition-all duration-400" />
                     </span>
                   </a>
-                ))}
+
+                  {/* CTA email button — natural styling */}
+                  <a
+                    href="mailto:eden@ryderlee.me"
+                    className="inline-flex items-center gap-2.5 group px-5 py-2.5 rounded bg-white/[0.05] border border-white/[0.1] hover:border-[#e63946]/40 hover:bg-[#e63946]/[0.07] transition-all duration-300"
+                  >
+                    <svg
+                      width="13"
+                      height="10"
+                      viewBox="0 0 13 10"
+                      fill="none"
+                      aria-hidden="true"
+                      className="text-[#f0f0f0]/50 group-hover:text-[#e63946] transition-colors duration-300"
+                    >
+                      <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h10A1.5 1.5 0 0 1 13 1.5v7A1.5 1.5 0 0 1 11.5 10h-10A1.5 1.5 0 0 1 0 8.5v-7zm1.5 0L6.5 5l5-3.5M1.5 8.5h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="font-sans text-[0.73rem] tracking-[0.12em] uppercase text-[#f0f0f0]/55 group-hover:text-[#f0f0f0]/80 transition-colors duration-300">
+                      Send me an email
+                    </span>
+                  </a>
+                </div>
+
+                {/* Right: socials */}
+                <div>
+                  <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-5">
+                    Socials
+                  </span>
+                  <div className="contact-socials grid grid-cols-2 gap-3">
+                    {SOCIALS.map(({ label, href, icon }) => (
+                      <a
+                        key={label}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ opacity: 1 }}
+                        className="contact-social-btn group flex flex-col items-center justify-center gap-3 py-7 border border-white/[0.07] hover:border-[#e63946]/60 hover:bg-[#e63946]/[0.05] transition-all duration-300"
+                      >
+                        <span className="text-[#f0f0f0]/35 group-hover:text-[#e63946] transition-colors duration-300">
+                          {icon}
+                        </span>
+                        <span className="text-[0.62rem] tracking-[0.18em] uppercase font-sans text-[#f0f0f0]/30 group-hover:text-[#f0f0f0]/60 transition-colors duration-300">
+                          {label}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
               </div>
+
+              {/* Divider */}
+              <div className="mt-20 flex items-center gap-6">
+                <div className="h-px flex-1 bg-gradient-to-r from-[#e63946]/30 to-transparent" />
+                <span className="font-display font-black text-[0.65rem] tracking-[0.4em] uppercase text-[#e63946]/25 select-none">
+                  ERL
+                </span>
+                <div className="h-px flex-1 bg-gradient-to-l from-[#e63946]/30 to-transparent" />
+              </div>
+
+              {/* Location strip */}
+              <div className="mt-6 flex justify-center">
+                <span className="font-sans text-[0.65rem] tracking-[0.18em] uppercase text-[#f0f0f0]/15">
+                  Point Cook, VIC · Australia · Available Remotely
+                </span>
+              </div>
+
             </div>
           </div>
-
         </div>
-
-        {/* Divider */}
-        <div className="mt-28 flex items-center gap-6">
-          <div className="h-px flex-1 bg-gradient-to-r from-[#e63946]/30 to-transparent" />
-          <span className="font-display font-black text-[0.65rem] tracking-[0.4em] uppercase text-[#e63946]/25 select-none">
-            ERL
-          </span>
-          <div className="h-px flex-1 bg-gradient-to-l from-[#e63946]/30 to-transparent" />
-        </div>
-
-        {/* Location strip */}
-        <div className="mt-6 flex justify-center">
-          <span className="font-sans text-[0.65rem] tracking-[0.18em] uppercase text-[#f0f0f0]/15">
-            Point Cook, VIC · Australia · Available Remotely
-          </span>
-        </div>
-
       </div>
     </section>
   );

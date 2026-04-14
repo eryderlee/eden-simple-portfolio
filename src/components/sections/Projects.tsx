@@ -9,7 +9,6 @@ gsap.registerPlugin(ScrollTrigger);
 /* ── Types ──────────────────────────────────────────────────── */
 type Category = 'All' | 'Web' | 'Automation' | 'Academic';
 type WorkflowCategory =
-  | 'All'
   | 'Lead Generation'
   | 'Email & CRM'
   | 'Content Creation'
@@ -17,6 +16,8 @@ type WorkflowCategory =
   | 'Client Workflows'
   | 'Finance'
   | 'Other';
+
+type AutomationTab = 'All' | WorkflowCategory;
 
 interface ModalContent {
   title: string;
@@ -35,7 +36,7 @@ interface Project {
 
 interface Workflow {
   name: string;
-  category: Exclude<WorkflowCategory, 'All'>;
+  category: WorkflowCategory;
 }
 
 /* ── Projects data ──────────────────────────────────────────── */
@@ -44,7 +45,7 @@ const PROJECTS: Project[] = [
   {
     name: 'RyderAgency',
     description:
-      'Web development agency delivering responsive websites, SEO optimisation, and full project lifecycle management.',
+      'Built websites for car companies, accountants. SEO optimization, responsive design.',
     tech: ['Next.js', 'HTML', 'CSS', 'SEO'],
     url: 'https://ryderagency.com',
     category: 'Web',
@@ -83,7 +84,7 @@ const PROJECTS: Project[] = [
   {
     name: 'CoFarming Hub',
     description:
-      'Eco-friendly products website, 100 speed score, maps, analytics, newsletters',
+      'Designed website, e-commerce, digital presentations, business solutions',
     tech: ['HTML', 'CSS'],
     url: 'https://cofarminghub.com',
     category: 'Web',
@@ -297,7 +298,27 @@ const WORKFLOWS: Workflow[] = [
   { name: 'Workflow Prototype 13', category: 'Other' },
 ];
 
-const WORKFLOW_TABS: WorkflowCategory[] = [
+/* ── 15 featured workflows for the "All" subtab ─────────────── */
+const FEATURED_WORKFLOWS: Workflow[] = [
+  { name: 'AI Lead Generation - Google Maps Scraper', category: 'Lead Generation' },
+  { name: 'LinkedIn Lead Builder — Apollo Method', category: 'Lead Generation' },
+  { name: 'Data Enricher', category: 'Lead Generation' },
+  { name: 'Newsletter Automation', category: 'Email & CRM' },
+  { name: 'Email Inbox Manager', category: 'Email & CRM' },
+  { name: 'Instant Confirmation', category: 'Email & CRM' },
+  { name: 'AI Content Research Agent with Tools', category: 'Content Creation' },
+  { name: 'LinkedIn Post Generator', category: 'Content Creation' },
+  { name: 'Article Generator', category: 'Content Creation' },
+  { name: 'CA Orchestrator — Complete', category: 'AI Agents' },
+  { name: 'AI Voice Agent (Vapi + n8n)', category: 'AI Agents' },
+  { name: 'Proposal Generator', category: 'Client Workflows' },
+  { name: 'Cal.com Event Handler', category: 'Client Workflows' },
+  { name: 'Bookeep AI — Weekly Equity Allocator', category: 'Finance' },
+  { name: 'Crypto Market Analyzer — BTC/ETH (v1)', category: 'Finance' },
+];
+
+/* ── Automation subtabs ─────────────────────────────────────── */
+const AUTOMATION_TABS: AutomationTab[] = [
   'All',
   'Lead Generation',
   'Email & CRM',
@@ -305,8 +326,18 @@ const WORKFLOW_TABS: WorkflowCategory[] = [
   'AI Agents',
   'Client Workflows',
   'Finance',
-  'Other',
 ];
+
+const AUTOMATION_TAB_LABELS: Record<AutomationTab, string> = {
+  'All': 'All Automation',
+  'Lead Generation': 'Lead Gen',
+  'Email & CRM': 'Email / CRM',
+  'Content Creation': 'Content',
+  'AI Agents': 'AI Agents',
+  'Client Workflows': 'Client',
+  'Finance': 'Finance',
+  'Other': 'Other',
+};
 
 const CATEGORIES: Category[] = ['All', 'Web', 'Automation', 'Academic'];
 
@@ -315,6 +346,13 @@ const CATEGORY_LABELS: Record<Category, string> = {
   Web: 'Web',
   Automation: 'Automation',
   Academic: 'Academic',
+};
+
+/* ── Category badge colors ───────────────────────────────────── */
+const CATEGORY_BADGE_COLORS: Record<Exclude<Category, 'All'>, string> = {
+  Web: 'text-[#3b82f6]',
+  Automation: 'text-[#22c55e]',
+  Academic: 'text-[#a855f7]',
 };
 
 /* ── Sub-components ─────────────────────────────────────────── */
@@ -358,8 +396,8 @@ function ProjectCard({ project, index, onOpenModal }: CardProps) {
         {String(index + 1).padStart(2, '0')}
       </span>
 
-      {/* Category badge */}
-      <span className="inline-flex self-start mb-4 text-[0.55rem] tracking-[0.2em] uppercase text-[#f0f0f0]/25 font-sans">
+      {/* Category badge — colored */}
+      <span className={`inline-flex self-start mb-4 text-[0.55rem] tracking-[0.2em] uppercase font-sans ${CATEGORY_BADGE_COLORS[project.category]}`}>
         {project.category}
       </span>
 
@@ -416,7 +454,7 @@ function ProjectCard({ project, index, onOpenModal }: CardProps) {
 
 /* ── Workflow Card ───────────────────────────────────────────── */
 function WorkflowCard({ workflow, index }: { workflow: Workflow; index: number }) {
-  const CATEGORY_COLORS: Record<Exclude<WorkflowCategory, 'All'>, string> = {
+  const CATEGORY_COLORS: Record<WorkflowCategory, string> = {
     'Lead Generation': 'text-[#e63946]/70 border-[#e63946]/25',
     'Email & CRM': 'text-[#f0a500]/70 border-[#f0a500]/25',
     'Content Creation': 'text-[#4ecdc4]/70 border-[#4ecdc4]/25',
@@ -500,17 +538,16 @@ export default function Projects() {
   const [activeCategory, setActiveCategory] = useState<Category>('All');
   const [displayCategory, setDisplayCategory] = useState<Category>('All');
   const [openModal, setOpenModal] = useState<ModalContent | null>(null);
-  const [showWorkflows, setShowWorkflows] = useState(false);
-  const [activeWorkflowTab, setActiveWorkflowTab] = useState<WorkflowCategory>('All');
+  const [activeWorkflowTab, setActiveWorkflowTab] = useState<AutomationTab>('All');
   const hasAnimatedRef = useRef(false);
 
   const filtered = PROJECTS.filter(
     (p) => displayCategory === 'All' || p.category === displayCategory
   );
 
-  const filteredWorkflows =
+  const filteredWorkflows: Workflow[] =
     activeWorkflowTab === 'All'
-      ? WORKFLOWS
+      ? FEATURED_WORKFLOWS
       : WORKFLOWS.filter((w) => w.category === activeWorkflowTab);
 
   /* Close modal on Escape */
@@ -595,6 +632,8 @@ export default function Projects() {
         ease: 'power2.in',
         onComplete: () => {
           setDisplayCategory(cat);
+          // Reset workflow tab when switching to Automation
+          if (cat === 'Automation') setActiveWorkflowTab('All');
         },
       });
     },
@@ -641,12 +680,12 @@ export default function Projects() {
 
       <div className="relative max-w-6xl mx-auto px-6 md:px-8" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
         {/* Section heading */}
-        <div ref={headingRef} className="mb-28">
+        <div ref={headingRef} className="mb-40">
           <p className="font-sans text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/25 mb-4">
             Selected work
           </p>
           <div className="flex items-end gap-6">
-            <h2 className="font-display font-black text-[clamp(2.8rem,7vw,6rem)] leading-none tracking-[-0.03em] text-[#f0f0f0]">
+            <h2 className="font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0]">
               Projects
             </h2>
             <div className="mb-2 flex items-center gap-3">
@@ -711,78 +750,59 @@ export default function Projects() {
           ))}
         </div>
 
-        {/* ── 109+ Workflows section ───────────────────────── */}
-        <div className="mt-20 border-t border-white/[0.05] pt-12">
-          <div className="flex items-center justify-between gap-6 mb-2">
-            <div className="flex items-center gap-4">
+        {/* ── Automation workflows (shown when Automation tab is active) ── */}
+        {displayCategory === 'Automation' && (
+          <div className="mt-16 border-t border-white/[0.05] pt-10">
+            <div className="flex items-center gap-4 mb-2">
               <div className="h-px w-6 bg-[#e63946]" />
               <h3 className="font-display font-bold text-[1.1rem] text-[#f0f0f0]">
-                109+ Workflows Built
+                109+ Automation Workflows
               </h3>
               <span className="text-[0.55rem] tracking-[0.2em] uppercase text-[#e63946]/60 font-sans border border-[#e63946]/25 px-2 py-0.5">
                 n8n
               </span>
             </div>
-            <button
-              onClick={() => setShowWorkflows((v) => !v)}
-              className="inline-flex items-center gap-2 text-[0.65rem] tracking-[0.14em] uppercase font-sans text-[#f0f0f0]/35 hover:text-[#e63946] transition-colors duration-200"
-              aria-expanded={showWorkflows}
-            >
-              {showWorkflows ? 'Collapse' : 'Expand'}
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="none"
-                aria-hidden="true"
-                className={`transition-transform duration-300 ${showWorkflows ? 'rotate-180' : ''}`}
-              >
-                <path d="M1 3l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </div>
+            <p className="font-sans text-[0.8rem] text-[#f0f0f0]/30 mb-8 ml-10">
+              Full breakdown of all automation workflows built at Baseaim
+            </p>
 
-          <p className="font-sans text-[0.8rem] text-[#f0f0f0]/30 mb-6 ml-10">
-            Full breakdown of all automation workflows
-          </p>
-
-          {showWorkflows && (
-            <div>
-              {/* Category sub-tabs */}
-              <div className="flex flex-wrap gap-2 mb-8" role="tablist" aria-label="Filter workflows by category">
-                {WORKFLOW_TABS.map((tab) => {
-                  const count = tab === 'All' ? WORKFLOWS.length : WORKFLOWS.filter((w) => w.category === tab).length;
-                  const isActive = activeWorkflowTab === tab;
-                  return (
-                    <button
-                      key={tab}
-                      role="tab"
-                      aria-selected={isActive}
-                      onClick={() => setActiveWorkflowTab(tab)}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.6rem] tracking-[0.12em] uppercase font-sans transition-all duration-200 border rounded-sm ${
-                        isActive
-                          ? 'border-[#e63946] text-[#e63946] bg-[#e63946]/[0.08]'
-                          : 'border-white/[0.07] text-[#f0f0f0]/35 hover:border-white/[0.14] hover:text-[#f0f0f0]/60'
-                      }`}
-                    >
-                      {tab}
-                      <span className={`text-[0.5rem] tabular-nums ${isActive ? 'text-[#e63946]/60' : 'text-[#f0f0f0]/18'}`}>
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Workflow cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-                {filteredWorkflows.map((workflow, i) => (
-                  <WorkflowCard key={`${workflow.category}-${workflow.name}`} workflow={workflow} index={i} />
-                ))}
-              </div>
+            {/* Automation subtabs */}
+            <div className="flex flex-wrap gap-2 mb-8" role="tablist" aria-label="Filter automation workflows">
+              {AUTOMATION_TABS.map((tab) => {
+                const count =
+                  tab === 'All'
+                    ? FEATURED_WORKFLOWS.length
+                    : WORKFLOWS.filter((w) => w.category === tab).length;
+                const isActive = activeWorkflowTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setActiveWorkflowTab(tab)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.6rem] tracking-[0.12em] uppercase font-sans transition-all duration-200 border rounded-sm ${
+                      isActive
+                        ? 'border-[#e63946] text-[#e63946] bg-[#e63946]/[0.08]'
+                        : 'border-white/[0.07] text-[#f0f0f0]/35 hover:border-white/[0.14] hover:text-[#f0f0f0]/60'
+                    }`}
+                  >
+                    {AUTOMATION_TAB_LABELS[tab]}
+                    <span className={`text-[0.5rem] tabular-nums ${isActive ? 'text-[#e63946]/60' : 'text-[#f0f0f0]/18'}`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-          )}
-        </div>
+
+            {/* Workflow cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+              {filteredWorkflows.map((workflow, i) => (
+                <WorkflowCard key={`${workflow.category}-${workflow.name}-${i}`} workflow={workflow} index={i} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Research Modal */}
