@@ -748,8 +748,10 @@ export default function Projects() {
         >
           {CATEGORIES.map((cat) => {
             const count =
-              cat === 'All'
-                ? PROJECTS.length
+              cat === 'Automation'
+                ? WORKFLOWS.length
+                : cat === 'All'
+                ? PROJECTS.filter((p) => p.category !== 'Automation').length + WORKFLOWS.length
                 : PROJECTS.filter((p) => p.category === cat).length;
             const isActive = activeCategory === cat;
             return (
