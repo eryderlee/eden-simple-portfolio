@@ -97,7 +97,7 @@ export default function About() {
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative max-w-6xl mx-auto px-6 w-full">
+      <div className="relative max-w-6xl mx-auto px-6 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
         {/* Section label */}
         <div className="about-label flex items-center gap-4 mb-14">

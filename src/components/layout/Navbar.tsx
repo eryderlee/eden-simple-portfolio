@@ -22,7 +22,7 @@ export default function Navbar() {
           : 'bg-transparent'
       }`}
     >
-      <nav className="max-w-screen-xl mx-auto px-8 py-5 grid grid-cols-[1fr_auto_1fr] items-center">
+      <nav className="w-full px-8 py-5 grid grid-cols-[1fr_auto_1fr] items-center">
         {/* Col 1: Logo — left-aligned */}
         <a
           href="#"

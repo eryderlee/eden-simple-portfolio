@@ -147,7 +147,7 @@ export default function Experience() {
         style={{ backgroundImage: GRAIN_SVG, opacity: 0.04 }}
       />
 
-      <div className="relative max-w-screen-xl mx-auto w-full">
+      <div className="relative max-w-6xl mx-auto px-6 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
         {/* Section label */}
         <div className="exp-label flex items-center gap-4 mb-14">
