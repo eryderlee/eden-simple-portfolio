@@ -15,10 +15,10 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
 
     // ── Config ────────────────────────────────────────────────────────────
     const CFG = {
-      frequency:       10,
-      contrast:        0.38,
-      edgeWidth:       0.04,
-      gapLevel:        0.32,
+      frequency:       6,
+      contrast:        0.5,
+      edgeWidth:       0.06,
+      gapLevel:        0.38,
       angleDeg:        0,
       driftX:          0,
       driftY:          -0.02,
@@ -47,8 +47,8 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
       padding: '0',
       color: '#e63946',
       fontFamily: '"Courier New", Courier, monospace',
-      fontSize: '13px',
-      lineHeight: '1.15',
+      fontSize: '14px',
+      lineHeight: '1.2',
       whiteSpace: 'pre',
       overflow: 'hidden',
       background: 'transparent',
