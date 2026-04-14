@@ -88,7 +88,7 @@ export default function Skills() {
     <section
       ref={sectionRef}
       id="skills"
-      className="section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-28 md:pt-36 md:pb-44 px-5"
+      className="section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-16 md:pt-36 md:pb-0 px-5"
     >
 
       {/* Subtle left accent line */}

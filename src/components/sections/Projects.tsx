@@ -705,7 +705,7 @@ export default function Projects() {
     <section
       ref={sectionRef}
       id="projects"
-      className="section-grain relative min-h-screen bg-black pt-24 pb-20 md:py-32 border-t border-white/[0.04] px-5"
+      className="section-grain relative min-h-screen bg-black pt-24 pb-12 md:pt-32 md:pb-10 border-t border-white/[0.04] px-5"
     >
 
 
