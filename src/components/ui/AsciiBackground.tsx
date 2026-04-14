@@ -15,25 +15,26 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
 
     // ── Config ────────────────────────────────────────────────────────────
     const CFG = {
-      frequency:       6,
-      contrast:        0.5,
-      edgeWidth:       0.06,
-      gapLevel:        0.38,
+      frequency:       11,
+      contrast:        0.35,
+      edgeWidth:       0.04,
+      gapLevel:        0.3,
       angleDeg:        0,
       driftX:          0,
-      driftY:          -0.02,
+      driftY:          -0.018,
       warpAmp:         0.42,
       warpScale:       1.4,
       warpSpeed:       0.001,
       bandJitter:      { enabled: true, amp: 0.2, scale: 0.85, speed: 0.05 },
-      randomSet:       Array.from('            '),
+      randomSet:       Array.from(' .,:;*+![]{}<>-~=/\\'),
       lineSet:         Array.from('    EDEN RYDER LEE    '),
-      gapSet:          Array.from(' '),
+      gapSet:          Array.from('@'),
       randomChangeHz:  1.5,
       lineThreshold:   0,
       gapThreshold:    1,
       gapFan:          { enabled: true, strength: 0.5 },
       gapClouds:       { enabled: true, density: 0.08, scale: 1.6, speed: 0.03, octaves: 3, hardness: 0.85 },
+      erase:           { enabled: true, radiusCells: 12, durationSec: 0.9, jitter: 0.35, hardness: 0.6 },
       fpsCap:          30,
     };
 
@@ -47,8 +48,8 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
       padding: '0',
       color: '#e63946',
       fontFamily: '"Courier New", Courier, monospace',
-      fontSize: '14px',
-      lineHeight: '1.2',
+      fontSize: '13px',
+      lineHeight: '1.15',
       whiteSpace: 'pre',
       overflow: 'hidden',
       background: 'transparent',
@@ -87,13 +88,9 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
       const x0 = Math.floor(x), y0 = Math.floor(y);
       const x1 = x0 + 1, y1 = y0 + 1;
       const sx = fade(x - x0), sy = fade(y - y0);
-      const n00 = grad(x0, y0, x, y);
-      const n10 = grad(x1, y0, x, y);
-      const n01 = grad(x0, y1, x, y);
-      const n11 = grad(x1, y1, x, y);
-      const ix0 = n00 + sx * (n10 - n00);
-      const ix1 = n01 + sx * (n11 - n01);
-      return ix0 + sy * (ix1 - ix0);
+      const n00 = grad(x0, y0, x, y), n10 = grad(x1, y0, x, y);
+      const n01 = grad(x0, y1, x, y), n11 = grad(x1, y1, x, y);
+      return (n00 + sx * (n10 - n00)) + sy * ((n01 + sx * (n11 - n01)) - (n00 + sx * (n10 - n00)));
     }
 
     function fbm(x: number, y: number, oct = 3, gain = 0.5, lac = 2) {
@@ -125,7 +122,7 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
     // ── Grid state ────────────────────────────────────────────────────────
     let cols = 0, rows = 0, sShort = 1;
     let cellW = 8, cellH = 14;
-    const SAFE_PAD_X = 0.15, SAFE_PAD_Y = 0.05;
+    let eraseBuf = new Float32Array(1);
 
     function measureCell() {
       const probe = document.createElement('span');
@@ -148,11 +145,47 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
       const m = measureCell();
       cellW = m.cw; cellH = m.lh;
       const rect = host.getBoundingClientRect();
-      const c = Math.max(1, Math.floor(rect.width  / cellW - SAFE_PAD_X));
-      const r = Math.max(1, Math.floor(rect.height / cellH - SAFE_PAD_Y));
-      cols = c; rows = r;
-      sShort = Math.min(cols, rows);
+      const c = Math.max(1, Math.floor(rect.width  / cellW - 0.15));
+      const r = Math.max(1, Math.floor(rect.height / cellH - 0.05));
+      if (c !== cols || r !== rows) {
+        cols = c; rows = r;
+        sShort = Math.min(cols, rows);
+        eraseBuf = new Float32Array(cols * rows);
+      }
     }
+
+    // ── Erase trail ───────────────────────────────────────────────────────
+    function applyErase(cx: number, cy: number) {
+      if (!CFG.erase.enabled) return;
+      const R = CFG.erase.radiusCells | 0;
+      const hard = Math.max(0, Math.min(1, CFG.erase.hardness));
+      const jit  = Math.max(0, Math.min(1, CFG.erase.jitter));
+      const dur  = CFG.erase.durationSec;
+      const r2 = R * R;
+      for (let y = Math.max(0, cy - R); y <= Math.min(rows - 1, cy + R); y++) {
+        for (let x = Math.max(0, cx - R); x <= Math.min(cols - 1, cx + R); x++) {
+          const dx = x - cx, dy = y - cy;
+          if (dx * dx + dy * dy > r2) continue;
+          const d = Math.sqrt(dx * dx + dy * dy) / R;
+          const falloff = Math.pow(1 - d, hard * 3 + 0.01);
+          const h = hash3(x * 131 + y * 911, y * 521 + x * 173, cx * 7 + cy * 13) % 1000 / 1000;
+          const accept = h < falloff * (1 - jit) + (falloff > 0.5 ? jit * 0.6 : jit * 0.2);
+          if (accept) {
+            const idx = y * cols + x;
+            eraseBuf[idx] = Math.max(eraseBuf[idx], dur * falloff);
+          }
+        }
+      }
+    }
+
+    // Listen on window so pointer-events:none doesn't block it
+    function onMouseMove(ev: MouseEvent) {
+      const rect = pre.getBoundingClientRect();
+      const cx = Math.max(0, Math.min(cols - 1, Math.floor((ev.clientX - rect.left) / cellW)));
+      const cy = Math.max(0, Math.min(rows - 1, Math.floor((ev.clientY - rect.top)  / cellH)));
+      applyErase(cx, cy);
+    }
+    window.addEventListener('mousemove', onMouseMove);
 
     // ── Gap clouds ────────────────────────────────────────────────────────
     function inGapCloud(u: number, v: number, t: number) {
@@ -192,13 +225,12 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
     }
 
     function chooseChar(x: number, y: number, t: number, b: ReturnType<typeof sampleBands>) {
+      if (eraseBuf[y * cols + x] > 0) return ' ';
       if (inGapCloud(b.u, b.v, t)) return ' ';
-      if (b.tLine > CFG.lineThreshold) {
+      if (b.tLine > CFG.lineThreshold)
         return pickFrom(CFG.lineSet, hash32(b.bandIndex * 73856093));
-      }
-      if (b.tGap > CFG.gapThreshold) {
+      if (b.tGap > CFG.gapThreshold)
         return pickFrom(CFG.gapSet, hash32(b.bandIndex * 19349663));
-      }
       const slice = Math.floor(t * CFG.randomChangeHz);
       const h = hash32((x + 1) * 15485863 ^ (y + 1) * 32452843 ^ slice * 49979687);
       return CFG.randomSet[h % CFG.randomSet.length];
@@ -207,21 +239,27 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
     // ── Render loop ───────────────────────────────────────────────────────
     let rafId = 0;
     let t0 = performance.now();
-    let lastFrame = 0;
+    let lastFrame = 0, lastT = 0;
 
     function render(now: number) {
-      if (now - lastFrame < 1000 / CFG.fpsCap) {
-        rafId = requestAnimationFrame(render);
-        return;
+      if (now - lastFrame < 1000 / CFG.fpsCap) { rafId = requestAnimationFrame(render); return; }
+      const t  = (now - t0) / 1000;
+      const dt = t - lastT;
+      lastT = t; lastFrame = now;
+
+      // decay erase buffer
+      if (CFG.erase.enabled) {
+        for (let i = 0; i < eraseBuf.length; i++) {
+          const v = eraseBuf[i] - dt;
+          eraseBuf[i] = v > 0 ? v : 0;
+        }
       }
-      lastFrame = now;
-      const t = (now - t0) / 1000;
+
       let out = '';
       for (let y = 0; y < rows; y++) {
         const rowNorm = rows <= 1 ? 0 : y / (rows - 1);
         for (let x = 0; x < cols; x++) {
-          const b = sampleBands(x, y, t, rowNorm);
-          out += chooseChar(x, y, t, b);
+          out += chooseChar(x, y, t, sampleBands(x, y, t, rowNorm));
         }
         if (y < rows - 1) out += '\n';
       }
@@ -236,31 +274,22 @@ export default function AsciiBackground({ opacity = 0.18 }: Props) {
         pausedAt = performance.now();
       } else if (pausedAt !== null) {
         t0 += performance.now() - pausedAt;
-        pausedAt = null;
-        lastFrame = 0;
+        pausedAt = null; lastFrame = 0;
         rafId = requestAnimationFrame(render);
       }
     }
     document.addEventListener('visibilitychange', onVisibility);
 
-    // ── ResizeObserver ────────────────────────────────────────────────────
     const ro = new ResizeObserver(computeGrid);
     ro.observe(host);
 
-    // ── Start ─────────────────────────────────────────────────────────────
-    const start = () => {
-      computeGrid();
-      rafId = requestAnimationFrame(render);
-    };
-    if (document.fonts?.ready) {
-      document.fonts.ready.then(start);
-    } else {
-      start();
-    }
+    const start = () => { computeGrid(); rafId = requestAnimationFrame(render); };
+    if (document.fonts?.ready) document.fonts.ready.then(start); else start();
 
     return () => {
       cancelAnimationFrame(rafId);
       ro.disconnect();
+      window.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('visibilitychange', onVisibility);
       if (host.contains(pre)) host.removeChild(pre);
     };
