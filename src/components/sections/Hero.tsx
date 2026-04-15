@@ -91,7 +91,7 @@ export default function Hero() {
 
       {/* Corner labels */}
       <span className="absolute top-[5.5rem] left-8 text-[0.6rem] tracking-[0.25em] uppercase text-[#f0f0f0]/20 font-sans">
-        Portfolio v1
+        Portfolio v3 Simple
       </span>
       <span className="absolute top-[5.5rem] right-8 text-[0.6rem] tracking-[0.25em] uppercase text-[#f0f0f0]/20 font-sans">
         2026

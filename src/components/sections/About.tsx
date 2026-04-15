@@ -8,9 +8,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const STATS = [
-  { value: '109+', label: 'Workflows Built' },
-  { value: '13+', label: 'Web Projects' },
-  { value: 'Top 5%', label: 'Lyra Challenge' },
+  { target: 109, prefix: '', suffix: '+', label: 'Workflows Built' },
+  { target: 13, prefix: '', suffix: '+', label: 'Web Projects' },
+  { target: 4, prefix: '', suffix: '+', label: 'Years Full-Stack' },
+  { target: 5, prefix: 'Top ', suffix: '%', label: 'Lyra Challenge' },
 ];
 
 const TICKER_WORDS = [
@@ -86,6 +87,27 @@ export default function About() {
           trigger: '.stats-row',
           start: 'top 82%',
         },
+      });
+
+      /* Count up each stat value from 0 → target on scroll-in */
+      gsap.utils.toArray<HTMLElement>('.stat-value').forEach((el) => {
+        const target = Number(el.dataset.target ?? '0');
+        const prefix = el.dataset.prefix ?? '';
+        const suffix = el.dataset.suffix ?? '';
+        const counter = { val: 0 };
+        gsap.to(counter, {
+          val: target,
+          duration: 1.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '.stats-row',
+            start: 'top 82%',
+            once: true,
+          },
+          onUpdate: () => {
+            el.textContent = `${prefix}${Math.round(counter.val)}${suffix}`;
+          },
+        });
       });
     }, sectionRef);
 
@@ -196,14 +218,19 @@ export default function About() {
         </div>
 
         {/* Stats row */}
-        <div className="stats-row mt-16 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.06] border border-white/[0.06]">
-          {STATS.map(({ value, label }) => (
+        <div className="stats-row mt-16 grid grid-cols-1 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.06] border border-white/[0.06]">
+          {STATS.map(({ target, prefix, suffix, label }) => (
             <div
               key={label}
               className="stat-item px-8 py-8 hover:bg-white/[0.02] transition-colors duration-300"
             >
-              <div className="font-display font-black text-[2.8rem] leading-none text-[#e63946] mb-2 tracking-tight">
-                {value}
+              <div
+                className="stat-value font-display font-black text-[2.8rem] leading-none text-[#e63946] mb-2 tracking-tight tabular-nums"
+                data-target={target}
+                data-prefix={prefix}
+                data-suffix={suffix}
+              >
+                {prefix}0{suffix}
               </div>
               <div className="text-[0.62rem] tracking-[0.22em] uppercase text-[#f0f0f0]/38 font-sans">
                 {label}
