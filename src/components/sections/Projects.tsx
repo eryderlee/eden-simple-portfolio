@@ -31,6 +31,7 @@ interface Project {
   tech: string[];
   url: string;
   category: Exclude<Category, 'All'>;
+  subCategory?: WorkflowCategory;
   modalContent?: ModalContent;
 }
 
@@ -107,6 +108,7 @@ const PROJECTS: Project[] = [
     tech: ['n8n', 'API'],
     url: '#',
     category: 'Automation',
+    subCategory: 'Lead Generation',
   },
   {
     name: 'AI Voice Agent',
@@ -115,6 +117,7 @@ const PROJECTS: Project[] = [
     tech: ['Retell', 'n8n', 'Cal.com'],
     url: '#',
     category: 'Automation',
+    subCategory: 'AI Agents',
   },
   {
     name: 'AI Chatbot (RAG)',
@@ -123,6 +126,7 @@ const PROJECTS: Project[] = [
     tech: ['OpenAI', 'Supabase', 'RAG'],
     url: '#',
     category: 'Automation',
+    subCategory: 'AI Agents',
   },
   {
     name: 'Cold Email System',
@@ -131,6 +135,7 @@ const PROJECTS: Project[] = [
     tech: ['n8n', 'Custom Domains'],
     url: '#',
     category: 'Automation',
+    subCategory: 'Email & CRM',
   },
   {
     name: 'SEO Blog Automation',
@@ -139,6 +144,7 @@ const PROJECTS: Project[] = [
     tech: ['n8n', 'GitHub', 'AI'],
     url: '#',
     category: 'Automation',
+    subCategory: 'Content Creation',
   },
   {
     name: 'SignNow Contract Generator',
@@ -147,6 +153,7 @@ const PROJECTS: Project[] = [
     tech: ['n8n', 'Stripe', 'SignNow'],
     url: '#',
     category: 'Automation',
+    subCategory: 'Client Workflows',
   },
   // Academic
   {
@@ -300,25 +307,6 @@ const WORKFLOWS: Workflow[] = [
   { name: 'Workflow Prototype 13', category: 'Other' },
 ];
 
-/* ── 15 featured workflows for the "All" subtab ─────────────── */
-const FEATURED_WORKFLOWS: Workflow[] = [
-  { name: 'AI Lead Generation - Google Maps Scraper', category: 'Lead Generation', description: 'Scrapes 144k+ leads/day from Google Maps, enriches with contact data, and pushes directly to CRM', tech: ['n8n', 'Google Maps API'] },
-  { name: 'LinkedIn Lead Builder — Apollo Method', category: 'Lead Generation', description: 'Builds targeted LinkedIn lead lists using Apollo data enrichment for precision outbound campaigns', tech: ['n8n', 'LinkedIn', 'Apollo'] },
-  { name: 'Data Enricher', category: 'Lead Generation', description: 'Enriches raw lead data with verified emails, company info, and contact details via API lookups', tech: ['n8n', 'Hunter.io', 'API'] },
-  { name: 'Newsletter Automation', category: 'Email & CRM', description: 'Automated newsletter system with audience segmentation, content personalization, and engagement tracking', tech: ['n8n', 'Email API'] },
-  { name: 'Email Inbox Manager', category: 'Email & CRM', description: 'AI-powered inbox that sorts, labels, and drafts context-aware replies to inbound sales emails', tech: ['n8n', 'OpenAI', 'Gmail'] },
-  { name: 'Instant Confirmation', category: 'Email & CRM', description: 'Fires instant booking confirmations with onboarding materials the moment a Cal.com event is created', tech: ['n8n', 'Cal.com'] },
-  { name: 'AI Content Research Agent with Tools', category: 'Content Creation', description: 'Agentic workflow that researches topics, scrapes competitor content, and delivers structured content briefs', tech: ['n8n', 'OpenAI', 'Perplexity'] },
-  { name: 'LinkedIn Post Generator', category: 'Content Creation', description: 'Generates hook-driven LinkedIn posts from trending topics and auto-schedules for peak engagement times', tech: ['n8n', 'OpenAI', 'LinkedIn'] },
-  { name: 'Article Generator', category: 'Content Creation', description: 'Full SEO pipeline: researches keywords, generates optimized long-form articles, publishes to GitHub CMS', tech: ['n8n', 'OpenAI', 'GitHub'] },
-  { name: 'CA Orchestrator — Complete', category: 'AI Agents', description: 'Master orchestrator coordinating multiple sub-agents across the full client acquisition pipeline', tech: ['n8n', 'OpenAI', 'Webhooks'] },
-  { name: 'AI Voice Agent (Vapi + n8n)', category: 'AI Agents', description: 'Voice AI that handles inbound calls, qualifies leads, and books appointments without human intervention', tech: ['Vapi', 'n8n', 'Cal.com'] },
-  { name: 'Proposal Generator', category: 'Client Workflows', description: 'Generates custom proposals from CRM data and sends for e-signature via SignNow with team notifications', tech: ['n8n', 'OpenAI', 'SignNow'] },
-  { name: 'Cal.com Event Handler', category: 'Client Workflows', description: 'Central handler for Cal.com bookings: CRM updates, Slack alerts, and pre-meeting email sequences', tech: ['n8n', 'Cal.com', 'HubSpot'] },
-  { name: 'Bookeep AI — Weekly Equity Allocator', category: 'Finance', description: 'Tracks weekly equity allocation across accounts and generates AI-powered financial performance reports', tech: ['n8n', 'OpenAI', 'Sheets'] },
-  { name: 'Crypto Market Analyzer — BTC/ETH (v1)', category: 'Finance', description: 'Analyzes BTC/ETH market conditions and delivers trading signals to Discord and Telegram', tech: ['n8n', 'CoinGecko API'] },
-];
-
 /* ── Automation subtabs ─────────────────────────────────────── */
 const AUTOMATION_TABS: AutomationTab[] = [
   'All',
@@ -366,15 +354,62 @@ function TechPill({ label }: { label: string }) {
   );
 }
 
+/* ── Workflow sub-category badge colors (reused in the unified card) ── */
+const WORKFLOW_CATEGORY_BADGE_COLORS: Record<WorkflowCategory, string> = {
+  'Lead Generation': 'text-[#e63946]',
+  'Email & CRM': 'text-[#f0a500]',
+  'Content Creation': 'text-[#4ecdc4]',
+  'AI Agents': 'text-[#a855f7]',
+  'Client Workflows': 'text-[#22c55e]',
+  'Finance': 'text-[#3b82f6]',
+  'Other': 'text-[#f0f0f0]/30',
+};
+
+/* ── Unified card item (superset of Project + Workflow) ─────── */
+interface CardItem {
+  name: string;
+  description?: string;
+  tech?: string[];
+  url?: string;
+  mainCategory: Exclude<Category, 'All'>;
+  subCategory?: WorkflowCategory;
+  modalContent?: ModalContent;
+}
+
+function projectToCardItem(p: Project): CardItem {
+  return {
+    name: p.name,
+    description: p.description,
+    tech: p.tech,
+    url: p.url,
+    mainCategory: p.category,
+    subCategory: p.subCategory,
+    modalContent: p.modalContent,
+  };
+}
+
+function workflowToCardItem(w: Workflow): CardItem {
+  return {
+    name: w.name,
+    description: w.description,
+    tech: w.tech,
+    mainCategory: 'Automation',
+    subCategory: w.category,
+  };
+}
+
 interface CardProps {
-  project: Project;
+  item: CardItem;
   index: number;
   onOpenModal?: (content: ModalContent) => void;
 }
 
-function ProjectCard({ project, index, onOpenModal }: CardProps) {
-  const isLive = project.url !== '#';
-  const hasModal = !!project.modalContent;
+function Card({ item, index, onOpenModal }: CardProps) {
+  const isLive = item.url !== undefined && item.url !== '#';
+  const hasModal = !!item.modalContent;
+  const hasUrl = item.url !== undefined;
+  const hasTech = !!item.tech && item.tech.length > 0;
+  const isAutomation = item.mainCategory === 'Automation';
 
   return (
     <article
@@ -398,122 +433,74 @@ function ProjectCard({ project, index, onOpenModal }: CardProps) {
         {String(index + 1).padStart(2, '0')}
       </span>
 
-      {/* Category badge — colored */}
-      <span className={`inline-flex self-start mb-4 text-[0.55rem] tracking-[0.2em] uppercase font-sans ${CATEGORY_BADGE_COLORS[project.category]}`}>
-        {project.category}
-      </span>
-
-      {/* Name */}
-      <h3 className="font-display font-bold text-[1.05rem] leading-snug text-[#f0f0f0] mb-3 tracking-tight">
-        {project.name}
-      </h3>
-
-      {/* Description */}
-      <p className="font-sans text-[0.8rem] leading-relaxed text-[#f0f0f0]/55 mb-5 flex-1">
-        {project.description}
-      </p>
-
-      {/* Tech pills */}
-      <div className="flex flex-wrap gap-1.5 mb-5">
-        {project.tech.map((t) => (
-          <TechPill key={t} label={t} />
-        ))}
-      </div>
-
-      {/* Link / action */}
-      <div className="mt-auto pt-4 border-t border-white/[0.05]">
-        {hasModal ? (
-          <button
-            onClick={() => onOpenModal?.(project.modalContent!)}
-            className="inline-flex items-center gap-1.5 text-[0.7rem] tracking-[0.1em] uppercase font-sans text-[#e63946] hover:text-[#ff4d5a] transition-colors duration-200"
-          >
-            Read Research
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path d="M5 1h4v4M9 1 1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        ) : isLive ? (
-          <a
-            href={project.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-[0.7rem] tracking-[0.1em] uppercase font-sans text-[#e63946] hover:text-[#ff4d5a] transition-colors duration-200"
-          >
-            View Project
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
-        ) : (
-          <span className="inline-flex items-center gap-1.5 text-[0.7rem] tracking-[0.1em] uppercase font-sans text-[#f0f0f0]/20 cursor-default select-none">
-            Private / Internal
-          </span>
+      {/* Category badge — "AUTOMATION · SUBCAT" for automation, single label otherwise */}
+      <span className="inline-flex self-start mb-4 items-center gap-1.5 text-[0.55rem] tracking-[0.2em] uppercase font-sans">
+        <span className={CATEGORY_BADGE_COLORS[item.mainCategory]}>
+          {item.mainCategory}
+        </span>
+        {isAutomation && item.subCategory && (
+          <>
+            <span className="text-[#f0f0f0]/20">·</span>
+            <span className={WORKFLOW_CATEGORY_BADGE_COLORS[item.subCategory]}>
+              {item.subCategory}
+            </span>
+          </>
         )}
-      </div>
-    </article>
-  );
-}
-
-/* ── Workflow Card ───────────────────────────────────────────── */
-function WorkflowCard({ workflow, index }: { workflow: Workflow; index: number }) {
-  const WORKFLOW_CATEGORY_BADGE_COLORS: Record<WorkflowCategory, string> = {
-    'Lead Generation': 'text-[#e63946]',
-    'Email & CRM': 'text-[#f0a500]',
-    'Content Creation': 'text-[#4ecdc4]',
-    'AI Agents': 'text-[#a855f7]',
-    'Client Workflows': 'text-[#22c55e]',
-    'Finance': 'text-[#3b82f6]',
-    'Other': 'text-[#f0f0f0]/30',
-  };
-
-  return (
-    <article
-      className="project-card group relative flex flex-col bg-[#1a1a1a] border border-white/[0.06] rounded-sm p-6 transition-all duration-300 hover:border-[#e63946]/40 hover:-translate-y-1"
-      style={{
-        boxShadow: '0 0 0 0 rgba(230,57,70,0)',
-        transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow =
-          '0 8px 32px rgba(230,57,70,0.12), 0 0 0 1px rgba(230,57,70,0.15)';
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow =
-          '0 0 0 0 rgba(230,57,70,0)';
-      }}
-    >
-      {/* Index */}
-      <span className="absolute top-4 right-5 text-[0.55rem] tracking-[0.2em] uppercase text-[#f0f0f0]/15 font-sans tabular-nums">
-        {String(index + 1).padStart(2, '0')}
-      </span>
-
-      {/* Category badge */}
-      <span className={`inline-flex self-start mb-4 text-[0.55rem] tracking-[0.2em] uppercase font-sans ${WORKFLOW_CATEGORY_BADGE_COLORS[workflow.category]}`}>
-        {workflow.category}
       </span>
 
       {/* Name */}
       <h3 className="font-display font-bold text-[1.05rem] leading-snug text-[#f0f0f0] mb-3 tracking-tight">
-        {workflow.name}
+        {item.name}
       </h3>
 
-      {/* Description */}
-      {workflow.description ? (
+      {/* Description (optional) */}
+      {item.description ? (
         <p className="font-sans text-[0.8rem] leading-relaxed text-[#f0f0f0]/55 mb-5 flex-1">
-          {workflow.description}
+          {item.description}
         </p>
       ) : (
         <div className="flex-1" />
       )}
 
-      {/* Tech pills */}
-      {workflow.tech && workflow.tech.length > 0 && (
+      {/* Tech pills (optional) */}
+      {hasTech && (
+        <div className="flex flex-wrap gap-1.5 mb-5">
+          {item.tech!.map((t) => (
+            <TechPill key={t} label={t} />
+          ))}
+        </div>
+      )}
+
+      {/* Link / action — shown only when the item has a url (projects have one; workflows don't) */}
+      {hasUrl && (
         <div className="mt-auto pt-4 border-t border-white/[0.05]">
-          <div className="flex flex-wrap gap-1.5">
-            {workflow.tech.map((t) => (
-              <TechPill key={t} label={t} />
-            ))}
-          </div>
+          {hasModal ? (
+            <button
+              onClick={() => onOpenModal?.(item.modalContent!)}
+              className="inline-flex items-center gap-1.5 text-[0.7rem] tracking-[0.1em] uppercase font-sans text-[#e63946] hover:text-[#ff4d5a] transition-colors duration-200"
+            >
+              Read Research
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                <path d="M5 1h4v4M9 1 1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          ) : isLive ? (
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[0.7rem] tracking-[0.1em] uppercase font-sans text-[#e63946] hover:text-[#ff4d5a] transition-colors duration-200"
+            >
+              View Project
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-[0.7rem] tracking-[0.1em] uppercase font-sans text-[#f0f0f0]/20 cursor-default select-none">
+              Private / Internal
+            </span>
+          )}
         </div>
       )}
     </article>
@@ -581,16 +568,38 @@ export default function Projects() {
   const [displayCategory, setDisplayCategory] = useState<Category>('All');
   const [openModal, setOpenModal] = useState<ModalContent | null>(null);
   const [activeWorkflowTab, setActiveWorkflowTab] = useState<AutomationTab>('All');
+  const [page, setPage] = useState(1);
   const hasAnimatedRef = useRef(false);
 
-  const filtered = PROJECTS.filter(
-    (p) => displayCategory === 'All' || p.category === displayCategory
-  );
+  const PAGE_SIZE = 24;
 
-  const filteredWorkflows: Workflow[] =
-    activeWorkflowTab === 'All'
-      ? FEATURED_WORKFLOWS
-      : WORKFLOWS.filter((w) => w.category === activeWorkflowTab);
+  const automationProjects = PROJECTS.filter((p) => p.category === 'Automation');
+
+  /* When Automation is active, merge projects + workflows into one list and
+     apply the active subtab filter. Otherwise show projects by main category
+     (Automation projects are surfaced only inside the Automation view). */
+  const filtered: CardItem[] =
+    displayCategory === 'Automation'
+      ? [
+          ...automationProjects.map(projectToCardItem),
+          ...WORKFLOWS.map(workflowToCardItem),
+        ].filter(
+          (item) =>
+            activeWorkflowTab === 'All' || item.subCategory === activeWorkflowTab
+        )
+      : PROJECTS
+          .filter((p) => {
+            if (p.category === 'Automation') return false;
+            return displayCategory === 'All' || p.category === displayCategory;
+          })
+          .map(projectToCardItem);
+
+  /* Pagination (Automation view only) */
+  const isPaginated = displayCategory === 'Automation';
+  const pageCount = isPaginated ? Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)) : 1;
+  const pageItems = isPaginated
+    ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+    : filtered;
 
   /* Close modal on Escape */
   useEffect(() => {
@@ -654,6 +663,7 @@ export default function Projects() {
     (cat: Category) => {
       if (cat === activeCategory) return;
       setActiveCategory(cat);
+      setPage(1);
 
       if (!hasAnimatedRef.current) {
         setDisplayCategory(cat);
@@ -682,7 +692,7 @@ export default function Projects() {
     [activeCategory]
   );
 
-  /* Animate newly rendered cards after a filter swap */
+  /* Animate newly rendered cards after a filter swap, subtab change, or page change */
   useEffect(() => {
     if (!hasAnimatedRef.current) return;
     const cards = gridRef.current?.querySelectorAll('.project-card');
@@ -699,7 +709,7 @@ export default function Projects() {
         ease: 'power3.out',
       }
     );
-  }, [displayCategory]);
+  }, [displayCategory, activeWorkflowTab, page]);
 
   return (
     <section
@@ -741,7 +751,7 @@ export default function Projects() {
           {CATEGORIES.map((cat) => {
             const count =
               cat === 'Automation'
-                ? WORKFLOWS.length
+                ? automationProjects.length + WORKFLOWS.length
                 : cat === 'All'
                 ? PROJECTS.filter((p) => p.category !== 'Automation').length + WORKFLOWS.length
                 : PROJECTS.filter((p) => p.category === cat).length;
@@ -771,73 +781,100 @@ export default function Projects() {
           })}
         </div>
 
-        {/* Grid */}
+        {/* Automation subtabs (inline; only shown when Automation is active) */}
+        {displayCategory === 'Automation' && (
+          <div
+            className="flex flex-wrap gap-2 -mt-8 mb-10"
+            role="tablist"
+            aria-label="Filter automation workflows"
+          >
+            {AUTOMATION_TABS.map((tab) => {
+              const count =
+                tab === 'All'
+                  ? automationProjects.length + WORKFLOWS.length
+                  : WORKFLOWS.filter((w) => w.category === tab).length +
+                    automationProjects.filter((p) => p.subCategory === tab).length;
+              const isActive = activeWorkflowTab === tab;
+              return (
+                <button
+                  key={tab}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => {
+                    setActiveWorkflowTab(tab);
+                    setPage(1);
+                  }}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.6rem] tracking-[0.12em] uppercase font-sans transition-all duration-200 border rounded-sm ${
+                    isActive
+                      ? 'border-[#e63946] text-[#e63946] bg-[#e63946]/[0.08]'
+                      : 'border-white/[0.07] text-[#f0f0f0]/35 hover:border-white/[0.14] hover:text-[#f0f0f0]/60'
+                  }`}
+                >
+                  {AUTOMATION_TAB_LABELS[tab]}
+                  <span className={`text-[0.5rem] tabular-nums ${isActive ? 'text-[#e63946]/60' : 'text-[#f0f0f0]/18'}`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Unified grid */}
         <div
           ref={gridRef}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         >
-          {filtered.map((project, i) => (
-            <ProjectCard
-              key={project.name}
-              project={project}
-              index={i}
+          {pageItems.map((item, i) => (
+            <Card
+              key={`${item.mainCategory}-${item.subCategory ?? 'none'}-${item.name}`}
+              item={item}
+              index={(page - 1) * PAGE_SIZE + i}
               onOpenModal={setOpenModal}
             />
           ))}
         </div>
 
-        {/* ── Automation workflows (shown when Automation tab is active) ── */}
-        {displayCategory === 'Automation' && (
-          <div className="mt-16 border-t border-white/[0.05] pt-10">
-            <div className="flex items-center gap-4 mb-2">
-              <div className="h-px w-6 bg-[#e63946]" />
-              <h3 className="font-display font-bold text-[1.1rem] text-[#f0f0f0]">
-                109+ Automation Workflows
-              </h3>
-              <span className="text-[0.55rem] tracking-[0.2em] uppercase text-[#e63946]/60 font-sans border border-[#e63946]/25 px-2 py-0.5">
-                n8n
-              </span>
-            </div>
-            <p className="font-sans text-[0.8rem] text-[#f0f0f0]/30 mb-8 ml-10">
-              Full breakdown of all automation workflows built at Baseaim
-            </p>
-
-            {/* Automation subtabs */}
-            <div className="flex flex-wrap gap-2 mb-8" role="tablist" aria-label="Filter automation workflows">
-              {AUTOMATION_TABS.map((tab) => {
-                const count =
-                  tab === 'All'
-                    ? WORKFLOWS.length
-                    : WORKFLOWS.filter((w) => w.category === tab).length;
-                const isActive = activeWorkflowTab === tab;
-                return (
-                  <button
-                    key={tab}
-                    role="tab"
-                    aria-selected={isActive}
-                    onClick={() => setActiveWorkflowTab(tab)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.6rem] tracking-[0.12em] uppercase font-sans transition-all duration-200 border rounded-sm ${
-                      isActive
-                        ? 'border-[#e63946] text-[#e63946] bg-[#e63946]/[0.08]'
-                        : 'border-white/[0.07] text-[#f0f0f0]/35 hover:border-white/[0.14] hover:text-[#f0f0f0]/60'
-                    }`}
-                  >
-                    {AUTOMATION_TAB_LABELS[tab]}
-                    <span className={`text-[0.5rem] tabular-nums ${isActive ? 'text-[#e63946]/60' : 'text-[#f0f0f0]/18'}`}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Workflow cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredWorkflows.map((workflow, i) => (
-                <WorkflowCard key={`${workflow.category}-${workflow.name}-${i}`} workflow={workflow} index={i} />
-              ))}
-            </div>
-          </div>
+        {/* Pagination (Automation view only, multi-page only) */}
+        {isPaginated && pageCount > 1 && (
+          <nav
+            className="mt-10 flex flex-wrap items-center justify-center gap-2"
+            aria-label="Pagination"
+          >
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.6rem] tracking-[0.12em] uppercase font-sans border border-white/[0.08] rounded-sm text-[#f0f0f0]/50 hover:border-white/[0.2] hover:text-[#f0f0f0]/80 transition-all duration-200 disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:border-white/[0.08] disabled:hover:text-[#f0f0f0]/50"
+              aria-label="Previous page"
+            >
+              ← Prev
+            </button>
+            {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) => {
+              const isActive = p === page;
+              return (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`inline-flex items-center justify-center min-w-[2rem] px-2.5 py-1.5 text-[0.65rem] tabular-nums font-sans border rounded-sm transition-all duration-200 ${
+                    isActive
+                      ? 'border-[#e63946] text-[#e63946] bg-[#e63946]/[0.08]'
+                      : 'border-white/[0.08] text-[#f0f0f0]/40 hover:border-white/[0.2] hover:text-[#f0f0f0]/70'
+                  }`}
+                >
+                  {p}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+              disabled={page === pageCount}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.6rem] tracking-[0.12em] uppercase font-sans border border-white/[0.08] rounded-sm text-[#f0f0f0]/50 hover:border-white/[0.2] hover:text-[#f0f0f0]/80 transition-all duration-200 disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:border-white/[0.08] disabled:hover:text-[#f0f0f0]/50"
+              aria-label="Next page"
+            >
+              Next →
+            </button>
+          </nav>
         )}
       </div>
 
