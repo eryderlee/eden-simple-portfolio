@@ -44,7 +44,7 @@ const EDUCATION = [
     degree: 'BSc Computing & Software Systems',
     institution: 'University of Melbourne',
     period: '2025',
-    note: null,
+    note: 'Undergraduate',
     activities: null,
   },
   {
