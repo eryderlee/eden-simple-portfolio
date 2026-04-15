@@ -11,6 +11,8 @@ interface Tile {
   skills: string[];
   /** Tailwind col-span on md+ */
   span: string;
+  /** Big faded watermark character(s) behind the tile content */
+  glyph: string;
 }
 
 const TILES: Tile[] = [
@@ -18,36 +20,43 @@ const TILES: Tile[] = [
     label: 'Languages',
     skills: ['JavaScript', 'TypeScript', 'Python', 'C', 'HTML', 'CSS'],
     span: 'md:col-span-4',
+    glyph: '{ }',
   },
   {
     label: 'Frontend',
     skills: ['React', 'Next.js', 'Tailwind CSS', 'GSAP', 'TanStack Query'],
     span: 'md:col-span-2',
+    glyph: '</>',
   },
   {
     label: 'Backend',
     skills: ['Node.js', 'tRPC', 'Prisma', 'REST APIs', 'NextAuth'],
     span: 'md:col-span-3',
+    glyph: '[ ]',
   },
   {
     label: 'Databases',
     skills: ['PostgreSQL', 'Supabase', 'MongoDB', 'Vector DB (RAG)'],
     span: 'md:col-span-3',
+    glyph: '::',
   },
   {
     label: 'Automation',
     skills: ['n8n', 'OpenAI API', 'Retell', 'SignNow', 'Cal.com'],
     span: 'md:col-span-4',
+    glyph: '//',
   },
   {
     label: 'Tools & Platforms',
     skills: ['Git', 'Vercel', 'Netlify', 'Stripe', 'GitHub', 'Figma'],
     span: 'md:col-span-2',
+    glyph: '+',
   },
   {
     label: 'Hobbies',
     skills: ['Gym', 'Dragon Dancing', 'Muay Thai', 'Badminton', 'PickleBall', 'Jiu-jitsu', 'PC Building', 'BeatBoxing'],
     span: 'md:col-span-6',
+    glyph: '◇',
   },
 ];
 
@@ -78,6 +87,7 @@ export default function Skills() {
         },
       });
 
+      /* Tile entrance */
       gsap.fromTo(
         '.skill-tile',
         { opacity: 0, y: 24, scale: 0.96 },
@@ -95,6 +105,62 @@ export default function Skills() {
           },
         }
       );
+
+      /* Per-tile: scan-line sweep, pill reveals, count-up
+         Each tile animates in sequence with the tile entrance stagger. */
+      gsap.utils.toArray<HTMLElement>('.skill-tile').forEach((tile, i) => {
+        const scan = tile.querySelector<HTMLElement>('.scan-line');
+        const pills = tile.querySelectorAll<HTMLElement>('.skill-pill');
+        const counter = tile.querySelector<HTMLElement>('.skill-count');
+        const target = Number(counter?.dataset.target ?? '0');
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '.skills-bento',
+            start: 'top 88%',
+            once: true,
+          },
+          delay: 0.3 + i * 0.08, // line up with the tile entrance stagger
+        });
+
+        if (scan) {
+          tl.fromTo(
+            scan,
+            { top: '0%', opacity: 0.55 },
+            { top: '100%', opacity: 0, duration: 0.75, ease: 'power2.inOut' },
+            0
+          );
+        }
+
+        tl.fromTo(
+          pills,
+          { opacity: 0, y: 10 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.4,
+            ease: 'power3.out',
+            stagger: 0.035,
+          },
+          0.15
+        );
+
+        if (counter) {
+          const obj = { v: 0 };
+          tl.to(
+            obj,
+            {
+              v: target,
+              duration: 0.9,
+              ease: 'power2.out',
+              onUpdate: () => {
+                counter.textContent = String(Math.round(obj.v)).padStart(2, '0');
+              },
+            },
+            0
+          );
+        }
+      });
     }, sectionRef);
 
     return () => ctx.revert();
@@ -124,11 +190,30 @@ export default function Skills() {
 
         {/* Bento grid */}
         <div className="skills-bento grid grid-cols-1 md:grid-cols-6 gap-3 auto-rows-fr">
-          {TILES.map(({ label, skills, span }) => (
+          {TILES.map(({ label, skills, span, glyph }) => (
             <article
               key={label}
-              className={`skill-tile group relative flex flex-col bg-[#0d0d0d] border border-white/[0.06] p-6 md:p-7 transition-colors duration-300 hover:border-[#e63946]/35 ${span}`}
+              className={`skill-tile group relative flex flex-col overflow-hidden border border-white/[0.06] p-6 md:p-7 transition-colors duration-300 hover:border-[#e63946]/35 ${span}`}
+              style={{
+                background:
+                  'radial-gradient(ellipse at top left, rgba(230,57,70,0.06) 0%, rgba(13,13,13,1) 55%)',
+              }}
             >
+              {/* Watermark glyph */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-3 -bottom-6 md:-right-4 md:-bottom-8 font-display font-black text-[7rem] md:text-[9rem] leading-none text-[#f0f0f0]/[0.04] select-none tracking-tighter"
+              >
+                {glyph}
+              </span>
+
+              {/* Scan-line sweep (animated on scroll-in) */}
+              <span
+                aria-hidden="true"
+                className="scan-line pointer-events-none absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#e63946]/70 to-transparent opacity-0"
+                style={{ top: '0%' }}
+              />
+
               {/* Corner bracket — top-right */}
               <span
                 aria-hidden="true"
@@ -141,22 +226,25 @@ export default function Skills() {
               />
 
               {/* Label row */}
-              <div className="flex items-center gap-3 mb-5">
+              <div className="relative flex items-center gap-3 mb-5">
                 <div className="h-px w-4 bg-[#e63946]/60" />
                 <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/75 font-sans">
                   {label}
                 </span>
-                <span className="text-[0.55rem] tabular-nums font-sans text-[#f0f0f0]/30 ml-auto">
-                  {String(skills.length).padStart(2, '0')}
+                <span
+                  className="skill-count text-[0.55rem] tabular-nums font-sans text-[#f0f0f0]/30 ml-auto"
+                  data-target={skills.length}
+                >
+                  00
                 </span>
               </div>
 
               {/* Skills */}
-              <div className="flex flex-wrap gap-1.5">
+              <div className="relative flex flex-wrap gap-1.5">
                 {skills.map((skill) => (
                   <span
                     key={skill}
-                    className="inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/60 hover:border-[#e63946]/40 hover:text-[#f0f0f0]/90 transition-colors duration-200"
+                    className="skill-pill inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] bg-[#0d0d0d]/80 text-[#f0f0f0]/60 hover:border-[#e63946]/40 hover:text-[#f0f0f0]/90 transition-colors duration-200 backdrop-blur-[1px]"
                   >
                     {skill}
                   </span>
