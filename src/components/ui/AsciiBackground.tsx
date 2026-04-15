@@ -272,29 +272,58 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       rafId = requestAnimationFrame(render);
     }
 
-    // ── Pause when tab hidden ─────────────────────────────────────────────
+    // ── Pause when tab hidden / resume when visible ───────────────────────
     let pausedAt: number | null = null;
     function onVisibility() {
       if (document.visibilityState === 'hidden') {
+        cancelAnimationFrame(rafId);
         pausedAt = performance.now();
-      } else if (pausedAt !== null) {
-        t0 += performance.now() - pausedAt;
-        pausedAt = null; lastFrame = 0;
+      } else {
+        // Resume (covers both: after a hide, and the occasional case where
+        // the browser fires visibilitychange on focus even without a prior hide).
+        if (pausedAt !== null) {
+          t0 += performance.now() - pausedAt;
+          pausedAt = null;
+        }
+        lastFrame = 0;
+        cancelAnimationFrame(rafId);
+        computeGrid(); // layout may have shifted while hidden
         rafId = requestAnimationFrame(render);
       }
     }
     document.addEventListener('visibilitychange', onVisibility);
 
+    // ── BFCache restore ───────────────────────────────────────────────────
+    // When the page is restored from the back-forward cache, React doesn't
+    // re-run the effect but the RAF loop is dead. Restart it here.
+    function onPageShow(e: PageTransitionEvent) {
+      if (!e.persisted) return;
+      cancelAnimationFrame(rafId);
+      lastFrame = 0;
+      pausedAt = null;
+      computeGrid();
+      rafId = requestAnimationFrame(render);
+    }
+    window.addEventListener('pageshow', onPageShow);
+
     const ro = new ResizeObserver(computeGrid);
     ro.observe(host);
 
-    const start = () => { computeGrid(); rafId = requestAnimationFrame(render); };
-    if (document.fonts?.ready) document.fonts.ready.then(start); else start();
+    // Kick off the loop immediately — don't gate on document.fonts.ready,
+    // which can hang indefinitely on font-load failures and leave the
+    // background permanently blank. Fall back to Courier immediately, then
+    // re-measure once custom fonts do load.
+    computeGrid();
+    rafId = requestAnimationFrame(render);
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => computeGrid()).catch(() => {});
+    }
 
     return () => {
       cancelAnimationFrame(rafId);
       ro.disconnect();
       window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('pageshow', onPageShow);
       document.removeEventListener('visibilitychange', onVisibility);
       if (host.contains(pre)) host.removeChild(pre);
     };
