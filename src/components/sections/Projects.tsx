@@ -578,12 +578,10 @@ export default function Projects() {
           })
           .map(projectToCardItem);
 
-  /* Pagination (Automation view only) */
-  const isPaginated = displayCategory === 'Automation';
-  const pageCount = isPaginated ? Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)) : 1;
-  const pageItems = isPaginated
-    ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-    : filtered;
+  /* Pagination (all tabs). Controls auto-hide when the filtered set fits
+     on a single page, so small tabs (Web, Academic) don't render chrome. */
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   /* Close modal on Escape */
   useEffect(() => {
@@ -820,7 +818,7 @@ export default function Projects() {
         </div>
 
         {/* Pagination (Automation view only, multi-page only) */}
-        {isPaginated && pageCount > 1 && (
+        {pageCount > 1 && (
           <nav
             className="mt-10 flex flex-wrap items-center justify-center gap-2"
             aria-label="Pagination"
