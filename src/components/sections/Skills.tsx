@@ -11,8 +11,6 @@ interface Tile {
   skills: string[];
   /** Tailwind col-span on md+ */
   span: string;
-  /** Big faded watermark character(s) behind the tile content */
-  glyph: string;
 }
 
 const TILES: Tile[] = [
@@ -20,43 +18,36 @@ const TILES: Tile[] = [
     label: 'Languages',
     skills: ['JavaScript', 'TypeScript', 'Python', 'C', 'HTML', 'CSS'],
     span: 'md:col-span-4',
-    glyph: '{ }',
   },
   {
     label: 'Frontend',
     skills: ['React', 'Next.js', 'Tailwind CSS', 'GSAP', 'TanStack Query'],
     span: 'md:col-span-2',
-    glyph: '</>',
   },
   {
     label: 'Backend',
     skills: ['Node.js', 'tRPC', 'Prisma', 'REST APIs', 'NextAuth'],
     span: 'md:col-span-3',
-    glyph: '[ ]',
   },
   {
     label: 'Databases',
     skills: ['PostgreSQL', 'Supabase', 'MongoDB', 'Vector DB (RAG)'],
     span: 'md:col-span-3',
-    glyph: '::',
   },
   {
     label: 'Automation',
     skills: ['n8n', 'OpenAI API', 'Retell', 'SignNow', 'Cal.com'],
     span: 'md:col-span-4',
-    glyph: '//',
   },
   {
     label: 'Tools & Platforms',
     skills: ['Git', 'Vercel', 'Netlify', 'Stripe', 'GitHub', 'Figma'],
     span: 'md:col-span-2',
-    glyph: '+',
   },
   {
     label: 'Hobbies',
     skills: ['Gym', 'Dragon Dancing', 'Muay Thai', 'Badminton', 'PickleBall', 'Jiu-jitsu', 'PC Building', 'BeatBoxing'],
     span: 'md:col-span-6',
-    glyph: '◇',
   },
 ];
 
@@ -190,39 +181,16 @@ export default function Skills() {
 
         {/* Bento grid */}
         <div className="skills-bento grid grid-cols-1 md:grid-cols-6 gap-3 auto-rows-fr">
-          {TILES.map(({ label, skills, span, glyph }) => (
+          {TILES.map(({ label, skills, span }) => (
             <article
               key={label}
-              className={`skill-tile group relative flex flex-col overflow-hidden border border-white/[0.06] p-6 md:p-7 transition-colors duration-300 hover:border-[#e63946]/35 ${span}`}
-              style={{
-                background:
-                  'radial-gradient(ellipse at top left, rgba(230,57,70,0.06) 0%, rgba(13,13,13,1) 55%)',
-              }}
+              className={`skill-tile relative flex flex-col overflow-hidden bg-[#0d0d0d] border border-white/[0.06] p-6 md:p-7 transition-colors duration-300 hover:border-[#e63946]/35 ${span}`}
             >
-              {/* Watermark glyph */}
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-3 -bottom-6 md:-right-4 md:-bottom-8 font-display font-black text-[7rem] md:text-[9rem] leading-none text-[#f0f0f0]/[0.04] select-none tracking-tighter"
-              >
-                {glyph}
-              </span>
-
               {/* Scan-line sweep (animated on scroll-in) */}
               <span
                 aria-hidden="true"
                 className="scan-line pointer-events-none absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#e63946]/70 to-transparent opacity-0"
                 style={{ top: '0%' }}
-              />
-
-              {/* Corner bracket — top-right */}
-              <span
-                aria-hidden="true"
-                className="absolute top-3 right-3 w-2.5 h-2.5 border-t border-r border-[#e63946]/40 transition-colors duration-300 group-hover:border-[#e63946]"
-              />
-              {/* Corner bracket — bottom-left */}
-              <span
-                aria-hidden="true"
-                className="absolute bottom-3 left-3 w-2.5 h-2.5 border-b border-l border-[#e63946]/25 transition-colors duration-300 group-hover:border-[#e63946]/70"
               />
 
               {/* Label row */}
@@ -244,7 +212,7 @@ export default function Skills() {
                 {skills.map((skill) => (
                   <span
                     key={skill}
-                    className="skill-pill inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] bg-[#0d0d0d]/80 text-[#f0f0f0]/60 hover:border-[#e63946]/40 hover:text-[#f0f0f0]/90 transition-colors duration-200 backdrop-blur-[1px]"
+                    className="skill-pill inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/60 hover:border-[#e63946]/40 hover:text-[#f0f0f0]/90 transition-colors duration-200"
                   >
                     {skill}
                   </span>
