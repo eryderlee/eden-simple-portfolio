@@ -173,7 +173,7 @@ export default function Experience() {
                 </span>
                 <div className="timeline-container space-y-3">
                   {WORK.map((item, i) => (
-                    <div key={i} className="timeline-entry border border-white/[0.06] p-6 hover:bg-white/[0.02] hover:border-white/[0.1] transition-all duration-300">
+                    <div key={i} className="timeline-entry border border-white/[0.06] p-6 hover:bg-white/[0.02] hover:border-white/[0.1] transition-colors duration-300">
                       <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start sm:justify-between gap-x-4 gap-y-2 mb-2">
                         <div>
                           <span className="font-display font-bold text-[0.95rem] text-[#f0f0f0]">
@@ -209,8 +209,7 @@ export default function Experience() {
                     {EDUCATION.map((item, i) => (
                       <div
                         key={i}
-                        className="edu-item border border-white/[0.06] p-6 hover:bg-white/[0.02] hover:border-white/[0.1] transition-all duration-300"
-                        style={{ opacity: 1 }}
+                        className="edu-item border border-white/[0.06] p-6 hover:bg-white/[0.02] hover:border-white/[0.1] transition-colors duration-300"
                       >
                         <div className="font-display font-bold text-[0.9rem] text-[#f0f0f0] mb-1 leading-snug">
                           {item.degree}
