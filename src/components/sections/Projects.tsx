@@ -181,7 +181,7 @@ const PROJECTS: Project[] = [
   },
 ];
 
-/* ── All 109 n8n workflows ──────────────────────────────────── */
+/* ── All 93 n8n workflows ──────────────────────────────────── */
 const WORKFLOWS: Workflow[] = [
   // Lead Generation (18)
   { name: 'AI Lead Generation - Google Maps Scraper', category: 'Lead Generation' },
@@ -285,26 +285,10 @@ const WORKFLOWS: Workflow[] = [
   { name: 'Crypto Market Analyzer — BTC/ETH (v2)', category: 'Finance' },
   { name: 'Crypto Market Analyzer — BTC/ETH RSS → Discord+Telegram', category: 'Finance' },
 
-  // Other (19)
+  // Other (3)
   { name: 'Error Handler', category: 'Other' },
-  { name: 'Workflow Prototype 1', category: 'Other' },
-  { name: 'Workflow Prototype 2', category: 'Other' },
-  { name: 'Workflow Prototype 3', category: 'Other' },
-  { name: 'Test Workflow — API Connection', category: 'Other' },
-  { name: 'Test Workflow — Basic Demo', category: 'Other' },
-  { name: 'Workflow Prototype 4', category: 'Other' },
-  { name: 'Workflow Prototype 5', category: 'Other' },
-  { name: 'Workflow Prototype 6', category: 'Other' },
-  { name: 'Workflow Prototype 7', category: 'Other' },
-  { name: 'Workflow Prototype 8', category: 'Other' },
-  { name: 'Workflow Prototype 9', category: 'Other' },
-  { name: 'Workflow Prototype 10', category: 'Other' },
-  { name: 'Workflow Prototype 11', category: 'Other' },
   { name: 'Wallpaper Generator', category: 'Other' },
   { name: 'Motivation Workflow', category: 'Other' },
-  { name: 'HTTP Request Node', category: 'Other' },
-  { name: 'Workflow Prototype 12', category: 'Other' },
-  { name: 'Workflow Prototype 13', category: 'Other' },
 ];
 
 /* ── Automation subtabs ─────────────────────────────────────── */
