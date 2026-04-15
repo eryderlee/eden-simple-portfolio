@@ -133,19 +133,27 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     let eraseBuf = new Float32Array(1);
 
     function measureCell() {
-      const probe = document.createElement('span');
-      probe.textContent = 'M'.repeat(200);
+      if (!host) return;
+      // Use a <pre> probe with 6 lines so we can measure actual rendered
+      // line-height from the bounding rect, rather than parsing
+      // getComputedStyle(pre).lineHeight — which on some WebKit versions
+      // returns "1.15" (unitless) or "normal", breaking the calculation and
+      // leaving the grid far shorter than the host on mobile.
+      const probe = document.createElement('pre');
+      probe.textContent = 'M'.repeat(200) + '\nM\nM\nM\nM\nM';
+      const cs = getComputedStyle(pre);
       Object.assign(probe.style, {
         position: 'absolute', left: '-9999px', top: '-9999px',
         whiteSpace: 'pre', pointerEvents: 'none', visibility: 'hidden',
+        margin: '0', padding: '0',
+        font: cs.font,
+        letterSpacing: cs.letterSpacing,
+        lineHeight: cs.lineHeight,
       });
-      const cs = getComputedStyle(pre);
-      probe.style.font = cs.font;
-      probe.style.letterSpacing = cs.letterSpacing;
-      if (!host) return;
       host.appendChild(probe);
-      const w = probe.getBoundingClientRect().width / 200 || 8;
-      const lh = parseFloat(cs.lineHeight) || 14;
+      const rect = probe.getBoundingClientRect();
+      const w = rect.width / 200 || 8;
+      const lh = rect.height / 6 || 14;
       host.removeChild(probe);
       return { cw: w, lh };
     }
@@ -157,12 +165,14 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       cellW = m.cw; cellH = m.lh;
       const rect = host.getBoundingClientRect();
       const c = Math.max(1, Math.floor(rect.width  / cellW - 0.15));
-      // Round UP and add a buffer so the grid always over-fills the host.
-      // Excess rows are clipped by overflow: hidden on the outer wrapper, so
-      // this costs nothing visually but guarantees no blank gap at the
-      // bottom if layout is still settling (e.g. mobile About stacking,
-      // fonts loading, images laying out).
-      const r = Math.max(1, Math.ceil(rect.height / cellH) + 4);
+      // Over-fill aggressively: 5% more rows than fit PLUS a 12-row floor.
+      // Excess rows are clipped by overflow: hidden on the outer wrapper,
+      // so there's no visual cost — but we're now guaranteed to fill the
+      // host even if the rect reports a stale/short height (common on
+      // mobile while About is still stacking its stacked layout, iOS's
+      // address bar is animating, or images are finishing layout).
+      const baseRows = Math.ceil(rect.height / cellH);
+      const r = Math.max(1, Math.ceil(baseRows * 1.05) + 12);
       if (c !== cols || r !== rows) {
         cols = c; rows = r;
         sShort = Math.min(cols, rows);
