@@ -5,11 +5,11 @@ import { useEffect, useRef } from 'react';
 interface Props {
   opacity?: number;
   /**
-   * Height of the bottom fade zone as a CSS length (e.g. "200px", "12rem").
-   * The fade always ends at the bottom of the host; this prop controls how
-   * tall the fade ramp is. Using a fixed length (instead of a percentage of
-   * the host height) keeps the fade-out distance from the ticker constant
-   * across desktop and mobile, where the host height varies a lot.
+   * Height of the bottom fade overlay as a CSS length (e.g. "120px").
+   * A black gradient is layered over the ASCII at the bottom of the host,
+   * transparent at the top of the ramp → solid black at the very bottom.
+   * Using an overlay (rather than a mask) avoids iOS Safari's spotty
+   * mask-composite behaviour.
    */
   maskBottom?: string;
 }
@@ -374,35 +374,35 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
   }, []);
 
   const sideMask = 'linear-gradient(to right, black 0%, black 18%, transparent 36%, transparent 64%, black 82%, black 100%)';
-  const bottomMask = maskBottom
-    ? `linear-gradient(to bottom, black 0, black calc(100% - ${maskBottom}), transparent 100%)`
-    : null;
 
-  // Apply the two masks to two nested elements instead of combining them on a
-  // single element via mask-composite. mask-composite has spotty support on
-  // iOS Safari; nested masks combine reliably on every browser because each
-  // layer only uses a single mask-image.
+  // The ASCII itself only uses the horizontal side mask (well supported
+  // everywhere). The bottom fade is implemented below as a sibling overlay
+  // div — not as a mask — because iOS Safari's mask-composite support is
+  // unreliable and was silently ignoring our previous two-layer mask.
+  //
+  // Opacity lives on the inner ASCII element so the bottom overlay can
+  // render at full (100%) opacity and actually hide the ASCII underneath.
   return (
-    <div
-      className="absolute inset-0 overflow-hidden pointer-events-none"
-      style={
-        bottomMask
-          ? {
-              opacity,
-              maskImage: bottomMask,
-              WebkitMaskImage: bottomMask,
-            }
-          : { opacity }
-      }
-    >
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <div
         ref={containerRef}
         className="absolute inset-0"
         style={{
+          opacity,
           maskImage: sideMask,
           WebkitMaskImage: sideMask,
         }}
       />
+      {maskBottom && (
+        <div
+          aria-hidden="true"
+          className="absolute left-0 right-0 bottom-0 pointer-events-none"
+          style={{
+            height: maskBottom,
+            background: 'linear-gradient(to bottom, transparent 0%, #000 100%)',
+          }}
+        />
+      )}
     </div>
   );
 }
