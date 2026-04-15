@@ -165,7 +165,7 @@ export default function About() {
                 ['Location', 'Point Cook, VIC'],
                 ['Country', 'Australia'],
                 ['Currently', 'BSc Computing'],
-                ['University', 'UniMelb 2025'],
+                ['University', 'UniMelb 2024'],
               ].map(([label, val]) => (
                 <div key={label}>
                   <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#f0f0f0]/22 font-sans block mb-1">
