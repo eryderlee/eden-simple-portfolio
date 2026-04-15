@@ -555,7 +555,10 @@ export default function Projects() {
   const [page, setPage] = useState(1);
   const hasAnimatedRef = useRef(false);
 
-  const PAGE_SIZE = 24;
+  /* Page size: smaller on non-Automation tabs so pagination shows even
+     with only a handful of projects; larger on Automation to keep the
+     long workflow list under ~5 pages. */
+  const pageSize = displayCategory === 'Automation' ? 24 : 6;
 
   const automationProjects = PROJECTS.filter((p) => p.category === 'Automation');
 
@@ -579,9 +582,9 @@ export default function Projects() {
           .map(projectToCardItem);
 
   /* Pagination (all tabs). Controls auto-hide when the filtered set fits
-     on a single page, so small tabs (Web, Academic) don't render chrome. */
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+     on a single page — Academic (2 items) stays control-free. */
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   /* Close modal on Escape */
   useEffect(() => {
@@ -811,7 +814,7 @@ export default function Projects() {
             <Card
               key={`${item.mainCategory}-${item.subCategory ?? 'none'}-${item.name}`}
               item={item}
-              index={(page - 1) * PAGE_SIZE + i}
+              index={(page - 1) * pageSize + i}
               onOpenModal={setOpenModal}
             />
           ))}
