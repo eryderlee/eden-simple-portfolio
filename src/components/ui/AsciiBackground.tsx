@@ -157,7 +157,12 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       cellW = m.cw; cellH = m.lh;
       const rect = host.getBoundingClientRect();
       const c = Math.max(1, Math.floor(rect.width  / cellW - 0.15));
-      const r = Math.max(1, Math.floor(rect.height / cellH - 0.05));
+      // Round UP and add a buffer so the grid always over-fills the host.
+      // Excess rows are clipped by overflow: hidden on the outer wrapper, so
+      // this costs nothing visually but guarantees no blank gap at the
+      // bottom if layout is still settling (e.g. mobile About stacking,
+      // fonts loading, images laying out).
+      const r = Math.max(1, Math.ceil(rect.height / cellH) + 4);
       if (c !== cols || r !== rows) {
         cols = c; rows = r;
         sShort = Math.min(cols, rows);
@@ -359,15 +364,32 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       document.fonts.ready.then(() => computeGrid()).catch(() => {});
     }
 
+    // Belt-and-braces recomputes to catch late layout shifts that the
+    // ResizeObserver sometimes misses on mobile (lazy-loaded images, iOS
+    // address-bar animations, content stacking post-hydration).
+    const delayedComputes = [
+      window.setTimeout(() => computeGrid(), 500),
+      window.setTimeout(() => computeGrid(), 1500),
+      window.setTimeout(() => computeGrid(), 3000),
+    ];
+    const onLoad = () => computeGrid();
+    if (document.readyState === 'complete') {
+      // already loaded; the timeouts above cover it
+    } else {
+      window.addEventListener('load', onLoad);
+    }
+
     return () => {
       cancelAnimationFrame(rafId);
       clearInterval(watchdog);
       ro.disconnect();
+      delayedComputes.forEach(clearTimeout);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('pageshow', onPageShow);
       window.removeEventListener('resize', onWinResize);
       window.removeEventListener('orientationchange', onWinResize);
       window.removeEventListener('focus', onFocus);
+      window.removeEventListener('load', onLoad);
       document.removeEventListener('visibilitychange', onVisibility);
       if (host.contains(pre)) host.removeChild(pre);
     };
