@@ -168,9 +168,12 @@ export default function Experience() {
 
               {/* Work timeline */}
               <div>
-                <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-8">
-                  Work
-                </span>
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="h-px w-6 bg-[#e63946]" />
+                  <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/60 font-sans">
+                    Work
+                  </span>
+                </div>
                 <div className="timeline-container space-y-3">
                   {WORK.map((item, i) => (
                     <div key={i} className="timeline-entry border border-white/[0.06] p-6 hover:bg-white/[0.02] hover:border-white/[0.1] transition-all duration-300">
@@ -202,9 +205,12 @@ export default function Experience() {
 
                 {/* Education */}
                 <div className="edu-section">
-                  <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-6">
-                    Education
-                  </span>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="h-px w-6 bg-[#e63946]" />
+                    <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/60 font-sans">
+                      Education
+                    </span>
+                  </div>
                   <div className="space-y-4">
                     {EDUCATION.map((item, i) => (
                       <div
@@ -240,9 +246,12 @@ export default function Experience() {
 
                 {/* Certifications */}
                 <div className="cert-section">
-                  <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-6">
-                    Certifications
-                  </span>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="h-px w-6 bg-[#e63946]" />
+                    <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/60 font-sans">
+                      Certifications
+                    </span>
+                  </div>
                   <div className="divide-y divide-white/[0.05]">
                     {CERTIFICATIONS.map((cert, i) => (
                       <div
