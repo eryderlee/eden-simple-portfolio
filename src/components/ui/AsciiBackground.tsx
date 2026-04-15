@@ -377,19 +377,32 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
   const bottomMask = maskBottom
     ? `linear-gradient(to bottom, black 0, black calc(100% - ${maskBottom}), transparent 100%)`
     : null;
-  const combinedMask = bottomMask ? `${sideMask}, ${bottomMask}` : sideMask;
 
+  // Apply the two masks to two nested elements instead of combining them on a
+  // single element via mask-composite. mask-composite has spotty support on
+  // iOS Safari; nested masks combine reliably on every browser because each
+  // layer only uses a single mask-image.
   return (
     <div
-      ref={containerRef}
       className="absolute inset-0 overflow-hidden pointer-events-none"
-      style={{
-        opacity,
-        maskImage: combinedMask,
-        WebkitMaskImage: combinedMask,
-        maskComposite: bottomMask ? 'intersect' : undefined,
-        WebkitMaskComposite: bottomMask ? 'source-in' : undefined,
-      }}
-    />
+      style={
+        bottomMask
+          ? {
+              opacity,
+              maskImage: bottomMask,
+              WebkitMaskImage: bottomMask,
+            }
+          : { opacity }
+      }
+    >
+      <div
+        ref={containerRef}
+        className="absolute inset-0"
+        style={{
+          maskImage: sideMask,
+          WebkitMaskImage: sideMask,
+        }}
+      />
+    </div>
   );
 }
