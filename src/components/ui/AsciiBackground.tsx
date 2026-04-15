@@ -136,6 +136,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       const cs = getComputedStyle(pre);
       probe.style.font = cs.font;
       probe.style.letterSpacing = cs.letterSpacing;
+      if (!host) return;
       host.appendChild(probe);
       const w = probe.getBoundingClientRect().width / 200 || 8;
       const lh = parseFloat(cs.lineHeight) || 14;
@@ -144,7 +145,9 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     }
 
     function computeGrid() {
+      if (!host) return;
       const m = measureCell();
+      if (!m) return;
       cellW = m.cw; cellH = m.lh;
       const rect = host.getBoundingClientRect();
       const c = Math.max(1, Math.floor(rect.width  / cellW - 0.15));
