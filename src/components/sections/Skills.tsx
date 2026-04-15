@@ -6,50 +6,35 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface Tile {
-  label: string;
-  skills: string[];
-  /** Tailwind col-span on md+ */
-  span: string;
-}
-
-const TILES: Tile[] = [
+const SKILL_GROUPS = [
   {
     label: 'Languages',
     skills: ['JavaScript', 'TypeScript', 'Python', 'C', 'HTML', 'CSS'],
-    span: 'md:col-span-4',
   },
   {
     label: 'Frontend',
     skills: ['React', 'Next.js', 'Tailwind CSS', 'GSAP', 'TanStack Query'],
-    span: 'md:col-span-2',
   },
   {
     label: 'Backend',
     skills: ['Node.js', 'tRPC', 'Prisma', 'REST APIs', 'NextAuth'],
-    span: 'md:col-span-3',
   },
   {
     label: 'Databases',
     skills: ['PostgreSQL', 'Supabase', 'MongoDB', 'Vector DB (RAG)'],
-    span: 'md:col-span-3',
   },
   {
     label: 'Automation',
     skills: ['n8n', 'OpenAI API', 'Retell', 'SignNow', 'Cal.com'],
-    span: 'md:col-span-4',
   },
   {
     label: 'Tools & Platforms',
     skills: ['Git', 'Vercel', 'Netlify', 'Stripe', 'GitHub', 'Figma'],
-    span: 'md:col-span-2',
-  },
-  {
-    label: 'Hobbies',
-    skills: ['Gym', 'Dragon Dancing', 'Muay Thai', 'Badminton', 'PickleBall', 'Jiu-jitsu', 'PC Building', 'BeatBoxing'],
-    span: 'md:col-span-6',
   },
 ];
+
+const HOBBIES_SKILLS = ['Gym', 'Dragon Dancing', 'Muay Thai', 'Badminton', 'PickleBall', 'Jiu-jitsu', 'PC Building', 'BeatBoxing'];
+
 
 export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -78,80 +63,22 @@ export default function Skills() {
         },
       });
 
-      /* Tile entrance */
       gsap.fromTo(
-        '.skill-tile',
-        { opacity: 0, y: 24, scale: 0.96 },
+        '.skill-row',
+        { opacity: 0, y: 24 },
         {
           opacity: 1,
           y: 0,
-          scale: 1,
-          duration: 0.7,
+          duration: 0.55,
           ease: 'power3.out',
-          stagger: 0.08,
+          stagger: 0.09,
           scrollTrigger: {
-            trigger: '.skills-bento',
-            start: 'top 88%',
+            trigger: '.skills-rows',
+            start: 'top 90%',
             once: true,
           },
         }
       );
-
-      /* Per-tile: scan-line sweep, pill reveals, count-up
-         Each tile animates in sequence with the tile entrance stagger. */
-      gsap.utils.toArray<HTMLElement>('.skill-tile').forEach((tile, i) => {
-        const scan = tile.querySelector<HTMLElement>('.scan-line');
-        const pills = tile.querySelectorAll<HTMLElement>('.skill-pill');
-        const counter = tile.querySelector<HTMLElement>('.skill-count');
-        const target = Number(counter?.dataset.target ?? '0');
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: '.skills-bento',
-            start: 'top 88%',
-            once: true,
-          },
-          delay: 0.3 + i * 0.08, // line up with the tile entrance stagger
-        });
-
-        if (scan) {
-          tl.fromTo(
-            scan,
-            { top: '0%', opacity: 0.55 },
-            { top: '100%', opacity: 0, duration: 0.75, ease: 'power2.inOut' },
-            0
-          );
-        }
-
-        tl.fromTo(
-          pills,
-          { opacity: 0, y: 10 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.4,
-            ease: 'power3.out',
-            stagger: 0.035,
-          },
-          0.15
-        );
-
-        if (counter) {
-          const obj = { v: 0 };
-          tl.to(
-            obj,
-            {
-              v: target,
-              duration: 0.9,
-              ease: 'power2.out',
-              onUpdate: () => {
-                counter.textContent = String(Math.round(obj.v)).padStart(2, '0');
-              },
-            },
-            0
-          );
-        }
-      });
     }, sectionRef);
 
     return () => ctx.revert();
@@ -161,67 +88,89 @@ export default function Skills() {
     <section
       ref={sectionRef}
       id="skills"
-      className="section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-20 md:pt-36 md:pb-24 px-5"
+      className="section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-16 md:pt-36 md:pb-0 px-5"
     >
+
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full">
-        {/* Heading */}
-        <div className="skills-label flex items-center gap-4 mb-6">
-          <div className="h-px w-8 bg-[#e63946]" />
-          <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
-            Skills
-          </span>
-        </div>
-        <h2 className="skills-heading font-display font-black text-[clamp(2rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0] mb-12">
-          Tools of<br />
-          <span className="text-[#e63946]">the trade</span>
-        </h2>
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
-        {/* Bento grid */}
-        <div className="skills-bento grid grid-cols-1 md:grid-cols-6 gap-3 auto-rows-fr">
-          {TILES.map(({ label, skills, span }) => (
-            <article
-              key={label}
-              className={`skill-tile relative flex flex-col overflow-hidden bg-[#0d0d0d] border border-white/[0.06] p-6 md:p-7 transition-colors duration-300 hover:border-[#e63946]/35 ${span}`}
-            >
-              {/* Scan-line sweep (animated on scroll-in) */}
-              <span
-                aria-hidden="true"
-                className="scan-line pointer-events-none absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#e63946]/70 to-transparent opacity-0"
-                style={{ top: '0%' }}
-              />
+          {/* Heading — full width, above content */}
+          <div className="skills-label flex items-center gap-4 mb-6">
+            <div className="h-px w-8 bg-[#e63946]" />
+            <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
+              Skills
+            </span>
+          </div>
+          <h2 className="skills-heading font-display font-black text-[clamp(2rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0] mb-12">
+            Tools of<br />
+            <span className="text-[#e63946]">the trade</span>
+          </h2>
 
-              {/* Label row */}
-              <div className="relative flex items-center gap-3 mb-5">
-                <div className="h-px w-4 bg-[#e63946]/60" />
-                <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/75 font-sans">
-                  {label}
-                </span>
-                <span
-                  className="skill-count text-[0.55rem] tabular-nums font-sans text-[#f0f0f0]/30 ml-auto"
-                  data-target={skills.length}
-                >
-                  00
-                </span>
-              </div>
+          {/* Skills rows + hobbies */}
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-10 items-start">
 
-              {/* Skills */}
-              <div className="relative flex flex-wrap gap-1.5">
-                {skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="skill-pill inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/60 hover:border-[#e63946]/40 hover:text-[#f0f0f0]/90 transition-colors duration-200"
+              {/* Main skill rows */}
+              <div className="skills-rows">
+                {SKILL_GROUPS.map(({ label, skills }) => (
+                  <div
+                    key={label}
+                    className="skill-row group border-t border-white/[0.05] hover:bg-white/[0.015] transition-colors duration-300 last:border-b last:border-white/[0.05]"
                   >
-                    {skill}
-                  </span>
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-0 py-8">
+                      {/* Category label */}
+                      <div className="sm:w-40 shrink-0 flex items-center gap-3">
+                        <div className="h-px w-4 bg-[#e63946]/50 hidden sm:block" />
+                        <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/70 font-sans">
+                          {label}
+                        </span>
+                      </div>
+
+                      {/* Separator — desktop only */}
+                      <div className="hidden sm:block w-px bg-white/[0.05] self-stretch mx-6" />
+
+                      {/* Skills */}
+                      <div className="flex flex-wrap gap-2 flex-1">
+                        {skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className="inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/55 hover:border-[#e63946]/30 hover:text-[#f0f0f0]/85 transition-all duration-200"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
-            </article>
-          ))}
+
+              {/* Hobbies column */}
+              <div className="lg:border-l lg:border-white/[0.05] lg:pl-10 pt-8 lg:pt-0">
+                <div className="border-t border-white/[0.05] pt-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="h-px w-4 bg-[#e63946]/50" />
+                    <span className="text-[0.58rem] tracking-[0.28em] uppercase text-[#e63946]/70 font-sans">
+                      Hobbies
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {HOBBIES_SKILLS.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center px-3 py-1.5 text-[0.72rem] tracking-[0.06em] font-sans border border-white/[0.08] text-[#f0f0f0]/55 hover:border-[#e63946]/30 hover:text-[#f0f0f0]/85 transition-all duration-200"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
         </div>
-      </div>
     </section>
   );
 }
