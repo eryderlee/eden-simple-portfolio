@@ -555,36 +555,30 @@ export default function Projects() {
   const [page, setPage] = useState(1);
   const hasAnimatedRef = useRef(false);
 
-  /* Page size: smaller on non-Automation tabs so pagination shows even
-     with only a handful of projects; larger on Automation to keep the
-     long workflow list under ~5 pages. */
-  const pageSize = displayCategory === 'Automation' ? 24 : 6;
+  const PAGE_SIZE = 24;
 
   const automationProjects = PROJECTS.filter((p) => p.category === 'Automation');
 
-  /* When Automation is active, merge projects + workflows into one list and
-     apply the active subtab filter. Otherwise show projects by main category
-     (Automation projects are surfaced only inside the Automation view). */
-  const filtered: CardItem[] =
-    displayCategory === 'Automation'
-      ? [
-          ...automationProjects.map(projectToCardItem),
-          ...WORKFLOWS.map(workflowToCardItem),
-        ].filter(
-          (item) =>
-            activeWorkflowTab === 'All' || item.subCategory === activeWorkflowTab
-        )
-      : PROJECTS
-          .filter((p) => {
-            if (p.category === 'Automation') return false;
-            return displayCategory === 'All' || p.category === displayCategory;
-          })
-          .map(projectToCardItem);
+  /* Single unified dataset. Main tabs filter by category; on Automation the
+     subtabs further filter by subCategory. All tab shows everything. */
+  const allItems: CardItem[] = [
+    ...PROJECTS.map(projectToCardItem),
+    ...WORKFLOWS.map(workflowToCardItem),
+  ];
+
+  const filtered: CardItem[] = allItems
+    .filter((item) => displayCategory === 'All' || item.mainCategory === displayCategory)
+    .filter(
+      (item) =>
+        displayCategory !== 'Automation' ||
+        activeWorkflowTab === 'All' ||
+        item.subCategory === activeWorkflowTab
+    );
 
   /* Pagination (all tabs). Controls auto-hide when the filtered set fits
-     on a single page — Academic (2 items) stays control-free. */
-  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
+     on a single page — Web (7) and Academic (2) stay control-free. */
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   /* Close modal on Escape */
   useEffect(() => {
@@ -720,7 +714,7 @@ export default function Projects() {
             <div className="mb-2 flex items-center gap-3">
               <div className="h-px w-12 bg-[#e63946]" />
               <span className="font-sans text-[0.6rem] tracking-[0.25em] uppercase text-[#f0f0f0]/20">
-                {PROJECTS.filter((p) => p.category !== 'Automation').length + WORKFLOWS.length} total
+                {PROJECTS.length + WORKFLOWS.length} total
               </span>
             </div>
           </div>
@@ -738,7 +732,7 @@ export default function Projects() {
               cat === 'Automation'
                 ? automationProjects.length + WORKFLOWS.length
                 : cat === 'All'
-                ? PROJECTS.filter((p) => p.category !== 'Automation').length + WORKFLOWS.length
+                ? PROJECTS.length + WORKFLOWS.length
                 : PROJECTS.filter((p) => p.category === cat).length;
             const isActive = activeCategory === cat;
             return (
@@ -814,7 +808,7 @@ export default function Projects() {
             <Card
               key={`${item.mainCategory}-${item.subCategory ?? 'none'}-${item.name}`}
               item={item}
-              index={(page - 1) * pageSize + i}
+              index={(page - 1) * PAGE_SIZE + i}
               onOpenModal={setOpenModal}
             />
           ))}
