@@ -671,6 +671,18 @@ export default function Projects() {
     [activeCategory]
   );
 
+  /* Change page + scroll the section back to its top so the user can see
+     the new set of cards without having to scroll manually. */
+  const goToPage = useCallback(
+    (p: number) => {
+      const next = Math.max(1, Math.min(pageCount, p));
+      if (next === page) return;
+      setPage(next);
+      sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+    [page, pageCount]
+  );
+
   /* Animate newly rendered cards after a filter swap, subtab change, or page change */
   useEffect(() => {
     if (!hasAnimatedRef.current) return;
@@ -821,7 +833,7 @@ export default function Projects() {
             aria-label="Pagination"
           >
             <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => goToPage(page - 1)}
               disabled={page === 1}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.6rem] tracking-[0.12em] uppercase font-sans border border-white/[0.08] rounded-sm text-[#f0f0f0]/50 hover:border-white/[0.2] hover:text-[#f0f0f0]/80 transition-all duration-200 disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:border-white/[0.08] disabled:hover:text-[#f0f0f0]/50"
               aria-label="Previous page"
@@ -833,7 +845,7 @@ export default function Projects() {
               return (
                 <button
                   key={p}
-                  onClick={() => setPage(p)}
+                  onClick={() => goToPage(p)}
                   aria-current={isActive ? 'page' : undefined}
                   className={`inline-flex items-center justify-center min-w-[2rem] px-2.5 py-1.5 text-[0.65rem] tabular-nums font-sans border rounded-sm transition-all duration-200 ${
                     isActive
@@ -846,7 +858,7 @@ export default function Projects() {
               );
             })}
             <button
-              onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+              onClick={() => goToPage(page + 1)}
               disabled={page === pageCount}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[0.6rem] tracking-[0.12em] uppercase font-sans border border-white/[0.08] rounded-sm text-[#f0f0f0]/50 hover:border-white/[0.2] hover:text-[#f0f0f0]/80 transition-all duration-200 disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:border-white/[0.08] disabled:hover:text-[#f0f0f0]/50"
               aria-label="Next page"
