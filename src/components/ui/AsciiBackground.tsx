@@ -244,7 +244,8 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // ── Render loop ───────────────────────────────────────────────────────
     let rafId = 0;
     let t0 = performance.now();
-    let lastFrame = 0, lastT = 0;
+    let lastFrame = performance.now();
+    let lastT = 0;
 
     function render(now: number) {
       if (now - lastFrame < 1000 / CFG.fpsCap) { rafId = requestAnimationFrame(render); return; }
@@ -309,6 +310,39 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     const ro = new ResizeObserver(computeGrid);
     ro.observe(host);
 
+    // Also listen on window — catches iOS address-bar collapse / orientation
+    // changes where ResizeObserver on the host alone sometimes fires too early
+    // with stale dimensions.
+    const onWinResize = () => computeGrid();
+    window.addEventListener('resize', onWinResize);
+    window.addEventListener('orientationchange', onWinResize);
+
+    // ── Watchdog ──────────────────────────────────────────────────────────
+    // Defensive: if the render loop hasn't ticked in >2s while the tab is
+    // visible, something stopped it (long background throttle, laptop sleep,
+    // browser freeze/resume without visibilitychange, etc.) — restart.
+    const watchdog = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      if (performance.now() - lastFrame < 2000) return;
+      cancelAnimationFrame(rafId);
+      lastFrame = performance.now();
+      pausedAt = null;
+      computeGrid();
+      rafId = requestAnimationFrame(render);
+    }, 3000);
+
+    // Window focus — extra safety net for browsers that swallow the
+    // visibilitychange event when returning from long inactivity.
+    function onFocus() {
+      if (performance.now() - lastFrame < 500) return;
+      cancelAnimationFrame(rafId);
+      lastFrame = performance.now();
+      pausedAt = null;
+      computeGrid();
+      rafId = requestAnimationFrame(render);
+    }
+    window.addEventListener('focus', onFocus);
+
     // Kick off the loop immediately — don't gate on document.fonts.ready,
     // which can hang indefinitely on font-load failures and leave the
     // background permanently blank. Fall back to Courier immediately, then
@@ -321,9 +355,13 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
 
     return () => {
       cancelAnimationFrame(rafId);
+      clearInterval(watchdog);
       ro.disconnect();
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('pageshow', onPageShow);
+      window.removeEventListener('resize', onWinResize);
+      window.removeEventListener('orientationchange', onWinResize);
+      window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', onVisibility);
       if (host.contains(pre)) host.removeChild(pre);
     };

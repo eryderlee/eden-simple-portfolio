@@ -174,7 +174,7 @@ export default function Experience() {
                 <div className="timeline-container space-y-3">
                   {WORK.map((item, i) => (
                     <div key={i} className="timeline-entry border border-white/[0.06] p-6 hover:bg-white/[0.02] hover:border-white/[0.1] transition-all duration-300">
-                      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 mb-2">
+                      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start sm:justify-between gap-x-4 gap-y-2 mb-2">
                         <div>
                           <span className="font-display font-bold text-[0.95rem] text-[#f0f0f0]">
                             {item.title}
