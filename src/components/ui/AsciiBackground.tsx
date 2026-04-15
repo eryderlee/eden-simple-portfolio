@@ -4,7 +4,13 @@ import { useEffect, useRef } from 'react';
 
 interface Props {
   opacity?: number;
-  /** Percentage at which the bottom fade starts, e.g. "94%" */
+  /**
+   * Height of the bottom fade zone as a CSS length (e.g. "200px", "12rem").
+   * The fade always ends at the bottom of the host; this prop controls how
+   * tall the fade ramp is. Using a fixed length (instead of a percentage of
+   * the host height) keeps the fade-out distance from the ticker constant
+   * across desktop and mobile, where the host height varies a lot.
+   */
   maskBottom?: string;
 }
 
@@ -369,7 +375,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
 
   const sideMask = 'linear-gradient(to right, black 0%, black 18%, transparent 36%, transparent 64%, black 82%, black 100%)';
   const bottomMask = maskBottom
-    ? `linear-gradient(to bottom, black 0%, black ${maskBottom}, transparent 100%)`
+    ? `linear-gradient(to bottom, black 0, black calc(100% - ${maskBottom}), transparent 100%)`
     : null;
   const combinedMask = bottomMask ? `${sideMask}, ${bottomMask}` : sideMask;
 
