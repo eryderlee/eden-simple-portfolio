@@ -46,11 +46,11 @@ interface Workflow {
 const PROJECTS: Project[] = [
   // Web
   {
-    name: 'RyderAgency',
+    name: 'Baseaim.co',
     description:
-      'Built websites for car companies, accountants. SEO optimization, responsive design.',
-    tech: ['Next.js', 'HTML', 'CSS', 'SEO'],
-    url: 'https://ryderagency.com',
+      'Marketing agency platform with AI chatbot, voice bot, automated SEO blog, growth calculator',
+    tech: ['Next.js', 'Supabase', 'n8n'],
+    url: 'https://baseaim.co',
     category: 'Web',
   },
   {
@@ -70,14 +70,6 @@ const PROJECTS: Project[] = [
     category: 'Web',
   },
   {
-    name: 'Baseaim.co',
-    description:
-      'Marketing agency platform with AI chatbot, voice bot, automated SEO blog, growth calculator',
-    tech: ['Next.js', 'Supabase', 'n8n'],
-    url: 'https://baseaim.co',
-    category: 'Web',
-  },
-  {
     name: 'CYS Accountants',
     description: 'Full redesign with funnel landing page for Meta ad campaigns',
     tech: ['HTML', 'CSS', 'Meta Pixel'],
@@ -90,6 +82,14 @@ const PROJECTS: Project[] = [
       'Designed website, e-commerce, digital presentations, business solutions',
     tech: ['HTML', 'CSS'],
     url: 'https://cofarminghub.com',
+    category: 'Web',
+  },
+  {
+    name: 'RyderAgency',
+    description:
+      'Built websites for car companies, accountants. SEO optimization, responsive design.',
+    tech: ['Next.js', 'HTML', 'CSS', 'SEO'],
+    url: 'https://ryderagency.com',
     category: 'Web',
   },
   {
