@@ -13,6 +13,25 @@ export default function Home() {
       {/* Single ASCII instance spans Hero + About seamlessly, fades before ticker */}
       <div className="relative">
         <AsciiBackground opacity={0.24} maskBottom="130px" />
+
+        {/* Dramatic lighting — spans Hero + About as one continuous effect */}
+        {/* Vignette: darkness only at the very edges, large transparent center */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-[1]"
+          style={{
+            background: 'radial-gradient(ellipse 90% 70% at 50% 35%, transparent 0%, rgba(0,0,0,0.7) 100%)',
+          }}
+        />
+        {/* Red spotlight: large soft glow centered on the Hero name area */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-[1]"
+          style={{
+            background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(230,57,70,0.1) 0%, transparent 65%)',
+          }}
+        />
+
         <Hero />
         <About />
       </div>

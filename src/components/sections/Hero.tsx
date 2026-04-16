@@ -84,22 +84,6 @@ export default function Hero() {
       className="section-grain relative flex flex-col items-center justify-center min-h-screen overflow-hidden"
     >
 
-      {/* Dramatic lighting — vignette (dark edges) + red spotlight behind name */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: 'radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, rgba(0,0,0,0.6) 100%)',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: 'radial-gradient(ellipse 50% 40% at 50% 48%, rgba(230,57,70,0.08) 0%, transparent 70%)',
-        }}
-      />
-
       {/* Left architectural accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/40 to-transparent" />
 
