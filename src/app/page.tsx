@@ -15,20 +15,20 @@ export default function Home() {
         <AsciiBackground opacity={0.24} maskBottom="130px" />
 
         {/* Dramatic lighting — spans Hero + About as one continuous effect */}
-        {/* Vignette: darkness only at the very edges, large transparent center */}
+        {/* Vignette: gentler falloff so About doesn't get too dark */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-[1]"
           style={{
-            background: 'radial-gradient(ellipse 90% 70% at 50% 25%, transparent 0%, rgba(0,0,0,0.7) 100%)',
+            background: 'radial-gradient(ellipse 100% 80% at 50% 25%, transparent 0%, transparent 40%, rgba(0,0,0,0.35) 100%)',
           }}
         />
-        {/* Spotlight: large soft white/warm glow centered on the Hero name area */}
+        {/* Red spotlight: large soft glow, extra-wide feather to avoid visible edges */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-[1]"
           style={{
-            background: 'radial-gradient(ellipse 70% 50% at 50% 20%, rgba(255,255,255,0.06) 0%, transparent 65%)',
+            background: 'radial-gradient(ellipse 80% 55% at 50% 20%, rgba(230,57,70,0.09) 0%, rgba(230,57,70,0.04) 35%, transparent 70%)',
           }}
         />
 
