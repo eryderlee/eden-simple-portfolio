@@ -19,7 +19,7 @@ function LetterSpans({ text }: { text: string }) {
             style={{
               transform: 'translateY(105%)',
               opacity: 0,
-              textShadow: '0 0 6px rgba(255,255,255,0.5), 0 0 18px rgba(255,255,255,0.25), 0 0 40px rgba(255,255,255,0.1), 0 2px 3px rgba(0,0,0,0.5)',
+              textShadow: '0 0 6px rgba(255,255,255,0.2), 0 0 18px rgba(255,255,255,0.1), 0 0 40px rgba(255,255,255,0.04), 0 2px 3px rgba(0,0,0,0.35)',
             }}
           >
             {char === ' ' ? '\u00A0' : char}
