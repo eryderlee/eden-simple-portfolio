@@ -80,16 +80,19 @@ export default function Experience() {
         },
       });
 
-      gsap.from('.exp-heading', {
-        opacity: 0,
-        y: 36,
-        duration: 0.9,
-        ease: 'power4.out',
-        scrollTrigger: {
-          trigger: '.exp-heading',
-          start: 'top 80%',
-        },
-      });
+      gsap.fromTo('.exp-heading',
+        { opacity: 0, x: -50 },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.9,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: '.exp-heading',
+            start: 'top 80%',
+          },
+        }
+      );
 
       gsap.fromTo(
         '.timeline-entry',
@@ -158,7 +161,7 @@ export default function Experience() {
               Experience
             </span>
           </div>
-          <h2 className="exp-heading font-display font-black text-[clamp(2rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0] mb-16">
+          <h2 className="exp-heading font-display font-black text-[clamp(2rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0] mb-16 opacity-0">
             Where I&apos;ve<br />
             <span className="text-[#e63946]">Been</span>
           </h2>

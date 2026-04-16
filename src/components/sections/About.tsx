@@ -42,10 +42,10 @@ export default function About() {
       );
 
       gsap.fromTo('.about-heading',
-        { opacity: 0, y: 36 },
+        { opacity: 0, x: -50 },
         {
           opacity: 1,
-          y: 0,
+          x: 0,
           duration: 0.9,
           ease: 'power4.out',
           scrollTrigger: {

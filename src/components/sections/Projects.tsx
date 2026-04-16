@@ -602,10 +602,8 @@ export default function Projects() {
   /* Scroll entrance (fires once) */
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.set([headingRef.current, filtersRef.current], {
-        opacity: 0,
-        y: 30,
-      });
+      gsap.set(headingRef.current, { opacity: 0, x: -50 });
+      gsap.set(filtersRef.current, { opacity: 0, y: 30 });
       gsap.set('.project-card', { opacity: 0, y: 40 });
 
       ScrollTrigger.create({
@@ -615,12 +613,16 @@ export default function Projects() {
         onEnter: () => {
           hasAnimatedRef.current = true;
           const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-          tl.to([headingRef.current, filtersRef.current], {
+          tl.to(headingRef.current, {
+            opacity: 1,
+            x: 0,
+            duration: 0.7,
+          })
+          .to(filtersRef.current, {
             opacity: 1,
             y: 0,
             duration: 0.7,
-            stagger: 0.12,
-          }).to(
+          }, '-=0.55').to(
             '.project-card',
             {
               opacity: 1,

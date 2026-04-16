@@ -52,16 +52,19 @@ export default function Skills() {
         },
       });
 
-      gsap.from('.skills-heading', {
-        opacity: 0,
-        y: 36,
-        duration: 0.9,
-        ease: 'power4.out',
-        scrollTrigger: {
-          trigger: '.skills-heading',
-          start: 'top 80%',
-        },
-      });
+      gsap.fromTo('.skills-heading',
+        { opacity: 0, x: -50 },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.9,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: '.skills-heading',
+            start: 'top 80%',
+          },
+        }
+      );
 
       gsap.fromTo(
         '.skill-row',
@@ -103,7 +106,7 @@ export default function Skills() {
               Skills
             </span>
           </div>
-          <h2 className="skills-heading font-display font-black text-[clamp(2rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0] mb-12">
+          <h2 className="skills-heading font-display font-black text-[clamp(2rem,5vw,5rem)] leading-[0.88] tracking-[-0.03em] text-[#f0f0f0] mb-12 opacity-0">
             Tools of<br />
             <span className="text-[#e63946]">the trade</span>
           </h2>
