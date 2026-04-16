@@ -23,10 +23,10 @@ export default function Home() {
             background: 'radial-gradient(ellipse 100% 80% at 50% 25%, transparent 0%, transparent 40%, rgba(0,0,0,0.35) 100%)',
           }}
         />
-        {/* Spotlight: soft white glow, toned down on mobile */}
+        {/* Spotlight: soft white glow, subtle across all viewports */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-[1] opacity-40 md:opacity-100"
+          className="pointer-events-none absolute inset-0 z-[1] opacity-40"
           style={{
             background: 'radial-gradient(ellipse 80% 55% at 50% 20%, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 35%, transparent 70%)',
           }}
