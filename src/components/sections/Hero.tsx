@@ -17,7 +17,10 @@ function LetterSpans({ text }: { text: string }) {
         >
           <span
             className={`char inline-block${char === ' ' ? ' w-[0.28em]' : ''}`}
-            style={{ transform: 'translateY(105%)' }}
+            style={{
+              transform: 'translateY(105%)',
+              textShadow: '0 0 6px rgba(255,255,255,0.5), 0 0 18px rgba(255,255,255,0.25), 0 0 40px rgba(255,255,255,0.1), 0 2px 3px rgba(0,0,0,0.5)',
+            }}
           >
             {char === ' ' ? '\u00A0' : char}
           </span>
@@ -103,9 +106,6 @@ export default function Hero() {
         {/* Name */}
         <h1
           className="font-display font-black leading-[0.85] tracking-[-0.03em] text-[#f0f0f0] mb-6 select-none"
-          style={{
-            textShadow: '0 0 40px rgba(255,255,255,0.15), 0 0 80px rgba(255,255,255,0.08), 0 2px 4px rgba(0,0,0,0.5)',
-          }}
         >
           <div className="text-[clamp(0.95rem,6.5vw,10rem)] whitespace-nowrap" style={{ whiteSpace: 'nowrap' }}>
             <LetterSpans text={NAME} />
