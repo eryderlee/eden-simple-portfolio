@@ -133,6 +133,22 @@ export default function About() {
       className="section-grain relative border-t border-white/[0.04] pt-24 pb-0 md:pt-28 px-5"
     >
 
+      {/* Dramatic lighting — vignette + soft red glow behind heading area */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: 'radial-gradient(ellipse 80% 50% at 50% 0%, transparent 0%, rgba(0,0,0,0.45) 100%)',
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: 'radial-gradient(ellipse 55% 30% at 30% 25%, rgba(230,57,70,0.06) 0%, transparent 70%)',
+        }}
+      />
+
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
