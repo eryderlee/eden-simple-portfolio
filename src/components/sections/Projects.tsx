@@ -397,11 +397,11 @@ function Card({ item, index, onOpenModal }: CardProps) {
 
   return (
     <article
-      className="project-card group relative flex flex-col bg-[#1a1a1a] border border-white/[0.06] rounded-sm p-6 transition-all duration-300 hover:border-[#e63946]/40 hover:-translate-y-1"
+      className="project-card group relative flex flex-col bg-[#1a1a1a] border border-white/[0.06] rounded-sm p-6 transition-all duration-300 hover:border-[#e63946]/40 hover:-translate-y-1 data-[center]:border-[#e63946]/50 data-[center]:-translate-y-1 data-[center]:scale-[1.02]"
       style={{
         boxShadow: '0 0 0 0 rgba(230,57,70,0)',
         transition:
-          'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+          'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, scale 0.3s ease',
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.boxShadow =
@@ -555,7 +555,7 @@ export default function Projects() {
   const [page, setPage] = useState(1);
   const hasAnimatedRef = useRef(false);
 
-  const PAGE_SIZE = 24;
+  const PAGE_SIZE = 12;
 
   const automationProjects = PROJECTS.filter((p) => p.category === 'Automation');
 
@@ -703,6 +703,53 @@ export default function Projects() {
       }
     );
   }, [displayCategory, activeWorkflowTab, page]);
+
+  /* Mobile: highlight the most-centered card on scroll (pop + red outline).
+     Uses rAF-throttled scroll listener, only active below md (768px). */
+  useEffect(() => {
+    let rafId = 0;
+    let prevActive: HTMLElement | null = null;
+
+    function onScroll() {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (window.innerWidth >= 768) {
+          // Desktop: clear any leftover highlight
+          if (prevActive) { prevActive.removeAttribute('data-center'); prevActive = null; }
+          return;
+        }
+        const cards = gridRef.current?.querySelectorAll<HTMLElement>('.project-card');
+        if (!cards || cards.length === 0) return;
+
+        const viewCenter = window.innerHeight / 2;
+        let closest: HTMLElement | null = null;
+        let closestDist = Infinity;
+
+        cards.forEach((card) => {
+          const rect = card.getBoundingClientRect();
+          const cardCenter = rect.top + rect.height / 2;
+          const dist = Math.abs(cardCenter - viewCenter);
+          if (dist < closestDist) { closestDist = dist; closest = card; }
+        });
+
+        const next = closest as HTMLElement | null;
+        if (next !== prevActive) {
+          prevActive?.removeAttribute('data-center');
+          next?.setAttribute('data-center', '');
+          prevActive = next;
+        }
+      });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // initial check
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(rafId);
+      prevActive?.removeAttribute('data-center');
+    };
+  }, [pageItems]); // re-attach when cards change
 
   return (
     <section
