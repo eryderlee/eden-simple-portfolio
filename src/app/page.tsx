@@ -20,7 +20,7 @@ export default function Home() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-[1]"
           style={{
-            background: 'radial-gradient(ellipse 90% 70% at 50% 35%, transparent 0%, rgba(0,0,0,0.7) 100%)',
+            background: 'radial-gradient(ellipse 90% 70% at 50% 25%, transparent 0%, rgba(0,0,0,0.7) 100%)',
           }}
         />
         {/* Spotlight: large soft white/warm glow centered on the Hero name area */}
@@ -28,7 +28,7 @@ export default function Home() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-[1]"
           style={{
-            background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(255,255,255,0.06) 0%, transparent 65%)',
+            background: 'radial-gradient(ellipse 70% 50% at 50% 20%, rgba(255,255,255,0.06) 0%, transparent 65%)',
           }}
         />
 
