@@ -11,14 +11,14 @@ function LetterSpans({ text }: { text: string }) {
       {text.split('').map((char, i) => (
         <span
           key={i}
-          className="inline-block overflow-hidden"
-          style={{ paddingBottom: '0.05em' }}
+          className="inline-block"
           aria-hidden="true"
         >
           <span
             className={`char inline-block${char === ' ' ? ' w-[0.28em]' : ''}`}
             style={{
               transform: 'translateY(105%)',
+              opacity: 0,
               textShadow: '0 0 6px rgba(255,255,255,0.5), 0 0 18px rgba(255,255,255,0.25), 0 0 40px rgba(255,255,255,0.1), 0 2px 3px rgba(0,0,0,0.5)',
             }}
           >
@@ -43,7 +43,7 @@ export default function Hero() {
       const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
 
       // Set initial states
-      gsap.set('.char', { y: '105%' });
+      gsap.set('.char', { y: '105%', opacity: 0 });
       gsap.set([subtitleRef.current, taglineRef.current, separatorRef.current], {
         opacity: 0,
         y: 20,
@@ -53,6 +53,7 @@ export default function Hero() {
       // Animate
       tl.to('.char', {
         y: '0%',
+        opacity: 1,
         duration: 0.9,
         stagger: 0.03,
       })
