@@ -889,23 +889,42 @@ export default function Projects() {
             >
               ← Prev
             </button>
-            {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) => {
-              const isActive = p === page;
-              return (
-                <button
-                  key={p}
-                  onClick={() => goToPage(p)}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`inline-flex items-center justify-center min-w-[2rem] px-2.5 py-1.5 text-[0.65rem] tabular-nums font-sans border rounded-sm transition-all duration-200 ${
-                    isActive
-                      ? 'border-[#e63946] text-[#e63946] bg-[#e63946]/[0.08]'
-                      : 'border-white/[0.08] text-[#f0f0f0]/40 hover:border-white/[0.2] hover:text-[#f0f0f0]/70'
-                  }`}
-                >
-                  {p}
-                </button>
+            {(() => {
+              /* Build a windowed page list: 1 … (cur-1) [cur] (cur+1) … last */
+              const items: (number | 'dots')[] = [];
+              if (pageCount <= 5) {
+                for (let i = 1; i <= pageCount; i++) items.push(i);
+              } else {
+                items.push(1);
+                if (page > 3) items.push('dots');
+                for (let i = Math.max(2, page - 1); i <= Math.min(pageCount - 1, page + 1); i++) items.push(i);
+                if (page < pageCount - 2) items.push('dots');
+                items.push(pageCount);
+              }
+              return items.map((item, idx) =>
+                item === 'dots' ? (
+                  <span
+                    key={`dots-${idx}`}
+                    className="inline-flex items-center justify-center min-w-[2rem] px-1 py-1.5 text-[0.65rem] text-[#f0f0f0]/30 font-sans select-none"
+                  >
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={item}
+                    onClick={() => goToPage(item)}
+                    aria-current={item === page ? 'page' : undefined}
+                    className={`inline-flex items-center justify-center min-w-[2rem] px-2.5 py-1.5 text-[0.65rem] tabular-nums font-sans border rounded-sm transition-all duration-200 ${
+                      item === page
+                        ? 'border-[#e63946] text-[#e63946] bg-[#e63946]/[0.08]'
+                        : 'border-white/[0.08] text-[#f0f0f0]/40 hover:border-white/[0.2] hover:text-[#f0f0f0]/70'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                )
               );
-            })}
+            })()}
             <button
               onClick={() => goToPage(page + 1)}
               disabled={page === pageCount}
