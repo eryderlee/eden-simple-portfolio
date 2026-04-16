@@ -17,6 +17,7 @@ function LetterSpans({ text }: { text: string }) {
         >
           <span
             className={`char inline-block${char === ' ' ? ' w-[0.28em]' : ''}`}
+            style={{ transform: 'translateY(105%)' }}
           >
             {char === ' ' ? '\u00A0' : char}
           </span>
@@ -109,7 +110,7 @@ export default function Hero() {
         {/* Separator */}
         <div
           ref={separatorRef}
-          className="flex items-center gap-4 justify-center mb-6"
+          className="flex items-center gap-4 justify-center mb-6 opacity-0"
         >
           <div className="h-px w-16 bg-[#e63946]" />
           <div className="w-1.5 h-1.5 rounded-full bg-[#e63946]" />
@@ -119,7 +120,7 @@ export default function Hero() {
         {/* Subtitle */}
         <p
           ref={subtitleRef}
-          className="font-display text-[clamp(1rem,2.5vw,1.5rem)] font-semibold tracking-wide text-[#f0f0f0]/85 mb-3"
+          className="font-display text-[clamp(1rem,2.5vw,1.5rem)] font-semibold tracking-wide text-[#f0f0f0]/85 mb-3 opacity-0"
         >
           Full-Stack Developer{' '}
           <span className="text-[#e63946]">&amp;</span> Automation Architect
@@ -128,7 +129,7 @@ export default function Hero() {
         {/* Tagline */}
         <p
           ref={taglineRef}
-          className="font-sans text-[0.65rem] tracking-[0.3em] uppercase text-[#f0f0f0]/35"
+          className="font-sans text-[0.65rem] tracking-[0.3em] uppercase text-[#f0f0f0]/35 opacity-0"
         >
           Building web experiences and automating workflows
         </p>
@@ -137,7 +138,7 @@ export default function Hero() {
       {/* Scroll indicator */}
       <div
         ref={scrollIndicatorRef}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0"
       >
         <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
           Scroll

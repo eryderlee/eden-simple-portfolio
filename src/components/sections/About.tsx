@@ -27,39 +27,48 @@ export default function About() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from('.about-label', {
-        opacity: 0,
-        x: -16,
-        duration: 0.6,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 72%',
-        },
-      });
+      gsap.fromTo('.about-label',
+        { opacity: 0, x: -16 },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 72%',
+          },
+        }
+      );
 
-      gsap.from('.about-heading', {
-        opacity: 0,
-        y: 36,
-        duration: 0.9,
-        ease: 'power4.out',
-        scrollTrigger: {
-          trigger: '.about-heading',
-          start: 'top 80%',
-        },
-      });
+      gsap.fromTo('.about-heading',
+        { opacity: 0, y: 36 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.9,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: '.about-heading',
+            start: 'top 80%',
+          },
+        }
+      );
 
-      gsap.from('.about-body', {
-        opacity: 0,
-        y: 24,
-        duration: 0.7,
-        ease: 'power3.out',
-        stagger: 0.12,
-        scrollTrigger: {
-          trigger: '.about-body',
-          start: 'top 82%',
-        },
-      });
+      gsap.fromTo('.about-body',
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: 'power3.out',
+          stagger: 0.12,
+          scrollTrigger: {
+            trigger: '.about-body',
+            start: 'top 82%',
+          },
+        }
+      );
 
       gsap.fromTo(
         '.about-image',
@@ -77,17 +86,20 @@ export default function About() {
         }
       );
 
-      gsap.from('.stat-item', {
-        opacity: 0,
-        y: 28,
-        duration: 0.6,
-        ease: 'power3.out',
-        stagger: 0.1,
-        scrollTrigger: {
-          trigger: '.stats-row',
-          start: 'top 82%',
-        },
-      });
+      gsap.fromTo('.stat-item',
+        { opacity: 0, y: 28 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.out',
+          stagger: 0.1,
+          scrollTrigger: {
+            trigger: '.stats-row',
+            start: 'top 82%',
+          },
+        }
+      );
 
       /* Count up each stat value from 0 → target on scroll-in */
       gsap.utils.toArray<HTMLElement>('.stat-value').forEach((el) => {
@@ -127,7 +139,7 @@ export default function About() {
       <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
         {/* Section label */}
-        <div className="about-label flex items-center gap-4 mb-14">
+        <div className="about-label flex items-center gap-4 mb-14 opacity-0">
           <div className="h-px w-8 bg-[#e63946]" />
           <span className="text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/30 font-sans">
             About
@@ -139,14 +151,14 @@ export default function About() {
 
           {/* Left: text block */}
           <div className="space-y-10">
-            <h2 className="about-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-tight text-[#f0f0f0]">
+            <h2 className="about-heading font-display font-black text-[clamp(2.4rem,5vw,5rem)] leading-[0.88] tracking-tight text-[#f0f0f0] opacity-0">
               Building at the<br />
               intersection of<br />
               <span className="text-[#e63946]">code &amp; automation</span>
             </h2>
 
             <div className="space-y-4">
-              <p className="about-body font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/55 max-w-[52ch]">
+              <p className="about-body font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/55 max-w-[52ch] opacity-0">
                 Computing and Software Systems major who builds web experiences
                 and automates workflows. CTO at{' '}
                 <span className="text-[#f0f0f0]/80">Baseaim</span> — a
@@ -154,13 +166,13 @@ export default function About() {
                 <span className="text-[#f0f0f0]/80">CoFarming-Hub</span>, a
                 sustainable agriculture startup.
               </p>
-              <p className="about-body font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/55 max-w-[52ch]">
+              <p className="about-body font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/55 max-w-[52ch] opacity-0">
                 Passionate about innovative solutions and community impact.
               </p>
             </div>
 
             {/* Meta grid */}
-            <div className="about-body grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-8 pt-2 max-w-lg">
+            <div className="about-body grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-8 pt-2 max-w-lg opacity-0">
               {[
                 ['Location', 'Point Cook, VIC'],
                 ['Country', 'Australia'],
@@ -180,7 +192,7 @@ export default function About() {
           </div>
 
           {/* Right: profile photo + watch intro */}
-          <div className="about-image flex flex-col items-center lg:items-end gap-5">
+          <div className="about-image flex flex-col items-center lg:items-end gap-5 opacity-0">
             <div className="relative w-[220px] h-[240px] lg:w-[260px] lg:h-[280px] shrink-0">
               {/* Red offset frame */}
               <div className="absolute inset-0 translate-x-4 translate-y-4 border-2 border-[#e63946]/50" />
@@ -222,7 +234,7 @@ export default function About() {
           {STATS.map(({ target, prefix, suffix, label }) => (
             <div
               key={label}
-              className="stat-item px-8 py-8 hover:bg-white/[0.02] transition-colors duration-300"
+              className="stat-item px-8 py-8 hover:bg-white/[0.02] transition-colors duration-300 opacity-0"
             >
               <div
                 className="stat-value font-display font-black text-[2.8rem] leading-none text-[#e63946] mb-2 tracking-tight tabular-nums"

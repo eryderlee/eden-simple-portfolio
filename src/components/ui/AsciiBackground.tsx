@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Props {
   opacity?: number;
@@ -16,6 +16,14 @@ interface Props {
 
 export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  /* Fade the entire background in smoothly after mount so there's no abrupt
+     flash when the ASCII grid starts rendering. */
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 200);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const host = containerRef.current;
@@ -415,7 +423,13 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
   // Opacity lives on the inner ASCII element so the bottom overlay can
   // render at full (100%) opacity and actually hide the ASCII underneath.
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div
+      className="absolute inset-0 overflow-hidden pointer-events-none"
+      style={{
+        opacity: mounted ? 1 : 0,
+        transition: 'opacity 0.8s ease',
+      }}
+    >
       <div
         ref={containerRef}
         className="absolute inset-0"
