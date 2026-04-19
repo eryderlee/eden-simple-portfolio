@@ -34,11 +34,16 @@ function getLabelFromElement(el: Element | null): CursorLabel {
 }
 
 export default function CustomCursor() {
+  const [isPointerFine, setIsPointerFine] = useState(false);
   const [cursorPos, setCursorPos] = useState({ x: -200, y: -200 });
   const [labelPos, setLabelPos] = useState({ x: -200, y: -200 });
   const [visible, setVisible] = useState(false);
   const [displayLabel, setDisplayLabel] = useState('HELLO');
   const [clicked, setClicked] = useState(false);
+
+  useEffect(() => {
+    setIsPointerFine(window.matchMedia('(pointer: fine)').matches);
+  }, []);
 
   const labelPosRef = useRef({ x: -200, y: -200 });
   const cursorPosRef = useRef({ x: -200, y: -200 });
@@ -98,7 +103,7 @@ export default function CustomCursor() {
   }, [animateTo, setLabel]);
 
   useEffect(() => {
-    if (!window.matchMedia('(pointer: fine)').matches) return;
+    if (!isPointerFine) return;
 
     const resetIdleTimer = () => {
       clearTimeout(idleTimerRef.current);
@@ -163,7 +168,9 @@ export default function CustomCursor() {
       clearTimeout(idleTimerRef.current);
       cancelAnimationFrame(scrambleRafRef.current);
     };
-  }, [setLabel]);
+  }, [setLabel, isPointerFine]);
+
+  if (!isPointerFine) return null;
 
   return (
     <>
