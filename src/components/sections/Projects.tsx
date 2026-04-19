@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrambleHover } from '@/components/ui/ScrambleLink';
@@ -8,7 +9,7 @@ import { useScrambleHover } from '@/components/ui/ScrambleLink';
 gsap.registerPlugin(ScrollTrigger);
 
 /* ── Types ──────────────────────────────────────────────────── */
-type Category = 'All' | 'Web' | 'Automation' | 'Academic';
+type Category = 'Featured' | 'All' | 'Web' | 'Automation' | 'Academic';
 type WorkflowCategory =
   | 'Lead Generation'
   | 'Email & CRM'
@@ -26,6 +27,36 @@ interface ModalContent {
   description: string;
 }
 
+interface FeaturedLink {
+  label: string;
+  url: string;
+  isModal?: boolean; // future: trigger case study modal
+}
+
+interface FeaturedItem {
+  id: string;
+  label: string;
+  labelColor: string;
+  name: string;
+  description: string;
+  tech: string[];
+  links: FeaturedLink[];
+  status?: string;
+  statusColor?: string;
+  aspectRatio: string;
+  mediaLabel: string;
+  mediaFile: string;
+  videoSrc?: string;
+  videoSrc2?: string;
+  videoLabel?: string;
+  videoLabel2?: string;
+  youtubeId?: string;
+  imageSrc?: string;
+  specs?: string[];
+  isHero?: boolean;
+  redBorder?: boolean;
+}
+
 interface Project {
   name: string;
   description: string;
@@ -41,6 +72,7 @@ interface Workflow {
   category: WorkflowCategory;
   description?: string;
   tech?: string[];
+  url?: string;
 }
 
 /* ── Projects data ──────────────────────────────────────────── */
@@ -184,33 +216,34 @@ const PROJECTS: Project[] = [
 
 /* ── All 93 n8n workflows ──────────────────────────────────── */
 const WORKFLOWS: Workflow[] = [
-  // Lead Generation (18)
-  { name: 'AI Lead Generation - Google Maps Scraper', category: 'Lead Generation' },
-  { name: 'Google Maps Lead Scraper (v2)', category: 'Lead Generation' },
-  { name: 'Google Maps Lead Scraper (v3)', category: 'Lead Generation' },
-  { name: 'Lead Enrichment', category: 'Lead Generation' },
-  { name: 'LinkedIn Lead Builder — Apollo Method', category: 'Lead Generation' },
-  { name: 'LinkedIn Lead Builder', category: 'Lead Generation' },
-  { name: 'Collect LinkedIn Data', category: 'Lead Generation' },
-  { name: 'Lead Gen', category: 'Lead Generation' },
+  // Lead Generation (19)
+  { name: 'AI Lead Generation - Google Maps Scraper', category: 'Lead Generation', url: 'https://youtu.be/NeYNyZAtY28' },
+  { name: 'Google Maps Lead Scraper (v2)', category: 'Lead Generation', url: 'https://youtu.be/NeYNyZAtY28' },
+  { name: 'Google Maps Lead Scraper (v3)', category: 'Lead Generation', url: 'https://youtu.be/NeYNyZAtY28' },
+  { name: 'Lead Enrichment', category: 'Lead Generation', url: 'https://youtu.be/4GZ-whzEjlM' },
+  { name: 'LinkedIn Lead Builder — Apollo Method', category: 'Lead Generation', url: 'https://youtu.be/EYBaiGxH_p0' },
+  { name: 'LinkedIn Lead Builder', category: 'Lead Generation', url: 'https://youtu.be/EYBaiGxH_p0' },
+  { name: 'Collect LinkedIn Data', category: 'Lead Generation', url: 'https://youtu.be/EYBaiGxH_p0' },
+  { name: 'Instagram Lead Gen', category: 'Lead Generation', url: 'https://youtu.be/_HZcGKqUxxQ' },
+  { name: 'Lead Gen', category: 'Lead Generation', url: 'https://youtu.be/4GZ-whzEjlM' },
   { name: 'Lead Research', category: 'Lead Generation' },
-  { name: 'Find and Create Email', category: 'Lead Generation' },
-  { name: 'Email Enrichment', category: 'Lead Generation' },
+  { name: 'Find and Create Email', category: 'Lead Generation', url: 'https://youtu.be/4GZ-whzEjlM' },
+  { name: 'Email Enrichment', category: 'Lead Generation', url: 'https://youtu.be/4GZ-whzEjlM' },
   { name: 'ZIP Code Checker — Google Sheets', category: 'Lead Generation' },
-  { name: 'Data Enricher', category: 'Lead Generation' },
-  { name: 'Data Enricher (Firecrawl)', category: 'Lead Generation' },
-  { name: 'Queue Setup', category: 'Lead Generation' },
-  { name: 'Queue Update', category: 'Lead Generation' },
-  { name: 'Ample LinkedIn Gen', category: 'Lead Generation' },
+  { name: 'Data Enricher', category: 'Lead Generation', url: 'https://youtu.be/EYBaiGxH_p0' },
+  { name: 'Data Enricher (Firecrawl)', category: 'Lead Generation', url: 'https://youtu.be/EYBaiGxH_p0' },
+  { name: 'Queue Setup', category: 'Lead Generation', url: 'https://youtu.be/4GZ-whzEjlM' },
+  { name: 'Queue Update', category: 'Lead Generation', url: 'https://youtu.be/4GZ-whzEjlM' },
+  { name: 'Ample LinkedIn Gen', category: 'Lead Generation', url: 'https://youtu.be/EYBaiGxH_p0' },
   { name: 'Website Crawler', category: 'Lead Generation' },
 
   // Email & CRM (20)
   { name: 'WhatsApp Reminder', category: 'Email & CRM' },
   { name: 'Newsletter Automation', category: 'Email & CRM' },
-  { name: 'Email Sequence 1 — Australia Timezone', category: 'Email & CRM' },
-  { name: 'Email Sequence 2 — Australia Timezone', category: 'Email & CRM' },
-  { name: 'Email Sequence 3 — Australia Timezone', category: 'Email & CRM' },
-  { name: 'Opt-Out Link Handler', category: 'Email & CRM' },
+  { name: 'Email Sequence 1 — Australia Timezone', category: 'Email & CRM', url: 'https://youtu.be/4GZ-whzEjlM' },
+  { name: 'Email Sequence 2 — Australia Timezone', category: 'Email & CRM', url: 'https://youtu.be/4GZ-whzEjlM' },
+  { name: 'Email Sequence 3 — Australia Timezone', category: 'Email & CRM', url: 'https://youtu.be/4GZ-whzEjlM' },
+  { name: 'Opt-Out Link Handler', category: 'Email & CRM', url: 'https://youtu.be/4GZ-whzEjlM' },
   { name: 'Tally CRM', category: 'Email & CRM' },
   { name: 'Facebook CRM', category: 'Email & CRM' },
   { name: 'Email Inbox Manager', category: 'Email & CRM' },
@@ -229,7 +262,7 @@ const WORKFLOWS: Workflow[] = [
   // Content Creation (27)
   { name: 'Content Research with Native Nodes', category: 'Content Creation' },
   { name: 'AI Content Research Agent with Tools', category: 'Content Creation' },
-  { name: 'Smart Content Generator with OpenAI', category: 'Content Creation' },
+  { name: 'Smart Content Generator with OpenAI', category: 'Content Creation', url: 'https://youtu.be/jkhtsGHUk6U' },
   { name: 'LinkedIn Carousel Creator & Poster', category: 'Content Creation' },
   { name: 'Perplexity Research Tool', category: 'Content Creation' },
   { name: 'LinkedIn Post Generator', category: 'Content Creation' },
@@ -237,13 +270,13 @@ const WORKFLOWS: Workflow[] = [
   { name: 'LinkedIn Post Automation', category: 'Content Creation' },
   { name: 'TikTok Scraper', category: 'Content Creation' },
   { name: 'AI Story Generator', category: 'Content Creation' },
-  { name: 'Mass Image Generator', category: 'Content Creation' },
+  { name: 'Mass Image Generator', category: 'Content Creation', url: 'https://youtu.be/SGHVx81bmKU' },
   { name: 'YouTube Growth Automation', category: 'Content Creation' },
   { name: 'LinkedIn Parasite System — AI Content', category: 'Content Creation' },
-  { name: 'Article Generator', category: 'Content Creation' },
-  { name: 'Creatives Stealer / Rebrander', category: 'Content Creation' },
-  { name: 'Linked Image Auto Desc Gen & Post', category: 'Content Creation' },
-  { name: 'Creative Stealer Folder Mover', category: 'Content Creation' },
+  { name: 'Article Generator', category: 'Content Creation', url: 'https://youtu.be/jkhtsGHUk6U' },
+  { name: 'Creatives Stealer / Rebrander', category: 'Content Creation', url: 'https://youtu.be/SGHVx81bmKU' },
+  { name: 'Linked Image Auto Desc Gen & Post', category: 'Content Creation', url: 'https://youtu.be/SGHVx81bmKU' },
+  { name: 'Creative Stealer Folder Mover', category: 'Content Creation', url: 'https://youtu.be/SGHVx81bmKU' },
   { name: 'Reddit Scraper', category: 'Content Creation' },
   { name: 'Reddit Scraper 1/4 — Client Topics', category: 'Content Creation' },
   { name: 'Reddit Scraper 2/4 — Practice & Business', category: 'Content Creation' },
@@ -292,6 +325,185 @@ const WORKFLOWS: Workflow[] = [
   { name: 'Motivation Workflow', category: 'Other' },
 ];
 
+/* ── Featured items ─────────────────────────────────────────── */
+const FEATURED_ITEMS: FeaturedItem[] = [
+  {
+    id: 'F01',
+    label: 'FLAGSHIP · WEB + AI',
+    labelColor: 'text-[#3b82f6]',
+    name: 'Baseaim Digital Product Suite',
+    description: 'End-to-end operating surface for an accounting agency — marketing landing page, client dashboard, AI voice agent, RAG chatbot, automated SEO blog pipeline, and CRM automations all in one product.',
+    tech: ['Next.js', 'Supabase', 'n8n', 'OpenAI', 'Stripe', 'Retell'],
+    links: [
+      { label: 'Live Site', url: 'https://baseaim.co' },
+      { label: 'Dashboard Walkthrough', url: '#' },
+    ],
+    status: 'LIVE SITE',
+    statusColor: 'bg-[#22c55e]',
+    aspectRatio: '21:9',
+    mediaLabel: 'Autoplays when in view',
+    mediaFile: 'baseaim.co — landing page capture',
+    videoSrc: '/videos/featured/baseaim%20aim%20landing%20page.mp4',
+    videoLabel: 'Landing Page',
+    videoSrc2: '/videos/featured/baseaim%20dashboard.mp4',
+    videoLabel2: 'Dashboard',
+    isHero: true,
+  },
+  {
+    id: 'F02',
+    label: 'AI · VOICE AGENT',
+    labelColor: 'text-[#22c55e]',
+    name: 'Baseaim AI Voice Agent',
+    description: 'Voice-first AI concierge that handles inbound leads, answers questions from company docs via RAG, and books calls — all without a human in the loop.',
+    tech: ['Retell', 'OpenAI', 'Supabase Vector', 'n8n', 'Cal.com'],
+    links: [
+      { label: 'Case Study', url: '#', isModal: true },
+    ],
+    status: 'LIVE AGENT',
+    statusColor: 'bg-[#22c55e]',
+    aspectRatio: '16:9',
+    mediaLabel: 'Voice agent demo',
+    mediaFile: 'baseaim-voice-agent.mp4',
+    imageSrc: '/images/voice agent.png',
+  },
+  {
+    id: 'F03',
+    label: 'AUTOMATION · LEAD GEN',
+    labelColor: 'text-[#22c55e]',
+    name: 'LinkedIn Lead Builder',
+    description: 'n8n workflow that builds targeted LinkedIn lead lists without Apollo. Runs as a repeatable pipeline in production.',
+    tech: ['n8n', 'LinkedIn', 'Google Sheets'],
+    links: [
+      { label: 'Watch on YouTube', url: 'https://youtu.be/EYBaiGxH_p0' },
+    ],
+    status: 'N8N WORKFLOW',
+    statusColor: 'bg-[#22c55e]',
+    aspectRatio: '16:9',
+    mediaLabel: 'YouTube walkthrough',
+    mediaFile: 'linkedin-lead-builder.yt',
+    youtubeId: 'JDOyEhj5dRE',
+  },
+  {
+    id: 'F04',
+    label: 'WEB · CLIENT SITE',
+    labelColor: 'text-[#3b82f6]',
+    name: 'CYS Accountants',
+    description: 'Full redesign with high-conversion funnel landing page built for Meta ad campaigns. Delivered as part of the Baseaim agency product suite.',
+    tech: ['HTML', 'CSS', 'Meta Pixel'],
+    links: [
+      { label: 'View Site', url: 'https://cysaccountants.baseaim.co/' },
+    ],
+    status: 'LIVE SITE',
+    statusColor: 'bg-[#22c55e]',
+    aspectRatio: '16:9',
+    mediaLabel: 'Autoplays when in view',
+    mediaFile: 'cys accountants.mp4',
+    videoSrc: '/videos/featured/cys%20accountants.mp4',
+  },
+  {
+    id: 'F05',
+    label: 'WEB · E-COMMERCE',
+    labelColor: 'text-[#3b82f6]',
+    name: 'CoFarming Hub',
+    description: 'Website, e-commerce store, digital presentations and business solutions for an agricultural co-farming network.',
+    tech: ['HTML', 'CSS'],
+    links: [
+      { label: 'View Site', url: 'https://cofarminghub.com' },
+    ],
+    status: 'LIVE SITE',
+    statusColor: 'bg-[#22c55e]',
+    aspectRatio: '16:9',
+    mediaLabel: 'Autoplays when in view',
+    mediaFile: 'cofarming hub.mp4',
+    videoSrc: '/videos/featured/cofarming%20hub.mp4',
+  },
+  {
+    id: 'F06',
+    label: 'AUTOMATION · CONTENT',
+    labelColor: 'text-[#22c55e]',
+    name: 'Automated SEO Blog Pipeline',
+    description: 'n8n workflow that researches, writes, and publishes SEO-optimised blog posts to a custom-coded website — fully hands-off content generation at scale.',
+    tech: ['n8n', 'OpenAI', 'Perplexity', 'Custom CMS'],
+    links: [
+      { label: 'Watch Demo', url: 'https://youtu.be/jkhtsGHUk6U' },
+    ],
+    status: 'N8N WORKFLOW',
+    statusColor: 'bg-[#22c55e]',
+    aspectRatio: '16:9',
+    mediaLabel: 'YouTube walkthrough',
+    mediaFile: 'seo-blog-automation.yt',
+    youtubeId: 'jkhtsGHUk6U',
+  },
+  {
+    id: 'F07',
+    label: 'ACADEMIC · RESEARCH',
+    labelColor: 'text-[#a855f7]',
+    name: 'Crypto Remittances Research',
+    description: 'METIS 2023 publication on cryptocurrency viability for Myanmar remittances. Economic modelling + fieldwork.',
+    tech: ['Research', 'Economics', 'Published'],
+    links: [
+      { label: 'Read Paper', url: 'https://docs.google.com/document/d/1r77tB9lwZQAZku50E_SEkxzufMP1kafA/edit?usp=sharing&ouid=104048869544003020764&rtpof=true&sd=true' },
+    ],
+    status: 'PUBLISHED',
+    statusColor: 'bg-[#a855f7]',
+    aspectRatio: '16:9',
+    mediaLabel: 'Paper abstract / figures',
+    mediaFile: 'crypto-remittances-metis2023',
+    imageSrc: '/images/research cover.png',
+    redBorder: true,
+  },
+  {
+    id: 'F08',
+    label: 'AUTOMATION · CLIENT',
+    labelColor: 'text-[#22c55e]',
+    name: 'SignNow Contract Generator',
+    description: 'End-to-end client onboarding automation: form submission triggers Stripe payment, auto-generates and sends a SignNow contract, fires confirmation email, and updates the CRM — zero manual steps.',
+    tech: ['n8n', 'Stripe', 'SignNow'],
+    links: [],
+    status: 'N8N WORKFLOW',
+    statusColor: 'bg-[#22c55e]',
+    aspectRatio: '16:9',
+    mediaLabel: 'Workflow walkthrough',
+    mediaFile: 'signnow-contract-generator.yt',
+    imageSrc: '/images/sign now automation.png',
+  },
+  {
+    id: 'F09',
+    label: 'WEB · FULL-STACK',
+    labelColor: 'text-[#3b82f6]',
+    name: 'Airtable Clone',
+    description: 'Airtable-inspired data grid with 100k+ row virtualisation, Google auth, dynamic columns, and keyboard navigation — built for speed and scale.',
+    tech: ['React', 'TypeScript', 'PostgreSQL', 'tRPC', 'TanStack'],
+    links: [{ label: 'View Specs', url: '#', isModal: true }],
+    aspectRatio: '16:9',
+    mediaLabel: 'Product demo',
+    mediaFile: 'airtable-clone-demo.mp4',
+    videoSrc: '/images/airtable%20clone.mp4',
+    redBorder: true,
+    specs: [
+      'TanStack Table for all table UIs',
+      'PostgreSQL database',
+      'Main page only — bases, tables, columns, cells',
+      '1:1 UI match with Airtable',
+      'Google OAuth login — create bases, create tables per base',
+      'Dynamically add columns (Text and Number types)',
+      'Edit cells — arrow keys + Tab move across the table smoothly',
+      'New tables pre-populated with faker.js default rows & columns',
+      'Render 100k rows without lag via TanStack Virtualizer',
+      'One-click button to add 100k rows to any table',
+      'Virtualised infinite scroll using tRPC hooks + TanStack Virtualizer',
+      'Full-text search across all cells — acts as a live row filter',
+      'Saveable views — store filters, sorts, hidden columns per view',
+      'Column filters: text (empty, not empty, contains, not contains, equals) and number (>, <)',
+      'Column sorting: text A→Z / Z→A, number ascending / descending',
+      'Search, filter, and sort executed at the database level',
+      'Show / hide individual columns per view',
+      'Loading states throughout',
+      'Goal: 1M+ rows with no performance degradation',
+    ],
+  },
+];
+
 /* ── Automation subtabs ─────────────────────────────────────── */
 const AUTOMATION_TABS: AutomationTab[] = [
   'All',
@@ -314,9 +526,10 @@ const AUTOMATION_TAB_LABELS: Record<AutomationTab, string> = {
   'Other': 'Other',
 };
 
-const CATEGORIES: Category[] = ['All', 'Web', 'Automation', 'Academic'];
+const CATEGORIES: Category[] = ['Featured', 'All', 'Web', 'Automation', 'Academic'];
 
 const CATEGORY_LABELS: Record<Category, string> = {
+  Featured: 'Featured',
   All: 'All',
   Web: 'Web',
   Automation: 'Automation',
@@ -324,7 +537,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
 };
 
 /* ── Category badge colors ───────────────────────────────────── */
-const CATEGORY_BADGE_COLORS: Record<Exclude<Category, 'All'>, string> = {
+const CATEGORY_BADGE_COLORS: Record<Exclude<Category, 'All' | 'Featured'>, string> = {
   Web: 'text-[#3b82f6]',
   Automation: 'text-[#22c55e]',
   Academic: 'text-[#a855f7]',
@@ -378,6 +591,7 @@ function workflowToCardItem(w: Workflow): CardItem {
     name: w.name,
     description: w.description,
     tech: w.tech,
+    url: w.url,
     mainCategory: 'Automation',
     subCategory: w.category,
   };
@@ -445,7 +659,7 @@ function Card({ item, index, onOpenModal }: CardProps) {
 
       {/* Category badge — "AUTOMATION · SUBCAT" for automation, single label otherwise */}
       <span className="inline-flex self-start mb-4 items-center gap-1.5 text-[0.55rem] tracking-[0.2em] uppercase font-sans">
-        <span className={CATEGORY_BADGE_COLORS[item.mainCategory]}>
+        <span className={CATEGORY_BADGE_COLORS[item.mainCategory as Exclude<Category, 'All' | 'Featured'>] ?? 'text-[#f0f0f0]/40'}>
           {item.mainCategory}
         </span>
         {isAutomation && item.subCategory && (
@@ -501,7 +715,7 @@ function Card({ item, index, onOpenModal }: CardProps) {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-[0.7rem] tracking-[0.1em] uppercase font-sans text-[#e63946] hover:text-[#ff4d5a] transition-colors duration-200"
             >
-              View Project
+              {isAutomation ? 'Watch Demo' : 'View Project'}
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
                 <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -569,13 +783,245 @@ function ResearchModal({ content, onClose }: { content: ModalContent; onClose: (
 }
 
 /* ── Main Section ───────────────────────────────────────────── */
+const GRAIN_SVG = "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch' seed='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")";
+
+function ScrambleFeaturedLink({ link, onClick }: { link: FeaturedLink; onClick?: () => void }) {
+  const { spanRef, onMouseEnter, onMouseLeave } = useScrambleHover(link.label);
+  const handleClick = link.isModal ? (e: React.MouseEvent) => { e.preventDefault(); onClick?.(); } : undefined;
+  return (
+    <a
+      href={link.url}
+      target={link.isModal ? undefined : '_blank'}
+      rel={link.isModal ? undefined : 'noopener noreferrer'}
+      className="inline-flex items-center gap-1.5 font-mono text-[0.75rem] tracking-[0.12em] uppercase text-[#e63946] hover:text-[#ff4d5a] transition-colors duration-200"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={handleClick}
+    >
+      <span ref={spanRef}>{link.label}</span>
+      <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+        <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </a>
+  );
+}
+
+function FeaturedCard({ item }: { item: FeaturedItem }) {
+  const { id, label, labelColor, name, description, tech, links,
+          mediaLabel, mediaFile,
+          videoSrc, videoSrc2, videoLabel, videoLabel2, youtubeId, imageSrc, specs, isHero, redBorder } = item;
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef2 = useRef<HTMLVideoElement>(null);
+  const [showSpecs, setShowSpecs] = useState(false);
+  // 0 = first video is main, 1 = second video is main
+  const [activeVideo, setActiveVideo] = useState(0);
+  const { spanRef: closeRef, onMouseEnter: closeEnter, onMouseLeave: closeLeave } = useScrambleHover('CLOSE');
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (showSpecs) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [showSpecs]);
+
+  // Autoplay — observe article, play/pause all video refs
+  useEffect(() => {
+    const allVideos = [videoRef.current, videoRef2.current].filter((v): v is HTMLVideoElement => !!v);
+    if (!allVideos.length) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        allVideos.forEach(v => {
+          if (entry.isIntersecting) { v.play().catch(() => {}); }
+          else { v.pause(); }
+        });
+      },
+      { threshold: 0.2 },
+    );
+    // observe the article wrapper (parent of the videos)
+    const article = videoRef.current?.closest('article');
+    if (article) observer.observe(article);
+    return () => observer.disconnect();
+  }, [videoSrc, videoSrc2]);
+
+  // Auto-rotate every 15s when dual video
+  useEffect(() => {
+    if (!videoSrc2) return;
+    const id = setInterval(() => setActiveVideo(v => v === 0 ? 1 : 0), 15000);
+    return () => clearInterval(id);
+  }, [videoSrc2]);
+
+  // Ensure both videos play whenever activeVideo changes
+  useEffect(() => {
+    videoRef.current?.play().catch(() => {});
+    videoRef2.current?.play().catch(() => {});
+  }, [activeVideo]);
+
+  return (
+    <article className={`${isHero ? 'sm:col-span-2' : ''} flex flex-col`}>
+      {/* Media box */}
+      <div
+        className={`relative w-full ${isHero ? 'aspect-[16/9]' : 'aspect-[16/9]'}
+          border border-dashed ${redBorder ? 'border-[#e63946]/35' : 'border-white/15'}
+          bg-[#0a0a0a] overflow-hidden mb-5 rounded-lg`}
+      >
+        {videoSrc && videoSrc2 ? (
+          /* Both videos always mounted — stable refs, swap via z-index */
+          <div className="absolute inset-0">
+            {/* Video 1 */}
+            <video
+              ref={videoRef}
+              src={videoSrc}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 0 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
+              muted loop playsInline
+            />
+            {/* Video 2 */}
+            <video
+              ref={videoRef2}
+              src={videoSrc2}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 1 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
+              muted loop playsInline
+            />
+            {/* Main label */}
+            <span className="absolute bottom-14 left-3.5 font-mono text-[0.55rem] tracking-widest text-white/35 uppercase z-10">
+              {activeVideo === 0 ? videoLabel : videoLabel2}
+            </span>
+            {/* PiP thumbnail — always the other video, clicking swaps */}
+            <button
+              onClick={() => setActiveVideo(v => v === 0 ? 1 : 0)}
+              className="absolute bottom-3 left-3.5 w-[26%] aspect-video rounded border-2 border-black outline outline-1 outline-white/20 overflow-hidden group z-10 hover:outline-[#e63946]/50 transition-colors duration-200"
+            >
+              <div className="absolute inset-0 overflow-hidden">
+                <video
+                  src={activeVideo === 0 ? videoSrc2 : videoSrc}
+                  className="w-full h-full object-cover"
+                  muted loop playsInline
+                  ref={(el) => { if (el) el.play().catch(() => {}); }}
+                />
+              </div>
+              <span className="absolute bottom-1.5 left-2 font-mono text-[0.45rem] tracking-widest text-white/60 uppercase z-10">
+                {activeVideo === 0 ? videoLabel2 : videoLabel}
+              </span>
+              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/25 z-10">
+                <span className="font-mono text-[0.45rem] tracking-widest text-white/90 uppercase">Switch</span>
+              </span>
+            </button>
+          </div>
+        ) : imageSrc ? (
+          <img src={imageSrc} alt={name} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: '50% 97%' }} />
+        ) : youtubeId ? (
+          <iframe
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0`}
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
+        ) : videoSrc ? (
+          <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline />
+        ) : (
+          <>
+            <div className="absolute inset-0 opacity-[0.07] pointer-events-none" style={{ backgroundImage: GRAIN_SVG, backgroundSize: '256px 256px' }} />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+              <svg width="10" height="12" viewBox="0 0 9 11" fill="currentColor" className="text-[#e63946]/60 mb-1" aria-hidden="true">
+                <path d="M0 0L9 5.5L0 11V0Z" />
+              </svg>
+              <span className="font-mono text-[0.6rem] tracking-[0.2em] text-[#e63946]/55 uppercase">{mediaLabel}</span>
+              <span className="font-mono text-[0.55rem] tracking-widest text-white/25">{mediaFile}</span>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Meta + Links row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <p className="font-mono text-[0.7rem] tracking-[0.2em] text-white/25 uppercase">
+          <span className="text-[#e63946]/60">{id}</span>
+          {' · '}
+          <span className={labelColor}>{label}</span>
+        </p>
+        <div className="flex flex-row items-center gap-5 flex-wrap">
+          {links.map((link) => (
+            <ScrambleFeaturedLink key={link.label} link={link} onClick={() => setShowSpecs(true)} />
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 flex flex-col">
+        <h3 className="font-display font-black text-[clamp(1.4rem,2.8vw,2.1rem)] leading-tight tracking-tight text-[#f0f0f0] mb-3">
+          {name}
+        </h3>
+        <p className="font-sans text-[0.85rem] leading-relaxed text-[#f0f0f0]/50 mb-5 flex-1">
+          {description}
+        </p>
+        <div className="flex items-end justify-between">
+          <span className="font-mono text-[0.65rem] tracking-wider text-white/25 uppercase">
+            {tech.join(' / ')}
+          </span>
+        </div>
+      </div>
+
+      {/* Specs modal — portalled to body to escape GSAP transform context */}
+      {showSpecs && specs && createPortal(
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-8 bg-black/85 backdrop-blur-sm"
+          onClick={() => setShowSpecs(false)}
+        >
+          <div
+            className="relative w-full max-w-2xl bg-[#0e0e0e] border border-white/10 flex flex-col max-h-[85vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header — fixed inside modal */}
+            <div className="px-8 pt-7 pb-5 border-b border-white/[0.06] shrink-0 relative">
+              <button
+                onClick={() => setShowSpecs(false)}
+                onMouseEnter={closeEnter}
+                onMouseLeave={closeLeave}
+                className="absolute top-5 right-6 font-mono text-[0.6rem] tracking-[0.2em] uppercase text-white/30 hover:text-white/70 transition-colors"
+              >
+                <span ref={closeRef}>CLOSE</span>
+              </button>
+              <p className="font-mono text-[0.6rem] tracking-[0.25em] text-[#e63946]/60 uppercase mb-2">
+                F09 · Requirements for Passing
+              </p>
+              <div className="flex items-end justify-between pr-16">
+                <h2 className="font-display font-black text-[1.4rem] leading-tight text-[#f0f0f0]">
+                  Airtable Clone
+                </h2>
+                <span className="font-mono text-[0.55rem] tracking-widest text-white/20 uppercase">
+                  {specs.length} requirements
+                </span>
+              </div>
+            </div>
+
+            {/* Scrollable list — data-lenis-prevent stops Lenis hijacking wheel events */}
+            <ul className="overflow-y-auto flex-1 px-8 py-6 space-y-0 divide-y divide-white/[0.04]" data-lenis-prevent>
+              {specs.map((spec, i) => (
+                <li key={i} className="flex items-start gap-4 py-4">
+                  <span className="font-mono text-[0.55rem] text-[#e63946]/40 mt-[3px] shrink-0 w-5 text-right">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="font-sans text-[0.82rem] leading-relaxed text-[#f0f0f0]/55">{spec}</span>
+                </li>
+              ))}
+            </ul>
+
+          </div>
+        </div>
+      , document.body)}
+    </article>
+  );
+}
+
 export default function Projects() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const [activeCategory, setActiveCategory] = useState<Category>('All');
-  const [displayCategory, setDisplayCategory] = useState<Category>('All');
+  const [activeCategory, setActiveCategory] = useState<Category>('Featured');
+  const [displayCategory, setDisplayCategory] = useState<Category>('Featured');
   const [openModal, setOpenModal] = useState<ModalContent | null>(null);
   const [activeWorkflowTab, setActiveWorkflowTab] = useState<AutomationTab>('All');
   const [page, setPage] = useState(1);
@@ -816,7 +1262,9 @@ export default function Projects() {
         >
           {CATEGORIES.map((cat) => {
             const count =
-              cat === 'Automation'
+              cat === 'Featured'
+                ? FEATURED_ITEMS.length
+                : cat === 'Automation'
                 ? automationProjects.length + WORKFLOWS.length
                 : cat === 'All'
                 ? PROJECTS.length + WORKFLOWS.length
@@ -872,7 +1320,19 @@ export default function Projects() {
           </div>
         )}
 
-        {/* Unified grid */}
+        {/* Featured grid */}
+        {displayCategory === 'Featured' && (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+              {FEATURED_ITEMS.map((item) => (
+                <FeaturedCard key={item.id} item={item} />
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Unified grid (non-Featured tabs) */}
+        {displayCategory !== 'Featured' && (
         <div
           ref={gridRef}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
@@ -886,9 +1346,10 @@ export default function Projects() {
             />
           ))}
         </div>
+        )}
 
         {/* Pagination */}
-        {pageCount > 1 && (
+        {displayCategory !== 'Featured' && pageCount > 1 && (
           <nav
             className="mt-10 flex flex-wrap items-center justify-center gap-2"
             aria-label="Pagination"

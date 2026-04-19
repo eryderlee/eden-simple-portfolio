@@ -7,10 +7,15 @@ const NAV_LINKS = ['About', 'Projects', 'Skills', 'Experience', 'Contact'];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [pastTicker, setPastTicker] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 60);
+      const about = document.getElementById('about');
+      if (about) setPastTicker(about.getBoundingClientRect().bottom < 0);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -19,7 +24,7 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? 'bg-[#111111]/90 backdrop-blur-md border-b border-white/[0.06]'
+          ? `bg-[#111111]/90 backdrop-blur-md border-b ${pastTicker ? 'border-[#e63946]/40' : 'border-white/[0.06]'}`
           : 'bg-transparent'
       }`}
     >

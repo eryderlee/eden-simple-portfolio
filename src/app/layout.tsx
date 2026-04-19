@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import SmoothScrollProvider from '@/components/providers/SmoothScrollProvider';
 import Navbar from '@/components/layout/Navbar';
+import CustomCursor from '@/components/ui/CustomCursor';
 import './globals.css';
 
 const inter = Inter({
@@ -32,8 +33,9 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}
     >
-      <body className="min-h-full bg-[#111111] text-[#f0f0f0]">
+      <body className="min-h-full bg-[#111111] text-[#f0f0f0] cursor-none">
         <SmoothScrollProvider>
+          <CustomCursor />
           <Navbar />
           {children}
         </SmoothScrollProvider>
