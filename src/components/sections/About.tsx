@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useScrambleHover } from '@/components/ui/ScrambleLink';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,6 +22,32 @@ const TICKER_WORDS = [
   'Database Optimisation', 'Responsive Design', 'Accessibility',
   'Error Handling', 'Code Reviews', 'Scalable Systems', 'Version Control',
 ];
+
+function WatchLink() {
+  const { spanRef, onMouseEnter, onMouseLeave } = useScrambleHover('Watch my intro');
+  return (
+    <a
+      href="https://youtu.be/HAOkVh_K5Kk"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-3 group"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <span className="flex items-center justify-center w-8 h-8 rounded-full border border-[#e63946]/50 group-hover:bg-[#e63946]/10 group-hover:border-[#e63946] transition-all duration-300">
+        <svg width="8" height="10" viewBox="0 0 10 12" fill="none" aria-hidden="true">
+          <path d="M1 1l8 5-8 5V1z" fill="#e63946" />
+        </svg>
+      </span>
+      <span
+        ref={spanRef}
+        className="font-sans text-[0.78rem] text-[#f0f0f0]/45 group-hover:text-[#f0f0f0]/75 transition-colors duration-200"
+      >
+        Watch my intro
+      </span>
+    </a>
+  );
+}
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -211,21 +238,7 @@ export default function About() {
             </div>
 
             {/* Watch my intro — directly below photo */}
-            <a
-              href="https://youtu.be/HAOkVh_K5Kk"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 group"
-            >
-              <span className="flex items-center justify-center w-8 h-8 rounded-full border border-[#e63946]/50 group-hover:bg-[#e63946]/10 group-hover:border-[#e63946] transition-all duration-300">
-                <svg width="8" height="10" viewBox="0 0 10 12" fill="none" aria-hidden="true">
-                  <path d="M1 1l8 5-8 5V1z" fill="#e63946" />
-                </svg>
-              </span>
-              <span className="font-sans text-[0.78rem] text-[#f0f0f0]/45 group-hover:text-[#f0f0f0]/75 transition-colors duration-200">
-                Watch my intro
-              </span>
-            </a>
+            <WatchLink />
           </div>
         </div>
 

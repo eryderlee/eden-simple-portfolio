@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import ScrambleLink from '@/components/ui/ScrambleLink';
 
 const NAV_LINKS = ['About', 'Projects', 'Skills', 'Experience', 'Contact'];
 
@@ -24,24 +25,21 @@ export default function Navbar() {
     >
       <nav className="w-full px-8 py-5 grid grid-cols-[1fr_auto_1fr] items-center">
         {/* Col 1: Logo — left-aligned */}
-        <a
+        <ScrambleLink
+          text="Eden"
           href="#"
           className="font-display text-xl font-black tracking-[0.25em] text-[#f0f0f0] hover:text-[#e63946] transition-colors duration-300 uppercase"
-        >
-          Eden
-        </a>
+        />
 
         {/* Col 2: Desktop links — naturally centered */}
         <ul className="hidden md:flex items-center gap-10">
           {NAV_LINKS.map((link) => (
             <li key={link}>
-              <a
+              <ScrambleLink
+                text={link}
                 href={`#${link.toLowerCase()}`}
                 className="relative text-[0.7rem] tracking-[0.2em] uppercase text-[#f0f0f0]/50 hover:text-[#e63946] transition-colors duration-250 group"
-              >
-                {link}
-                <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[#e63946] transition-all duration-300 group-hover:w-full" />
-              </a>
+              />
             </li>
           ))}
         </ul>
@@ -82,13 +80,12 @@ export default function Navbar() {
         <ul className="bg-[#111111]/95 backdrop-blur-md border-t border-white/[0.06] px-8 py-6 flex flex-col gap-5">
           {NAV_LINKS.map((link) => (
             <li key={link}>
-              <a
+              <ScrambleLink
+                text={link}
                 href={`#${link.toLowerCase()}`}
                 onClick={() => setMobileOpen(false)}
                 className="block text-[0.7rem] tracking-[0.2em] uppercase text-[#f0f0f0]/50 hover:text-[#e63946] transition-colors duration-250"
-              >
-                {link}
-              </a>
+              />
             </li>
           ))}
         </ul>

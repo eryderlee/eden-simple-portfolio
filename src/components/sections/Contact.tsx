@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useScrambleHover } from '@/components/ui/ScrambleLink';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -45,6 +46,54 @@ const SOCIALS = [
     ),
   },
 ];
+
+function SocialCard({ label, href, icon }: { label: string; href: string; icon: React.ReactNode }) {
+  const { spanRef, onMouseEnter, onMouseLeave } = useScrambleHover(label);
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ opacity: 1 }}
+      className="contact-social-btn group flex flex-col items-center justify-center gap-3 py-7 border border-white/[0.07] hover:border-[#e63946]/60 hover:bg-[#e63946]/[0.05] transition-all duration-300"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <span className="text-[#f0f0f0]/35 group-hover:text-[#e63946] transition-colors duration-300">
+        {icon}
+      </span>
+      <span
+        ref={spanRef}
+        className="text-[0.62rem] tracking-[0.18em] uppercase font-sans text-[#f0f0f0]/30 group-hover:text-[#f0f0f0]/60 transition-colors duration-300"
+      >
+        {label}
+      </span>
+    </a>
+  );
+}
+
+function SendEmailCTA() {
+  const { spanRef, onMouseEnter, onMouseLeave } = useScrambleHover('Send me an email');
+  return (
+    <a
+      id="contact-cta"
+      href="mailto:eden@ryderlee.me"
+      className="inline-flex items-center gap-2.5 group px-6 py-3 border border-[#e63946] text-[#e63946] hover:bg-[#e63946] hover:text-white transition-all duration-300"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <svg width="13" height="10" viewBox="0 0 13 10" fill="none" aria-hidden="true" className="transition-colors duration-300">
+        <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h10A1.5 1.5 0 0 1 13 1.5v7A1.5 1.5 0 0 1 11.5 10h-10A1.5 1.5 0 0 1 0 8.5v-7zm1.5 0L6.5 5l5-3.5M1.5 8.5h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span
+        ref={spanRef}
+        className="font-sans text-[0.73rem] tracking-[0.12em] uppercase font-medium transition-colors duration-300"
+      >
+        Send me an email
+      </span>
+    </a>
+  );
+}
 
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -118,7 +167,7 @@ export default function Contact() {
       {/* Left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto', position: 'relative', zIndex: 2 }}>
 
           {/* Heading — full width, above content */}
           <div className="contact-label flex items-center gap-4 mb-6">
@@ -160,24 +209,7 @@ export default function Contact() {
 
                   {/* CTA email button — red outlined, hover fills */}
                   <div className="flex justify-center md:justify-start mt-8">
-                    <a
-                      href="mailto:eden@ryderlee.me"
-                      className="inline-flex items-center gap-2.5 group px-6 py-3 border border-[#e63946] text-[#e63946] hover:bg-[#e63946] hover:text-white transition-all duration-300"
-                    >
-                      <svg
-                        width="13"
-                        height="10"
-                        viewBox="0 0 13 10"
-                        fill="none"
-                        aria-hidden="true"
-                        className="transition-colors duration-300"
-                      >
-                        <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h10A1.5 1.5 0 0 1 13 1.5v7A1.5 1.5 0 0 1 11.5 10h-10A1.5 1.5 0 0 1 0 8.5v-7zm1.5 0L6.5 5l5-3.5M1.5 8.5h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <span className="font-sans text-[0.73rem] tracking-[0.12em] uppercase font-medium transition-colors duration-300">
-                        Send me an email
-                      </span>
-                    </a>
+                    <SendEmailCTA />
                   </div>
                 </div>
 
@@ -188,21 +220,7 @@ export default function Contact() {
                   </span>
                   <div className="contact-socials grid grid-cols-2 gap-3">
                     {SOCIALS.map(({ label, href, icon }) => (
-                      <a
-                        key={label}
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ opacity: 1 }}
-                        className="contact-social-btn group flex flex-col items-center justify-center gap-3 py-7 border border-white/[0.07] hover:border-[#e63946]/60 hover:bg-[#e63946]/[0.05] transition-all duration-300"
-                      >
-                        <span className="text-[#f0f0f0]/35 group-hover:text-[#e63946] transition-colors duration-300">
-                          {icon}
-                        </span>
-                        <span className="text-[0.62rem] tracking-[0.18em] uppercase font-sans text-[#f0f0f0]/30 group-hover:text-[#f0f0f0]/60 transition-colors duration-300">
-                          {label}
-                        </span>
-                      </a>
+                      <SocialCard key={label} label={label} href={href} icon={icon} />
                     ))}
                   </div>
                 </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useScrambleHover } from '@/components/ui/ScrambleLink';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -388,6 +389,31 @@ interface CardProps {
   onOpenModal?: (content: ModalContent) => void;
 }
 
+function ScrambleFilterBtn({ label, count, isActive, onClick }: {
+  label: string; count: number; isActive: boolean; onClick: () => void;
+}) {
+  const { spanRef, onMouseEnter, onMouseLeave } = useScrambleHover(label);
+  return (
+    <button
+      role="tab"
+      aria-selected={isActive}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      className={`relative inline-flex items-center gap-2 px-4 py-2 text-[0.65rem] tracking-[0.15em] uppercase font-sans transition-all duration-250 border rounded-sm ${
+        isActive
+          ? 'border-[#e63946] text-[#e63946] bg-[#e63946]/[0.08]'
+          : 'border-white/[0.08] text-[#f0f0f0]/40 hover:border-white/[0.15] hover:text-[#f0f0f0]/65'
+      }`}
+    >
+      <span ref={spanRef}>{label}</span>
+      <span className={`text-[0.55rem] tabular-nums transition-colors duration-250 ${isActive ? 'text-[#e63946]/60' : 'text-[#f0f0f0]/20'}`}>
+        {count}
+      </span>
+    </button>
+  );
+}
+
 function Card({ item, index, onOpenModal }: CardProps) {
   const isLive = item.url !== undefined && item.url !== '#';
   const hasModal = !!item.modalContent;
@@ -762,7 +788,7 @@ export default function Projects() {
       {/* Left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/30 to-transparent" />
 
-      <div className="relative max-w-6xl mx-auto px-5 md:px-8" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8" style={{ marginLeft: 'auto', marginRight: 'auto', position: 'relative', zIndex: 2 }}>
         {/* Section heading */}
         <div ref={headingRef} className="mb-6">
           <p className="font-sans text-[0.6rem] tracking-[0.3em] uppercase text-[#f0f0f0]/25 mb-4">
@@ -795,28 +821,14 @@ export default function Projects() {
                 : cat === 'All'
                 ? PROJECTS.length + WORKFLOWS.length
                 : PROJECTS.filter((p) => p.category === cat).length;
-            const isActive = activeCategory === cat;
             return (
-              <button
+              <ScrambleFilterBtn
                 key={cat}
-                role="tab"
-                aria-selected={isActive}
+                label={CATEGORY_LABELS[cat]}
+                count={count}
+                isActive={activeCategory === cat}
                 onClick={() => handleFilter(cat)}
-                className={`relative inline-flex items-center gap-2 px-4 py-2 text-[0.65rem] tracking-[0.15em] uppercase font-sans transition-all duration-250 border rounded-sm ${
-                  isActive
-                    ? 'border-[#e63946] text-[#e63946] bg-[#e63946]/[0.08]'
-                    : 'border-white/[0.08] text-[#f0f0f0]/40 hover:border-white/[0.15] hover:text-[#f0f0f0]/65'
-                }`}
-              >
-                {CATEGORY_LABELS[cat]}
-                <span
-                  className={`text-[0.55rem] tabular-nums transition-colors duration-250 ${
-                    isActive ? 'text-[#e63946]/60' : 'text-[#f0f0f0]/20'
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
+              />
             );
           })}
         </div>
@@ -875,7 +887,7 @@ export default function Projects() {
           ))}
         </div>
 
-        {/* Pagination (Automation view only, multi-page only) */}
+        {/* Pagination */}
         {pageCount > 1 && (
           <nav
             className="mt-10 flex flex-wrap items-center justify-center gap-2"

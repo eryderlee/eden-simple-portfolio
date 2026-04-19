@@ -97,7 +97,7 @@ export default function Skills() {
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto', position: 'relative', zIndex: 2 }}>
 
           {/* Heading — full width, above content */}
           <div className="skills-label flex items-center gap-4 mb-6">

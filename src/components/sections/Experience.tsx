@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import ScrambleLink from '@/components/ui/ScrambleLink';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -152,7 +153,7 @@ export default function Experience() {
       className="section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-0 md:pt-36 md:pb-0 px-5"
     >
 
-      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ marginLeft: 'auto', marginRight: 'auto', position: 'relative', zIndex: 2 }}>
 
           {/* Heading — full width, above content */}
           <div className="exp-label flex items-center gap-4 mb-6">
@@ -253,14 +254,13 @@ export default function Experience() {
                       >
                         <div className="flex flex-wrap items-center gap-2">
                           {cert.href ? (
-                            <a
+                            <ScrambleLink
+                              text={cert.name}
                               href={cert.href}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="font-sans text-[0.82rem] text-[#f0f0f0]/62 hover:text-[#e63946] transition-colors duration-200 underline underline-offset-2 decoration-[#f0f0f0]/20 hover:decoration-[#e63946]/50"
-                            >
-                              {cert.name}
-                            </a>
+                            />
                           ) : (
                             <span className="font-sans text-[0.82rem] text-[#f0f0f0]/62">
                               {cert.name}

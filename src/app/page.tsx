@@ -6,6 +6,7 @@ import Skills from '@/components/sections/Skills';
 import Contact from '@/components/sections/Contact';
 import Footer from '@/components/layout/Footer';
 import AsciiBackground from '@/components/ui/AsciiBackground';
+import ScrollLine from '@/components/ui/ScrollLine';
 
 export default function Home() {
   return (
@@ -27,10 +28,13 @@ export default function Home() {
         <Hero />
         <About />
       </div>
-      <Projects />
-      <Experience />
-      <Skills />
-      <Contact />
+      <div className="relative">
+        <ScrollLine />
+        <Projects />
+        <Experience />
+        <Skills />
+        <Contact />
+      </div>
       <Footer />
     </main>
   );
