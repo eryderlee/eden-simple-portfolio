@@ -795,7 +795,7 @@ function YouTubeFacade({ youtubeId }: { youtubeId: string }) {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setActive(true); observer.disconnect(); } },
-      { threshold: 0.3 },
+      { rootMargin: '300px 0px', threshold: 0 },
     );
     observer.observe(el);
     return () => observer.disconnect();
