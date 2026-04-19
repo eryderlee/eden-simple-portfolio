@@ -44,7 +44,7 @@ export default function CustomCursor() {
   const cursorPosRef = useRef({ x: -200, y: -200 });
   const labelRef = useRef<CursorLabel>('HELLO');
   const helloPhaseRef = useRef(true);
-  const idleTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const scrambleRafRef = useRef<number>(0);
   const lerpRafRef = useRef<number>(0);
 
