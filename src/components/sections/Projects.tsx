@@ -898,12 +898,33 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
     return () => observer.disconnect();
   }, [videoSrc, videoSrc2]);
 
-  // Auto-rotate every 15s when dual video
+  const autoRotateRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const rotateIntervalRef = useRef(20000); // fallback 20s
+
+  const startAutoRotate = useCallback((ms?: number) => {
+    clearInterval(autoRotateRef.current);
+    const duration = ms ?? rotateIntervalRef.current;
+    rotateIntervalRef.current = duration;
+    autoRotateRef.current = setInterval(() => {
+      setActiveVideo(v => v === 0 ? 1 : 0);
+    }, duration);
+  }, []);
+
+  // Start auto-rotate when dual video mounts
   useEffect(() => {
     if (!videoSrc2) return;
-    const id = setInterval(() => setActiveVideo(v => v === 0 ? 1 : 0), 15000);
-    return () => clearInterval(id);
-  }, [videoSrc2]);
+    startAutoRotate();
+    return () => clearInterval(autoRotateRef.current);
+  }, [videoSrc2, startAutoRotate]);
+
+  // When active video's duration is known, restart timer using that duration
+  const handleVideoMetadata = useCallback(() => {
+    const activeRef = activeVideo === 0 ? videoRef : videoRef2;
+    const dur = activeRef.current?.duration;
+    if (dur && isFinite(dur) && dur > 0) {
+      startAutoRotate(dur * 1000);
+    }
+  }, [activeVideo, startAutoRotate]);
 
   // Ensure both videos play whenever activeVideo changes
   useEffect(() => {
@@ -928,6 +949,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
               src={videoSrc}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 0 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
               muted loop playsInline preload="none"
+              onLoadedMetadata={activeVideo === 0 ? handleVideoMetadata : undefined}
             />
             {/* Video 2 */}
             <video
@@ -935,6 +957,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
               src={videoSrc2}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 1 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
               muted loop playsInline preload="none"
+              onLoadedMetadata={activeVideo === 1 ? handleVideoMetadata : undefined}
             />
             {/* Main label */}
             <span className="absolute bottom-14 left-3.5 font-mono text-[0.55rem] tracking-widest text-white/35 uppercase z-10">
@@ -942,7 +965,10 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
             </span>
             {/* PiP thumbnail — always the other video, clicking swaps */}
             <button
-              onClick={() => setActiveVideo(v => v === 0 ? 1 : 0)}
+              onClick={() => {
+                setActiveVideo(v => v === 0 ? 1 : 0);
+                startAutoRotate(); // reset timer on manual switch
+              }}
               className="absolute bottom-3 left-3.5 w-[26%] aspect-video rounded border-2 border-black outline outline-1 outline-white/20 overflow-hidden group z-10 hover:outline-[#e63946]/50 transition-colors duration-200"
             >
               <div className="absolute inset-0 overflow-hidden">
@@ -953,8 +979,13 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
                   ref={(el) => { if (el) el.play().catch(() => {}); }}
                 />
               </div>
-              <span className="absolute bottom-1.5 left-2 font-mono text-[0.45rem] tracking-widest text-white/60 uppercase z-10">
+              {/* Label top-left of PiP */}
+              <span className="absolute top-1.5 left-2 font-mono text-[0.45rem] tracking-widest text-white/70 uppercase z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                 {activeVideo === 0 ? videoLabel2 : videoLabel}
+              </span>
+              {/* Tap hint bottom */}
+              <span className="absolute bottom-1.5 left-0 right-0 text-center font-mono text-[0.4rem] tracking-widest text-white/40 uppercase z-10">
+                tap to switch
               </span>
               <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/25 z-10">
                 <span className="font-mono text-[0.45rem] tracking-widest text-white/90 uppercase">Switch</span>
