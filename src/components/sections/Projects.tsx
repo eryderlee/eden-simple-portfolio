@@ -912,12 +912,35 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
         ) : imageSrc ? (
           <img src={imageSrc} alt={name} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: '50% 97%' }} />
         ) : youtubeId ? (
-          <iframe
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0`}
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-          />
+          <>
+            {/* Desktop: autoplay iframe */}
+            <iframe
+              className="absolute inset-0 w-full h-full pointer-events-none hidden md:block"
+              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0`}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            />
+            {/* Mobile: thumbnail + tap to watch */}
+            <a
+              href={`https://www.youtube.com/watch?v=${youtubeId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="md:hidden absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#0a0a0a]"
+            >
+              <img
+                src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+                alt="YouTube thumbnail"
+                className="absolute inset-0 w-full h-full object-cover opacity-50"
+              />
+              <div className="relative flex flex-col items-center gap-2 z-10">
+                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                  <circle cx="18" cy="18" r="18" fill="rgba(230,57,70,0.85)" />
+                  <path d="M15 12l10 6-10 6V12Z" fill="white" />
+                </svg>
+                <span className="font-mono text-[0.6rem] tracking-[0.2em] text-white/70 uppercase">Watch on YouTube</span>
+              </div>
+            </a>
+          </>
         ) : videoSrc ? (
           <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline />
         ) : (
