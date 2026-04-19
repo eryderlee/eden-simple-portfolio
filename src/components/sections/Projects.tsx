@@ -785,6 +785,58 @@ function ResearchModal({ content, onClose }: { content: ModalContent; onClose: (
 /* ── Main Section ───────────────────────────────────────────── */
 const GRAIN_SVG = "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch' seed='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")";
 
+function YouTubeFacade({ youtubeId }: { youtubeId: string }) {
+  const [active, setActive] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // On desktop: auto-activate when scrolled into view
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setActive(true); observer.disconnect(); } },
+      { threshold: 0.3 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0">
+      {active ? (
+        <iframe
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0`}
+          allow="autoplay; encrypted-media"
+          allowFullScreen
+        />
+      ) : (
+        /* Thumbnail facade — no YouTube JS loaded until active */
+        <a
+          href={`https://www.youtube.com/watch?v=${youtubeId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute inset-0 flex items-center justify-center"
+          onClick={(e) => { e.preventDefault(); setActive(true); }}
+        >
+          <img
+            src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+            alt="Video thumbnail"
+            className="absolute inset-0 w-full h-full object-cover opacity-60"
+          />
+          <div className="relative z-10 flex flex-col items-center gap-2">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+              <circle cx="18" cy="18" r="18" fill="rgba(230,57,70,0.85)" />
+              <path d="M15 12l10 6-10 6V12Z" fill="white" />
+            </svg>
+            <span className="font-mono text-[0.6rem] tracking-[0.2em] text-white/70 uppercase">Watch on YouTube</span>
+          </div>
+        </a>
+      )}
+    </div>
+  );
+}
+
 function ScrambleFeaturedLink({ link, onClick }: { link: FeaturedLink; onClick?: () => void }) {
   const { spanRef, onMouseEnter, onMouseLeave } = useScrambleHover(link.label);
   const handleClick = link.isModal ? (e: React.MouseEvent) => { e.preventDefault(); onClick?.(); } : undefined;
@@ -875,14 +927,14 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
               ref={videoRef}
               src={videoSrc}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 0 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
-              muted loop playsInline
+              muted loop playsInline preload="none"
             />
             {/* Video 2 */}
             <video
               ref={videoRef2}
               src={videoSrc2}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 1 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
-              muted loop playsInline
+              muted loop playsInline preload="none"
             />
             {/* Main label */}
             <span className="absolute bottom-14 left-3.5 font-mono text-[0.55rem] tracking-widest text-white/35 uppercase z-10">
@@ -897,7 +949,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
                 <video
                   src={activeVideo === 0 ? videoSrc2 : videoSrc}
                   className="w-full h-full object-cover"
-                  muted loop playsInline
+                  muted loop playsInline preload="none"
                   ref={(el) => { if (el) el.play().catch(() => {}); }}
                 />
               </div>
@@ -912,37 +964,9 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
         ) : imageSrc ? (
           <img src={imageSrc} alt={name} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: '50% 97%' }} />
         ) : youtubeId ? (
-          <>
-            {/* Desktop: autoplay iframe */}
-            <iframe
-              className="absolute inset-0 w-full h-full pointer-events-none hidden md:block"
-              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0`}
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-            />
-            {/* Mobile: thumbnail + tap to watch */}
-            <a
-              href={`https://www.youtube.com/watch?v=${youtubeId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="md:hidden absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#0a0a0a]"
-            >
-              <img
-                src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
-                alt="YouTube thumbnail"
-                className="absolute inset-0 w-full h-full object-cover opacity-50"
-              />
-              <div className="relative flex flex-col items-center gap-2 z-10">
-                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-                  <circle cx="18" cy="18" r="18" fill="rgba(230,57,70,0.85)" />
-                  <path d="M15 12l10 6-10 6V12Z" fill="white" />
-                </svg>
-                <span className="font-mono text-[0.6rem] tracking-[0.2em] text-white/70 uppercase">Watch on YouTube</span>
-              </div>
-            </a>
-          </>
+          <YouTubeFacade youtubeId={youtubeId} />
         ) : videoSrc ? (
-          <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline />
+          <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline preload="none" />
         ) : (
           <>
             <div className="absolute inset-0 opacity-[0.07] pointer-events-none" style={{ backgroundImage: GRAIN_SVG, backgroundSize: '256px 256px' }} />
