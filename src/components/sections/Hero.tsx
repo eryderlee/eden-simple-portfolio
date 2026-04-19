@@ -85,7 +85,7 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      className="section-grain relative flex flex-col items-center justify-center min-h-screen overflow-hidden"
+      className="section-grain relative flex flex-col items-center justify-center min-h-dvh overflow-hidden"
     >
 
       {/* Left architectural accent line */}
