@@ -926,10 +926,12 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
     }
   }, [activeVideo, startAutoRotate]);
 
-  // Ensure both videos play whenever activeVideo changes
+  // When active video changes: play the new main from start, reset the outgoing one
   useEffect(() => {
-    videoRef.current?.play().catch(() => {});
-    videoRef2.current?.play().catch(() => {});
+    const main = activeVideo === 0 ? videoRef.current : videoRef2.current;
+    const other = activeVideo === 0 ? videoRef2.current : videoRef.current;
+    if (main) { main.currentTime = 0; main.play().catch(() => {}); }
+    if (other) { other.pause(); other.currentTime = 0; }
   }, [activeVideo]);
 
   return (
