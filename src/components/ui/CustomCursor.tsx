@@ -108,6 +108,9 @@ export default function CustomCursor() {
   useEffect(() => {
     if (!isPointerFine) return;
 
+    // true while the sticky idle label (SCROLL / GO THIS WAY!) is showing
+    const stickyRef = { current: false };
+
     const computeArrowAngle = (clientX: number, clientY: number) => {
       const ctaEl = document.getElementById('contact-cta');
       if (!ctaEl) return;
@@ -119,9 +122,9 @@ export default function CustomCursor() {
 
     const resetIdleTimer = () => {
       clearTimeout(idleTimerRef.current);
-      if (labelRef.current === 'SCROLL') setLabel(':)');
       idleTimerRef.current = setTimeout(() => {
         if (!helloPhaseRef.current) {
+          stickyRef.current = true;
           setLabel(inContactRef.current ? 'GO THIS WAY!' : 'SCROLL');
         }
       }, 2500);
@@ -132,10 +135,23 @@ export default function CustomCursor() {
       const { x, y } = cursorPosRef.current;
       const el = document.elementFromPoint(x, y);
       let next = getLabelFromElement(el);
-      // In the contact section, override label unless on the CTA itself
       if (inContactRef.current && next !== 'CONTACT ME!') {
         next = 'GO THIS WAY!';
       }
+
+      if (stickyRef.current) {
+        // Interactive element → exit sticky and show its label
+        const interactive = next !== ':)' && next !== 'GO THIS WAY!';
+        if (interactive) {
+          stickyRef.current = false;
+          setLabel(next);
+        } else {
+          // Stay sticky but allow switching between SCROLL ↔ GO THIS WAY!
+          setLabel(inContactRef.current ? 'GO THIS WAY!' : 'SCROLL');
+        }
+        return;
+      }
+
       setLabel(next);
     };
 
@@ -156,14 +172,21 @@ export default function CustomCursor() {
         if (nowIn) computeArrowAngle(e.clientX, e.clientY);
       }
 
+      const wasStickyBefore = stickyRef.current;
       updateLabelFromCurrentPos();
+      // Restart idle timer only when not sticky, or when sticky just ended
+      if (!stickyRef.current) resetIdleTimer();
+      else if (wasStickyBefore) { /* still sticky — leave timer alone */ }
     };
 
     const onScroll = () => {
       if (!helloPhaseRef.current) {
+        if (stickyRef.current) {
+          stickyRef.current = false;
+          setLabel(':)');
+        }
         resetIdleTimer();
         updateLabelFromCurrentPos();
-        // Keep arrow angle fresh while scrolling in contact section
         if (inContactRef.current) {
           computeArrowAngle(cursorPosRef.current.x, cursorPosRef.current.y);
         }
