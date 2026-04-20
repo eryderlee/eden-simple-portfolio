@@ -83,24 +83,18 @@ function SendEmailCTA() {
       if (cooldownRef.current) return;
       cooldownRef.current = true;
 
-      // Scramble the label
-      onMouseEnter();
-
-      // Two staggered shockwave rings
-      [ring1Ref.current, ring2Ref.current].forEach((ring, i) => {
-        if (!ring) return;
-        gsap.fromTo(ring,
-          { scale: 1, opacity: 0.7 },
-          {
-            scale: 2,
-            opacity: 0,
-            duration: 0.9,
-            delay: i * 0.18,
-            ease: 'power2.out',
-            onComplete: () => { if (i === 1) cooldownRef.current = false; },
-          }
-        );
-      });
+      const ring = ring1Ref.current;
+      if (!ring) return;
+      gsap.fromTo(ring,
+        { scale: 1, opacity: 0.7 },
+        {
+          scale: 2.2,
+          opacity: 0,
+          duration: 1.4,
+          ease: 'power1.out',
+          onComplete: () => { cooldownRef.current = false; },
+        }
+      );
     };
 
     const onLeft = () => { cooldownRef.current = false; };
