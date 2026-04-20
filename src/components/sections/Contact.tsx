@@ -236,7 +236,7 @@ export default function Contact() {
                   {/* Email display link */}
                   <a
                     href="mailto:eden@ryderlee.me"
-                    className="contact-email group block"
+                    className="contact-email group inline-block"
                   >
                     <span className="text-[0.6rem] tracking-[0.28em] uppercase text-[#f0f0f0]/25 font-sans block mb-2">
                       Email
