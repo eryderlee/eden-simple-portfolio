@@ -19,7 +19,7 @@ function scrambleText(text: string, elapsed: number): string {
     .join('');
 }
 
-type CursorLabel = ':)' | 'HELLO' | 'SCROLL' | 'VISIT' | 'OPEN' | 'READ' | 'VIEW' | 'CLOSE' | 'PLAY' | 'CONTACT ME!';
+type CursorLabel = ':)' | 'HELLO' | 'SCROLL' | 'VISIT' | 'OPEN' | 'READ' | 'VIEW' | 'CLOSE' | 'PLAY' | 'CONTACT ME!' | 'GO THIS WAY!';
 
 function getLabelFromElement(el: Element | null): CursorLabel {
   if (!el) return ':)';
@@ -40,6 +40,8 @@ export default function CustomCursor() {
   const [visible, setVisible] = useState(false);
   const [displayLabel, setDisplayLabel] = useState('HELLO');
   const [clicked, setClicked] = useState(false);
+  const [inContact, setInContact] = useState(false);
+  const [arrowAngle, setArrowAngle] = useState(0);
 
   useEffect(() => {
     setIsPointerFine(window.matchMedia('(pointer: fine)').matches);
@@ -52,6 +54,7 @@ export default function CustomCursor() {
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const scrambleRafRef = useRef<number>(0);
   const lerpRafRef = useRef<number>(0);
+  const inContactRef = useRef(false);
 
   const animateTo = useCallback((newLabel: string) => {
     cancelAnimationFrame(scrambleRafRef.current);
@@ -105,11 +108,22 @@ export default function CustomCursor() {
   useEffect(() => {
     if (!isPointerFine) return;
 
+    const computeArrowAngle = (clientX: number, clientY: number) => {
+      const ctaEl = document.getElementById('contact-cta');
+      if (!ctaEl) return;
+      const rect = ctaEl.getBoundingClientRect();
+      const dx = (rect.left + rect.width / 2) - clientX;
+      const dy = (rect.top + rect.height / 2) - clientY;
+      setArrowAngle(Math.atan2(dy, dx) * (180 / Math.PI));
+    };
+
     const resetIdleTimer = () => {
       clearTimeout(idleTimerRef.current);
       if (labelRef.current === 'SCROLL') setLabel(':)');
       idleTimerRef.current = setTimeout(() => {
-        if (!helloPhaseRef.current) setLabel('SCROLL');
+        if (!helloPhaseRef.current) {
+          setLabel(inContactRef.current ? 'GO THIS WAY!' : 'SCROLL');
+        }
       }, 2500);
     };
 
@@ -117,7 +131,11 @@ export default function CustomCursor() {
       if (helloPhaseRef.current) return;
       const { x, y } = cursorPosRef.current;
       const el = document.elementFromPoint(x, y);
-      const next = getLabelFromElement(el);
+      let next = getLabelFromElement(el);
+      // In the contact section, override label unless on the CTA itself
+      if (inContactRef.current && next !== 'CONTACT ME!') {
+        next = 'GO THIS WAY!';
+      }
       setLabel(next);
     };
 
@@ -125,6 +143,19 @@ export default function CustomCursor() {
       cursorPosRef.current = { x: e.clientX, y: e.clientY };
       setCursorPos({ x: e.clientX, y: e.clientY });
       setVisible(true);
+
+      // Track whether cursor is inside the #contact section
+      const contactEl = document.getElementById('contact');
+      if (contactEl) {
+        const rect = contactEl.getBoundingClientRect();
+        const nowIn = e.clientY >= rect.top && e.clientY <= rect.bottom;
+        if (nowIn !== inContactRef.current) {
+          inContactRef.current = nowIn;
+          setInContact(nowIn);
+        }
+        if (nowIn) computeArrowAngle(e.clientX, e.clientY);
+      }
+
       updateLabelFromCurrentPos();
     };
 
@@ -132,6 +163,10 @@ export default function CustomCursor() {
       if (!helloPhaseRef.current) {
         resetIdleTimer();
         updateLabelFromCurrentPos();
+        // Keep arrow angle fresh while scrolling in contact section
+        if (inContactRef.current) {
+          computeArrowAngle(cursorPosRef.current.x, cursorPosRef.current.y);
+        }
       }
     };
 
@@ -174,7 +209,7 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Crosshair — snaps to cursor */}
+      {/* Crosshair / Arrow — snaps to cursor */}
       <div
         className={`fixed pointer-events-none z-[9999] transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
         style={{
@@ -185,10 +220,35 @@ export default function CustomCursor() {
         }}
         aria-hidden="true"
       >
-        <div className="absolute" style={{ width: 20, height: 20, left: -10, top: -10 }}>
-          <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2" style={{ height: 1, background: '#e63946' }} />
-          <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2" style={{ width: 1, background: '#e63946' }} />
-        </div>
+        {inContact ? (
+          /* Arrow pointing toward CTA */
+          <div
+            className="absolute"
+            style={{
+              width: 22,
+              height: 22,
+              left: -11,
+              top: -11,
+              transform: `rotate(${arrowAngle}deg)`,
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <path
+                d="M3 11H19M19 11L13 5M19 11L13 17"
+                stroke="#e63946"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        ) : (
+          /* Default crosshair */
+          <div className="absolute" style={{ width: 20, height: 20, left: -10, top: -10 }}>
+            <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2" style={{ height: 1, background: '#e63946' }} />
+            <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2" style={{ width: 1, background: '#e63946' }} />
+          </div>
+        )}
       </div>
 
       {/* Label — lags behind, positioned upper-right */}
