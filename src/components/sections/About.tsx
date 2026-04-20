@@ -236,7 +236,7 @@ export default function About() {
           </div>
 
           {/* Right: profile photo + watch intro */}
-          <div className="about-image flex flex-col items-center lg:items-end gap-5 opacity-0">
+          <div className="about-image flex flex-col items-center lg:items-end gap-10 opacity-0">
             <div className="relative w-[220px] h-[240px] lg:w-[260px] lg:h-[280px] shrink-0">
               {/* Red offset frame */}
               <div className="absolute inset-0 translate-x-4 translate-y-4 border-2 border-[#e63946]/50" />
