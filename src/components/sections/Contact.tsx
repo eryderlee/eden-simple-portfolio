@@ -74,25 +74,70 @@ function SocialCard({ label, href, icon }: { label: string; href: string; icon: 
 
 function SendEmailCTA() {
   const { spanRef, onMouseEnter, onMouseLeave } = useScrambleHover('Send me an email');
+  const ring1Ref = useRef<HTMLSpanElement>(null);
+  const ring2Ref = useRef<HTMLSpanElement>(null);
+  const cooldownRef = useRef(false);
+
+  useEffect(() => {
+    const onReached = () => {
+      if (cooldownRef.current) return;
+      cooldownRef.current = true;
+
+      // Scramble the label
+      onMouseEnter();
+
+      // Two staggered shockwave rings
+      [ring1Ref.current, ring2Ref.current].forEach((ring, i) => {
+        if (!ring) return;
+        gsap.fromTo(ring,
+          { scale: 1, opacity: 0.7 },
+          {
+            scale: 2,
+            opacity: 0,
+            duration: 0.9,
+            delay: i * 0.18,
+            ease: 'power2.out',
+            onComplete: () => { if (i === 1) cooldownRef.current = false; },
+          }
+        );
+      });
+    };
+
+    const onLeft = () => { cooldownRef.current = false; };
+
+    document.addEventListener('cta-line-reached', onReached);
+    document.addEventListener('cta-line-left', onLeft);
+    return () => {
+      document.removeEventListener('cta-line-reached', onReached);
+      document.removeEventListener('cta-line-left', onLeft);
+    };
+  }, [onMouseEnter]);
+
   return (
-    <a
-      id="contact-cta"
-      href="mailto:eden@ryderlee.me"
-      data-cursor="CONTACT ME!"
-      className="inline-flex items-center gap-2.5 group px-6 py-3 border border-[#e63946] text-[#e63946] hover:bg-[#e63946] hover:text-white transition-all duration-300"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      <svg width="13" height="10" viewBox="0 0 13 10" fill="none" aria-hidden="true" className="transition-colors duration-300">
-        <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h10A1.5 1.5 0 0 1 13 1.5v7A1.5 1.5 0 0 1 11.5 10h-10A1.5 1.5 0 0 1 0 8.5v-7zm1.5 0L6.5 5l5-3.5M1.5 8.5h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <span
-        ref={spanRef}
-        className="font-sans text-[0.73rem] tracking-[0.12em] uppercase font-medium transition-colors duration-300"
+    <div className="relative inline-flex">
+      {/* Shockwave rings */}
+      <span ref={ring1Ref} className="absolute inset-0 border border-[#e63946] pointer-events-none opacity-0" />
+      <span ref={ring2Ref} className="absolute inset-0 border border-[#e63946] pointer-events-none opacity-0" />
+
+      <a
+        id="contact-cta"
+        href="mailto:eden@ryderlee.me"
+        data-cursor="CONTACT ME!"
+        className="inline-flex items-center gap-2.5 group px-6 py-3 border border-[#e63946] text-[#e63946] hover:bg-[#e63946] hover:text-white transition-all duration-300"
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
-        Send me an email
-      </span>
-    </a>
+        <svg width="13" height="10" viewBox="0 0 13 10" fill="none" aria-hidden="true" className="transition-colors duration-300">
+          <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h10A1.5 1.5 0 0 1 13 1.5v7A1.5 1.5 0 0 1 11.5 10h-10A1.5 1.5 0 0 1 0 8.5v-7zm1.5 0L6.5 5l5-3.5M1.5 8.5h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <span
+          ref={spanRef}
+          className="font-sans text-[0.73rem] tracking-[0.12em] uppercase font-medium transition-colors duration-300"
+        >
+          Send me an email
+        </span>
+      </a>
+    </div>
   );
 }
 

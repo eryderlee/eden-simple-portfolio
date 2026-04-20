@@ -35,9 +35,11 @@ export default function ScrollLine() {
     if (!wrapper || !svg || !path) return;
 
     let st: ScrollTrigger | null = null;
+    let prevProgress = 0;
 
     const setup = () => {
       st?.kill();
+      prevProgress = 0;
 
       const cta = document.getElementById('contact-cta');
       if (!cta) return;
@@ -74,6 +76,12 @@ export default function ScrollLine() {
         scrub:   1.2,
         onUpdate(self) {
           path.style.strokeDashoffset = String(totalLen * (1 - self.progress));
+          if (prevProgress < 0.98 && self.progress >= 0.98) {
+            document.dispatchEvent(new CustomEvent('cta-line-reached'));
+          } else if (prevProgress >= 0.95 && self.progress < 0.95) {
+            document.dispatchEvent(new CustomEvent('cta-line-left'));
+          }
+          prevProgress = self.progress;
         },
       });
     };
