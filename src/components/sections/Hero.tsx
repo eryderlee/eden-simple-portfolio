@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 
 const NAME = 'EDEN RYDER LEE';
@@ -37,9 +37,6 @@ export default function Hero() {
   const taglineRef = useRef<HTMLParagraphElement>(null);
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
   const separatorRef = useRef<HTMLDivElement>(null);
-  const videoContainerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -52,7 +49,6 @@ export default function Hero() {
         y: 20,
       });
       gsap.set(scrollIndicatorRef.current, { opacity: 0 });
-      gsap.set(videoContainerRef.current, { opacity: 0, y: 20 });
 
       // Animate
       tl.to('.char', {
@@ -77,14 +73,9 @@ export default function Hero() {
           '-=0.4'
         )
         .to(
-          videoContainerRef.current,
-          { opacity: 1, y: 0, duration: 0.7 },
-          '-=0.3'
-        )
-        .to(
           scrollIndicatorRef.current,
           { opacity: 1, duration: 0.6 },
-          '-=0.4'
+          '-=0.2'
         );
     }, sectionRef);
 
@@ -149,45 +140,6 @@ export default function Hero() {
           Building web experiences and automating workflows
         </p>
 
-        {/* Intro video */}
-        <div ref={videoContainerRef} className="mt-10 w-full max-w-[min(520px,88vw)] mx-auto opacity-0">
-          <div className="relative aspect-video bg-black border border-white/[0.07] overflow-hidden group">
-            <video
-              ref={videoRef}
-              src="/videos/intro.mp4"
-              playsInline
-              preload="none"
-              className="w-full h-full object-cover"
-              onClick={() => {
-                if (isPlaying) {
-                  videoRef.current?.pause();
-                  setIsPlaying(false);
-                }
-              }}
-              onEnded={() => setIsPlaying(false)}
-            />
-            {/* Play button overlay — visible when paused */}
-            {!isPlaying && (
-              <button
-                data-cursor="PLAY"
-                onClick={() => { videoRef.current?.play(); setIsPlaying(true); }}
-                className="absolute inset-0 flex items-center justify-center"
-                aria-label="Play intro video"
-              >
-                <span className="flex flex-col items-center gap-3">
-                  <span className="w-14 h-14 rounded-full border border-[#e63946]/50 flex items-center justify-center hover:bg-[#e63946]/10 transition-all duration-300">
-                    <svg width="16" height="18" viewBox="0 0 16 18" fill="currentColor" className="text-[#e63946] ml-1" aria-hidden="true">
-                      <path d="M0 0L16 9L0 18V0Z" />
-                    </svg>
-                  </span>
-                  <span className="font-mono text-[0.5rem] tracking-[0.25em] uppercase text-[#f0f0f0]/30">
-                    Intro
-                  </span>
-                </span>
-              </button>
-            )}
-          </div>
-        </div>
       </div>
 
       {/* Scroll indicator */}

@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrambleHover } from '@/components/ui/ScrambleLink';
+
+const INTRO_YT_ID = 'HAOkVh_K5Kk';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,29 +25,44 @@ const TICKER_WORDS = [
   'Error Handling', 'Code Reviews', 'Scalable Systems', 'Version Control',
 ];
 
-function WatchLink() {
-  const { spanRef, onMouseEnter, onMouseLeave } = useScrambleHover('Watch my intro');
+function IntroVideo() {
+  const [active, setActive] = useState(false);
   return (
-    <a
-      href="https://youtu.be/HAOkVh_K5Kk"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-3 group"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      <span className="flex items-center justify-center w-8 h-8 rounded-full border border-[#e63946]/50 group-hover:bg-[#e63946]/10 group-hover:border-[#e63946] transition-all duration-300">
-        <svg width="8" height="10" viewBox="0 0 10 12" fill="none" aria-hidden="true">
-          <path d="M1 1l8 5-8 5V1z" fill="#e63946" />
-        </svg>
-      </span>
-      <span
-        ref={spanRef}
-        className="font-sans text-[0.78rem] text-[#f0f0f0]/45 group-hover:text-[#f0f0f0]/75 transition-colors duration-200"
-      >
+    <div className="w-full max-w-[280px] lg:max-w-[300px]">
+      <p className="font-mono text-[0.5rem] tracking-[0.25em] uppercase text-[#f0f0f0]/20 mb-2">
         Watch my intro
-      </span>
-    </a>
+      </p>
+      <div className="relative aspect-video bg-black border border-white/[0.07] overflow-hidden">
+        {active ? (
+          <iframe
+            className="absolute inset-0 w-full h-full"
+            src={`https://www.youtube.com/embed/${INTRO_YT_ID}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
+        ) : (
+          <button
+            data-cursor="PLAY"
+            onClick={() => setActive(true)}
+            className="absolute inset-0 w-full h-full group"
+            aria-label="Play intro video"
+          >
+            <img
+              src={`https://img.youtube.com/vi/${INTRO_YT_ID}/hqdefault.jpg`}
+              alt="Intro video thumbnail"
+              className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-75 transition-opacity duration-300"
+            />
+            <span className="absolute inset-0 flex items-center justify-center">
+              <span className="w-12 h-12 rounded-full border border-[#e63946]/50 flex items-center justify-center bg-black/40 group-hover:bg-[#e63946]/15 group-hover:border-[#e63946] transition-all duration-300">
+                <svg width="13" height="15" viewBox="0 0 13 15" fill="currentColor" className="text-[#e63946] ml-0.5" aria-hidden="true">
+                  <path d="M0 0L13 7.5L0 15V0Z" />
+                </svg>
+              </span>
+            </span>
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -237,8 +254,8 @@ export default function About() {
               </div>
             </div>
 
-            {/* Watch my intro — directly below photo */}
-            <WatchLink />
+            {/* Intro video — directly below photo */}
+            <IntroVideo />
           </div>
         </div>
 
