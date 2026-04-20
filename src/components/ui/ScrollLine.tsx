@@ -69,18 +69,33 @@ export default function ScrollLine() {
       path.style.strokeDasharray  = String(totalLen);
       path.style.strokeDashoffset = String(totalLen);
 
+      let ctaReached = false;
+
       st = ScrollTrigger.create({
         trigger: wrapper,
         start:   'top 80%',
         end:     `top+=${endY} 80%`,
         scrub:   1.2,
         onUpdate(self) {
-          path.style.strokeDashoffset = String(totalLen * (1 - self.progress));
-          if (prevProgress < 0.999 && self.progress >= 0.999) {
+          const offset = totalLen * (1 - self.progress);
+          path.style.strokeDashoffset = String(offset);
+
+          // Compare actual tip viewport position to CTA viewport position
+          const drawnLen = Math.max(0, totalLen - offset - 1);
+          const tipSVG  = path.getPointAtLength(drawnLen);
+          const svgRect = svg.getBoundingClientRect();
+          const ctaRect = cta.getBoundingClientRect();
+          const tipY    = svgRect.top + tipSVG.y;
+          const nearCta = tipY >= ctaRect.top - 4;
+
+          if (!ctaReached && nearCta) {
+            ctaReached = true;
             document.dispatchEvent(new CustomEvent('cta-line-reached'));
-          } else if (prevProgress >= 0.99 && self.progress < 0.99) {
+          } else if (ctaReached && !nearCta) {
+            ctaReached = false;
             document.dispatchEvent(new CustomEvent('cta-line-left'));
           }
+
           prevProgress = self.progress;
         },
       });
