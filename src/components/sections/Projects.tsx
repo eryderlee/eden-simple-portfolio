@@ -786,53 +786,61 @@ function ResearchModal({ content, onClose }: { content: ModalContent; onClose: (
 const GRAIN_SVG = "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch' seed='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")";
 
 function YouTubeFacade({ youtubeId }: { youtubeId: string }) {
+  const [isDesktop, setIsDesktop] = useState(false);
   const [active, setActive] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // On desktop: auto-activate when scrolled into view
+  // Detect pointer device once on mount
   useEffect(() => {
+    setIsDesktop(window.matchMedia('(pointer: fine)').matches);
+  }, []);
+
+  // Desktop only: auto-activate when approaching viewport
+  useEffect(() => {
+    if (!isDesktop) return;
     const el = containerRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setActive(true); observer.disconnect(); } },
-      { rootMargin: '300px 0px', threshold: 0 },
+      { rootMargin: '600px 0px', threshold: 0 },
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [isDesktop]);
+
+  const thumbnail = (
+    <a
+      href={`https://www.youtube.com/watch?v=${youtubeId}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="absolute inset-0 flex items-center justify-center"
+      onClick={isDesktop ? (e) => { e.preventDefault(); setActive(true); } : undefined}
+    >
+      <img
+        src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+        alt="Video thumbnail"
+        className="absolute inset-0 w-full h-full object-cover opacity-60"
+      />
+      <div className="relative z-10 flex flex-col items-center gap-2">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+          <circle cx="18" cy="18" r="18" fill="rgba(230,57,70,0.85)" />
+          <path d="M15 12l10 6-10 6V12Z" fill="white" />
+        </svg>
+        <span className="font-mono text-[0.6rem] tracking-[0.2em] text-white/70 uppercase">Watch on YouTube</span>
+      </div>
+    </a>
+  );
 
   return (
     <div ref={containerRef} className="absolute inset-0">
-      {active ? (
+      {isDesktop && active ? (
         <iframe
           className="absolute inset-0 w-full h-full pointer-events-none"
           src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0`}
           allow="autoplay; encrypted-media"
           allowFullScreen
         />
-      ) : (
-        /* Thumbnail facade — no YouTube JS loaded until active */
-        <a
-          href={`https://www.youtube.com/watch?v=${youtubeId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="absolute inset-0 flex items-center justify-center"
-          onClick={(e) => { e.preventDefault(); setActive(true); }}
-        >
-          <img
-            src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
-            alt="Video thumbnail"
-            className="absolute inset-0 w-full h-full object-cover opacity-60"
-          />
-          <div className="relative z-10 flex flex-col items-center gap-2">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-              <circle cx="18" cy="18" r="18" fill="rgba(230,57,70,0.85)" />
-              <path d="M15 12l10 6-10 6V12Z" fill="white" />
-            </svg>
-            <span className="font-mono text-[0.6rem] tracking-[0.2em] text-white/70 uppercase">Watch on YouTube</span>
-          </div>
-        </a>
-      )}
+      ) : thumbnail}
     </div>
   );
 }
