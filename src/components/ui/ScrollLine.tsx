@@ -76,9 +76,9 @@ export default function ScrollLine() {
         scrub:   1.2,
         onUpdate(self) {
           path.style.strokeDashoffset = String(totalLen * (1 - self.progress));
-          if (prevProgress < 0.98 && self.progress >= 0.98) {
+          if (prevProgress < 0.999 && self.progress >= 0.999) {
             document.dispatchEvent(new CustomEvent('cta-line-reached'));
-          } else if (prevProgress >= 0.95 && self.progress < 0.95) {
+          } else if (prevProgress >= 0.99 && self.progress < 0.99) {
             document.dispatchEvent(new CustomEvent('cta-line-left'));
           }
           prevProgress = self.progress;
