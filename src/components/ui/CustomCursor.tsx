@@ -19,7 +19,7 @@ function scrambleText(text: string, elapsed: number): string {
     .join('');
 }
 
-type CursorLabel = ':)' | 'HELLO' | 'SCROLL' | 'VISIT' | 'OPEN' | 'READ' | 'VIEW' | 'CLOSE' | 'PLAY';
+type CursorLabel = ':)' | 'HELLO' | 'SCROLL' | 'VISIT' | 'OPEN' | 'READ' | 'VIEW' | 'CLOSE' | 'PLAY' | 'CONTACT ME!';
 
 function getLabelFromElement(el: Element | null): CursorLabel {
   if (!el) return ':)';

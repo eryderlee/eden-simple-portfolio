@@ -78,6 +78,7 @@ function SendEmailCTA() {
     <a
       id="contact-cta"
       href="mailto:eden@ryderlee.me"
+      data-cursor="CONTACT ME!"
       className="inline-flex items-center gap-2.5 group px-6 py-3 border border-[#e63946] text-[#e63946] hover:bg-[#e63946] hover:text-white transition-all duration-300"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
