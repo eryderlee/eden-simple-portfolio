@@ -364,7 +364,7 @@ const FEATURED_ITEMS: FeaturedItem[] = [
     aspectRatio: '16:9',
     mediaLabel: 'Voice agent demo',
     mediaFile: 'baseaim-voice-agent.mp4',
-    imageSrc: '/images/voice agent.png',
+    imageSrc: '/images/voice agent.webp',
   },
   {
     id: 'F03',
@@ -449,7 +449,7 @@ const FEATURED_ITEMS: FeaturedItem[] = [
     aspectRatio: '16:9',
     mediaLabel: 'Paper abstract / figures',
     mediaFile: 'crypto-remittances-metis2023',
-    imageSrc: '/images/research cover.png',
+    imageSrc: '/images/research cover.webp',
     redBorder: true,
   },
   {
@@ -465,7 +465,7 @@ const FEATURED_ITEMS: FeaturedItem[] = [
     aspectRatio: '16:9',
     mediaLabel: 'Workflow walkthrough',
     mediaFile: 'signnow-contract-generator.yt',
-    imageSrc: '/images/sign now automation.png',
+    imageSrc: '/images/sign now automation.webp',
   },
   {
     id: 'F09',
