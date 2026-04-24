@@ -795,7 +795,7 @@ function YouTubeFacade({ youtubeId }: { youtubeId: string }) {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setActive(true); observer.disconnect(); } },
-      { rootMargin: '600px 0px', threshold: 0 },
+      { rootMargin: '200px 0px', threshold: 0 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -810,6 +810,8 @@ function YouTubeFacade({ youtubeId }: { youtubeId: string }) {
       <img
         src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
         alt="Video thumbnail"
+        loading="lazy"
+        decoding="async"
         className="absolute inset-0 w-full h-full object-cover opacity-60"
       />
       <div className="relative z-10 flex flex-col items-center gap-2">

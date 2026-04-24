@@ -50,6 +50,8 @@ function IntroVideo() {
             <img
               src={`https://img.youtube.com/vi/${INTRO_YT_ID}/hqdefault.jpg`}
               alt="Intro video thumbnail"
+              loading="lazy"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-75 transition-opacity duration-300"
             />
             <span className="absolute inset-0 flex items-center justify-center">
@@ -236,7 +238,7 @@ export default function About() {
           </div>
 
           {/* Right: profile photo + watch intro */}
-          <div className="about-image flex flex-col items-center lg:items-end gap-10 opacity-0">
+          <div className="about-image flex flex-col items-center lg:items-end gap-12 opacity-0">
             <div className="relative w-[220px] h-[240px] lg:w-[260px] lg:h-[280px] shrink-0">
               {/* Red offset frame */}
               <div className="absolute inset-0 translate-x-4 translate-y-4 border-2 border-[#e63946]/50" />
