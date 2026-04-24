@@ -951,7 +951,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
               ref={videoRef}
               src={videoSrc}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 0 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
-              muted loop playsInline preload="none"
+              muted loop playsInline preload="metadata"
               onLoadedMetadata={activeVideo === 0 ? handleVideoMetadata : undefined}
             />
             {/* Video 2 */}
