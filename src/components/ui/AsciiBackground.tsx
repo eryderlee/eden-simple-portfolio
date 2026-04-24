@@ -378,6 +378,24 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // re-measure once custom fonts do load.
     computeGrid();
     rafId = requestAnimationFrame(render);
+
+    // ── Pause loop when host is off-screen ────────────────────────────────
+    // Cancels the RAF when the ASCII background scrolls out of view (e.g.
+    // user is in Projects/Skills/Contact) and restarts it on re-entry.
+    // 200px rootMargin keeps a small buffer so it resumes just before visible.
+    const pauseObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          cancelAnimationFrame(rafId);
+        } else {
+          lastFrame = 0;
+          rafId = requestAnimationFrame(render);
+        }
+      },
+      { rootMargin: '200px 0px' },
+    );
+    pauseObserver.observe(host);
+
     if (document.fonts?.ready) {
       document.fonts.ready.then(() => computeGrid()).catch(() => {});
     }
@@ -399,6 +417,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
 
     return () => {
       cancelAnimationFrame(rafId);
+      pauseObserver.disconnect();
       clearInterval(watchdog);
       ro.disconnect();
       delayedComputes.forEach(clearTimeout);
