@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import Image from 'next/image';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrambleHover } from '@/components/ui/ScrambleLink';
@@ -995,7 +996,15 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
             </button>
           </div>
         ) : imageSrc ? (
-          <img src={imageSrc} alt={name} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: '50% 97%' }} />
+          <Image
+            src={imageSrc}
+            alt={name}
+            fill
+            className="object-cover"
+            style={{ objectPosition: '50% 97%' }}
+            loading="lazy"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
+          />
         ) : youtubeId ? (
           <YouTubeFacade youtubeId={youtubeId} />
         ) : videoSrc ? (
