@@ -250,6 +250,7 @@ export default function About() {
                   src="/images/profile.jpg"
                   alt="Eden Ryder Lee"
                   fill
+                  priority
                   className="object-cover"
                   sizes="(max-width: 1024px) 220px, 260px"
                 />
