@@ -81,7 +81,7 @@ export default function CustomCursor() {
     animateTo(next);
   }, [animateTo]);
 
-  // Lerp loop for label position
+  // Lerp loop for label position — pauses when tab is hidden
   useEffect(() => {
     const loop = () => {
       labelPosRef.current = {
@@ -92,7 +92,20 @@ export default function CustomCursor() {
       lerpRafRef.current = requestAnimationFrame(loop);
     };
     lerpRafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(lerpRafRef.current);
+
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') {
+        cancelAnimationFrame(lerpRafRef.current);
+      } else {
+        lerpRafRef.current = requestAnimationFrame(loop);
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+
+    return () => {
+      cancelAnimationFrame(lerpRafRef.current);
+      document.removeEventListener('visibilitychange', onVis);
+    };
   }, []);
 
   // HELLO intro
