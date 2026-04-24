@@ -316,6 +316,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
           t0 += performance.now() - pausedAt;
           pausedAt = null;
         }
+        if (isOffScreen) return;   // ← don't restart RAF if element is off-screen
         lastFrame = 0;
         cancelAnimationFrame(rafId);
         computeGrid(); // layout may have shifted while hidden
