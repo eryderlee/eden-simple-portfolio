@@ -275,6 +275,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     let t0 = performance.now();
     let lastFrame = performance.now();
     let lastT = 0;
+    let isOffScreen = false;
 
     function render(now: number) {
       if (now - lastFrame < 1000 / CFG.fpsCap) { rafId = requestAnimationFrame(render); return; }
@@ -328,6 +329,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // re-run the effect but the RAF loop is dead. Restart it here.
     function onPageShow(e: PageTransitionEvent) {
       if (!e.persisted) return;
+      if (isOffScreen) return;
       cancelAnimationFrame(rafId);
       lastFrame = 0;
       pausedAt = null;
@@ -352,6 +354,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // browser freeze/resume without visibilitychange, etc.) — restart.
     const watchdog = window.setInterval(() => {
       if (document.visibilityState !== 'visible') return;
+      if (isOffScreen) return;
       if (performance.now() - lastFrame < 2000) return;
       cancelAnimationFrame(rafId);
       lastFrame = performance.now();
@@ -363,6 +366,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // Window focus — extra safety net for browsers that swallow the
     // visibilitychange event when returning from long inactivity.
     function onFocus() {
+      if (isOffScreen) return;
       if (performance.now() - lastFrame < 500) return;
       cancelAnimationFrame(rafId);
       lastFrame = performance.now();
@@ -385,9 +389,15 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // 200px rootMargin keeps a small buffer so it resumes just before visible.
     const pauseObserver = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) {
+        isOffScreen = !entry.isIntersecting;
+        if (isOffScreen) {
           cancelAnimationFrame(rafId);
+          pausedAt = performance.now();
         } else {
+          if (pausedAt !== null) {
+            t0 += performance.now() - pausedAt;
+            pausedAt = null;
+          }
           lastFrame = 0;
           rafId = requestAnimationFrame(render);
         }
