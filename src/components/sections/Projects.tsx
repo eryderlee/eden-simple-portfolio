@@ -787,6 +787,54 @@ function ResearchModal({ content, onClose }: { content: ModalContent; onClose: (
 /* ── Main Section ───────────────────────────────────────────── */
 const GRAIN_SVG = "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch' seed='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")";
 
+/**
+ * Tiny low-res canvas that continuously mirrors the given <video>'s frames.
+ * Sits behind the real video inside the magicui Backlight wrapper so the
+ * SVG filter has actual pixel data to halo. iOS Safari composites <video>
+ * on a separate GPU layer that filters can't read, but it reads <canvas>
+ * normally — so the canvas becomes the dynamic, content-derived source for
+ * the backlight on platforms where the video itself can't be sampled.
+ */
+function VideoBacklightSource({ videoRef }: { videoRef: React.RefObject<HTMLVideoElement | null> }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.width = 32;
+    canvas.height = 18;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let raf = 0;
+    let last = 0;
+    const frameInterval = 1000 / 8; // 8 fps is plenty for an ambient glow
+
+    const tick = (now: number) => {
+      raf = requestAnimationFrame(tick);
+      if (now - last < frameInterval) return;
+      last = now;
+      const video = videoRef.current;
+      if (!video || video.paused || video.readyState < 2) return;
+      try {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      } catch {
+        /* transient draw error (e.g. tainted source) — skip this frame */
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [videoRef]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden
+      className="absolute inset-0 w-full h-full pointer-events-none"
+    />
+  );
+}
+
 function YouTubeFacade({ youtubeId }: { youtubeId: string }) {
   const [revealed, setRevealed] = useState(false);
 
@@ -912,18 +960,13 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
         className={`relative w-full ${isHero ? 'aspect-[16/9]' : 'aspect-[16/9]'}
           border border-dashed ${redBorder ? 'border-[#e63946]/35' : 'border-white/15'}
           bg-[#0a0a0a] overflow-hidden rounded-lg`}
-        // iOS Safari skips SVG `filter: url()` on <video> children because
-        // videos render on a separate GPU layer, so the magicui Backlight
-        // halo is invisible on mobile for video cards. A static red glow via
-        // box-shadow is GPU-independent and shows up everywhere; on desktop
-        // it just blends additively into the SVG halo.
-        style={(videoSrc || videoSrc2) ? {
-          boxShadow: '0 0 28px rgba(230, 57, 70, 0.45), 0 0 60px rgba(230, 57, 70, 0.2)',
-        } : undefined}
       >
         {videoSrc && videoSrc2 ? (
           /* Both videos always mounted — stable refs, swap via z-index */
           <div className="absolute inset-0">
+            {/* Canvas mirror of the active video — gives the Backlight an
+                iOS-readable pixel source so the halo shows up on mobile. */}
+            <VideoBacklightSource videoRef={activeVideo === 0 ? videoRef : videoRef2} />
             {/* Video 1 */}
             <video
               ref={videoRef}
@@ -986,7 +1029,10 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
         ) : youtubeId ? (
           <YouTubeFacade youtubeId={youtubeId} />
         ) : videoSrc ? (
-          <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline preload="none" />
+          <>
+            <VideoBacklightSource videoRef={videoRef} />
+            <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline preload="none" />
+          </>
         ) : (
           <>
             <div className="absolute inset-0 opacity-[0.07] pointer-events-none" style={{ backgroundImage: GRAIN_SVG, backgroundSize: '256px 256px' }} />
