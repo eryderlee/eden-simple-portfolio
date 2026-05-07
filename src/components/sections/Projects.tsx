@@ -788,6 +788,7 @@ const GRAIN_SVG = "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='
 
 function YouTubeFacade({ youtubeId }: { youtubeId: string }) {
   const [active, setActive] = useState(false);
+  const [revealed, setRevealed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Auto-activate when approaching viewport (all devices)
@@ -802,38 +803,43 @@ function YouTubeFacade({ youtubeId }: { youtubeId: string }) {
     return () => observer.disconnect();
   }, []);
 
-  const thumbnail = (
-    <button
-      className="absolute inset-0 flex items-center justify-center w-full h-full"
-      onClick={() => setActive(true)}
-      aria-label="Play video"
-    >
-      <img
-        src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
-        alt="Video thumbnail"
-        loading="lazy"
-        decoding="async"
-        className="absolute inset-0 w-full h-full object-cover opacity-60"
-      />
-      <div className="relative z-10 flex flex-col items-center gap-2">
-        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-          <circle cx="18" cy="18" r="18" fill="rgba(230,57,70,0.85)" />
-          <path d="M15 12l10 6-10 6V12Z" fill="white" />
-        </svg>
-      </div>
-    </button>
-  );
-
   return (
-    <div ref={containerRef} className="absolute inset-0">
-      {active ? (
+    <div ref={containerRef} className="absolute inset-0 overflow-hidden">
+      {/* Thumbnail stays mounted underneath the iframe so the user never
+          sees YouTube's player UI flash (big play button, title, etc.) while
+          the embed initialises and applies controls=0. */}
+      <button
+        className="absolute inset-0 flex items-center justify-center w-full h-full"
+        onClick={() => setActive(true)}
+        aria-label="Play video"
+      >
+        <img
+          src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+          alt="Video thumbnail"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover opacity-60"
+        />
+        <div className="relative z-10 flex flex-col items-center gap-2">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <circle cx="18" cy="18" r="18" fill="rgba(230,57,70,0.85)" />
+            <path d="M15 12l10 6-10 6V12Z" fill="white" />
+          </svg>
+        </div>
+      </button>
+      {active && (
         <iframe
-          className="absolute inset-0 w-full h-full pointer-events-none"
+          className="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-500"
+          style={{ opacity: revealed ? 1 : 0 }}
           src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0&playsinline=1`}
           allow="autoplay; encrypted-media"
           allowFullScreen
+          onLoad={() => {
+            // Wait past the YT player's UI flash before fading the iframe in.
+            window.setTimeout(() => setRevealed(true), 1000);
+          }}
         />
-      ) : thumbnail}
+      )}
     </div>
   );
 }
