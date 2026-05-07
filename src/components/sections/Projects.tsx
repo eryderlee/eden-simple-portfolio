@@ -788,37 +788,21 @@ function ResearchModal({ content, onClose }: { content: ModalContent; onClose: (
 const GRAIN_SVG = "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch' seed='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")";
 
 function YouTubeFacade({ youtubeId }: { youtubeId: string }) {
-  const [active, setActive] = useState(false);
   const [revealed, setRevealed] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Auto-activate when approaching viewport (all devices)
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setActive(true); observer.disconnect(); } },
-      { rootMargin: '200px 0px', threshold: 0 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   return (
-    <div ref={containerRef} className="absolute inset-0 overflow-hidden bg-black">
-      {active && (
-        <iframe
-          className="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-500"
-          style={{ opacity: revealed ? 1 : 0 }}
-          src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0&playsinline=1`}
-          allow="autoplay; encrypted-media"
-          allowFullScreen
-          onLoad={() => {
-            // Wait past the YT player's UI flash before fading the iframe in.
-            window.setTimeout(() => setRevealed(true), 1000);
-          }}
-        />
-      )}
+    <div className="absolute inset-0 overflow-hidden bg-black">
+      <iframe
+        className="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-500"
+        style={{ opacity: revealed ? 1 : 0 }}
+        src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0&playsinline=1`}
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+        onLoad={() => {
+          // Wait past the YT player's UI flash before fading the iframe in.
+          window.setTimeout(() => setRevealed(true), 1500);
+        }}
+      />
     </div>
   );
 }
