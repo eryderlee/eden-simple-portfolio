@@ -275,7 +275,6 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     let t0 = performance.now();
     let lastFrame = performance.now();
     let lastT = 0;
-    let isOffScreen = false;
 
     function render(now: number) {
       if (now - lastFrame < 1000 / CFG.fpsCap) { rafId = requestAnimationFrame(render); return; }
@@ -316,7 +315,6 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
           t0 += performance.now() - pausedAt;
           pausedAt = null;
         }
-        if (isOffScreen) return;   // ← don't restart RAF if element is off-screen
         lastFrame = 0;
         cancelAnimationFrame(rafId);
         computeGrid(); // layout may have shifted while hidden
@@ -330,7 +328,6 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // re-run the effect but the RAF loop is dead. Restart it here.
     function onPageShow(e: PageTransitionEvent) {
       if (!e.persisted) return;
-      if (isOffScreen) return;
       cancelAnimationFrame(rafId);
       lastFrame = 0;
       pausedAt = null;
@@ -355,7 +352,6 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // browser freeze/resume without visibilitychange, etc.) — restart.
     const watchdog = window.setInterval(() => {
       if (document.visibilityState !== 'visible') return;
-      if (isOffScreen) return;
       if (performance.now() - lastFrame < 2000) return;
       cancelAnimationFrame(rafId);
       lastFrame = performance.now();
@@ -367,7 +363,6 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // Window focus — extra safety net for browsers that swallow the
     // visibilitychange event when returning from long inactivity.
     function onFocus() {
-      if (isOffScreen) return;
       if (performance.now() - lastFrame < 500) return;
       cancelAnimationFrame(rafId);
       lastFrame = performance.now();
@@ -383,29 +378,6 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // re-measure once custom fonts do load.
     computeGrid();
     rafId = requestAnimationFrame(render);
-
-    // ── Pause loop when host is off-screen ────────────────────────────────
-    // Cancels the RAF when the ASCII background scrolls out of view (e.g.
-    // user is in Projects/Skills/Contact) and restarts it on re-entry.
-    // 200px rootMargin keeps a small buffer so it resumes just before visible.
-    const pauseObserver = new IntersectionObserver(
-      ([entry]) => {
-        isOffScreen = !entry.isIntersecting;
-        if (isOffScreen) {
-          cancelAnimationFrame(rafId);
-          pausedAt = performance.now();
-        } else {
-          if (pausedAt !== null) {
-            t0 += performance.now() - pausedAt;
-            pausedAt = null;
-          }
-          lastFrame = 0;
-          rafId = requestAnimationFrame(render);
-        }
-      },
-      { rootMargin: '200px 0px' },
-    );
-    pauseObserver.observe(host);
 
     if (document.fonts?.ready) {
       document.fonts.ready.then(() => computeGrid()).catch(() => {});
@@ -428,7 +400,6 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
 
     return () => {
       cancelAnimationFrame(rafId);
-      pauseObserver.disconnect();
       clearInterval(watchdog);
       ro.disconnect();
       delayedComputes.forEach(clearTimeout);
