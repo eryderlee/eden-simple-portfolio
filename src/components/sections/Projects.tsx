@@ -838,6 +838,13 @@ function VideoBacklightSource({ videoRef }: { videoRef: React.RefObject<HTMLVide
 function YouTubeFacade({ youtubeId }: { youtubeId: string }) {
   const [revealed, setRevealed] = useState(false);
 
+  // Safety net: even if onLoad never fires (rare network or browser quirk),
+  // make sure the iframe still becomes visible.
+  useEffect(() => {
+    const t = window.setTimeout(() => setRevealed(true), 5000);
+    return () => window.clearTimeout(t);
+  }, []);
+
   return (
     <div className="absolute inset-0 overflow-hidden bg-black">
       <iframe
@@ -952,16 +959,17 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
     if (other) { other.pause(); other.currentTime = 0; }
   }, [activeVideo]);
 
-  return (
-    <article className={`${isHero ? 'sm:col-span-2' : ''} flex flex-col`}>
-      {/* Media box — wrapped in <Backlight> for the saturated glow */}
-      <Backlight blur={20} className="w-full mb-5">
-      <div
-        className={`relative w-full ${isHero ? 'aspect-[16/9]' : 'aspect-[16/9]'}
-          border border-dashed ${redBorder ? 'border-[#e63946]/35' : 'border-white/15'}
-          bg-[#0a0a0a] overflow-hidden rounded-lg`}
-      >
-        {videoSrc && videoSrc2 ? (
+  // Media box markup is shared between the Backlight-wrapped path and the
+  // YT path. YT iframes have known rendering issues inside an ancestor with
+  // `filter: url(...)` (Chrome/Safari cross-origin iframe quirk — the iframe
+  // can paint blank), so YT cards skip Backlight and use a static red glow.
+  const mediaBoxClasses = `relative w-full ${isHero ? 'aspect-[16/9]' : 'aspect-[16/9]'}
+    border border-dashed ${redBorder ? 'border-[#e63946]/35' : 'border-white/15'}
+    bg-[#0a0a0a] overflow-hidden rounded-lg`;
+
+  const mediaInner = (
+    <>
+      {videoSrc && videoSrc2 ? (
           /* Both videos always mounted — stable refs, swap via z-index */
           <div className="absolute inset-0">
             {/* Canvas mirror of the active video — gives the Backlight an
@@ -1045,8 +1053,25 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
             </div>
           </>
         )}
-      </div>
-      </Backlight>
+    </>
+  );
+
+  return (
+    <article className={`${isHero ? 'sm:col-span-2' : ''} flex flex-col`}>
+      {youtubeId ? (
+        <div className="w-full mb-5">
+          <div
+            className={mediaBoxClasses}
+            style={{ boxShadow: '0 0 28px rgba(230, 57, 70, 0.45), 0 0 60px rgba(230, 57, 70, 0.2)' }}
+          >
+            {mediaInner}
+          </div>
+        </div>
+      ) : (
+        <Backlight blur={20} className="w-full mb-5">
+          <div className={mediaBoxClasses}>{mediaInner}</div>
+        </Backlight>
+      )}
 
       {/* Meta + Links row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
