@@ -912,6 +912,14 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
         className={`relative w-full ${isHero ? 'aspect-[16/9]' : 'aspect-[16/9]'}
           border border-dashed ${redBorder ? 'border-[#e63946]/35' : 'border-white/15'}
           bg-[#0a0a0a] overflow-hidden rounded-lg`}
+        // iOS Safari skips SVG `filter: url()` on <video> children because
+        // videos render on a separate GPU layer, so the magicui Backlight
+        // halo is invisible on mobile for video cards. A static red glow via
+        // box-shadow is GPU-independent and shows up everywhere; on desktop
+        // it just blends additively into the SVG halo.
+        style={(videoSrc || videoSrc2) ? {
+          boxShadow: '0 0 28px rgba(230, 57, 70, 0.45), 0 0 60px rgba(230, 57, 70, 0.2)',
+        } : undefined}
       >
         {videoSrc && videoSrc2 ? (
           /* Both videos always mounted — stable refs, swap via z-index */
