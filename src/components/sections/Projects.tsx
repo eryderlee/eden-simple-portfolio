@@ -923,7 +923,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
   return (
     <article className={`${isHero ? 'sm:col-span-2' : ''} flex flex-col`}>
       {/* Media box — wrapped in <Backlight> for the saturated glow */}
-      <Backlight blur={40} className="w-full mb-5">
+      <Backlight blur={20} className="w-full mb-5">
       <div
         className={`relative w-full ${isHero ? 'aspect-[16/9]' : 'aspect-[16/9]'}
           border border-dashed ${redBorder ? 'border-[#e63946]/35' : 'border-white/15'}
