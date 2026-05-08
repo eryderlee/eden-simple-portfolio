@@ -810,20 +810,39 @@ function VideoBacklightSource({ videoRef }: { videoRef: React.RefObject<HTMLVide
     let last = 0;
     const frameInterval = 1000 / 8; // 8 fps is plenty for an ambient glow
 
+    const drawIfReady = () => {
+      const video = videoRef.current;
+      if (!video || video.readyState < 2) return;
+      try {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      } catch {
+        /* transient draw error — skip */
+      }
+    };
+
+    // Paint the first available frame eagerly (even before play()) so the
+    // Backlight has pixel data the moment the card scrolls into view.
+    drawIfReady();
+    const video = videoRef.current;
+    video?.addEventListener('loadeddata', drawIfReady);
+
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
       if (now - last < frameInterval) return;
       last = now;
-      const video = videoRef.current;
-      if (!video || video.paused || video.readyState < 2) return;
+      const v = videoRef.current;
+      if (!v || v.paused || v.readyState < 2) return;
       try {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
       } catch {
         /* transient draw error (e.g. tainted source) — skip this frame */
       }
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      video?.removeEventListener('loadeddata', drawIfReady);
+    };
   }, [videoRef]);
 
   return (
@@ -966,11 +985,6 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
   const mediaBoxClasses = `relative w-full ${isHero ? 'aspect-[16/9]' : 'aspect-[16/9]'}
     border border-dashed ${redBorder ? 'border-[#e63946]/35' : 'border-white/15'}
     bg-[#0a0a0a] overflow-hidden rounded-lg`;
-  // Baseline glow on every featured Media box — guarantees a visible halo
-  // the moment the card paints, even before the video is decoded enough for
-  // the iOS canvas mirror to have frames. The dynamic Backlight halo (where
-  // applicable) layers on top once the canvas/video is producing pixels.
-  const mediaBoxGlow = '0 0 28px rgba(230, 57, 70, 0.45), 0 0 60px rgba(230, 57, 70, 0.2)';
 
   const mediaInner = (
     <>
@@ -980,12 +994,13 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
             {/* Canvas mirror of the active video — gives the Backlight an
                 iOS-readable pixel source so the halo shows up on mobile. */}
             <VideoBacklightSource videoRef={activeVideo === 0 ? videoRef : videoRef2} />
-            {/* Video 1 */}
+            {/* Video 1 — preload="auto" so the iOS canvas mirror has frames
+                ready as soon as the card scrolls into view. */}
             <video
               ref={videoRef}
               src={videoSrc}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 0 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
-              muted loop playsInline preload="metadata"
+              muted loop playsInline preload="auto"
               onLoadedMetadata={activeVideo === 0 ? handleVideoMetadata : undefined}
             />
             {/* Video 2 */}
@@ -993,7 +1008,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
               ref={videoRef2}
               src={videoSrc2}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 1 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
-              muted loop playsInline preload="none"
+              muted loop playsInline preload="auto"
               onLoadedMetadata={activeVideo === 1 ? handleVideoMetadata : undefined}
             />
             {/* Main label */}
@@ -1044,7 +1059,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
         ) : videoSrc ? (
           <>
             <VideoBacklightSource videoRef={videoRef} />
-            <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline preload="none" />
+            <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline preload="auto" />
           </>
         ) : (
           <>
@@ -1065,15 +1080,16 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
     <article className={`${isHero ? 'sm:col-span-2' : ''} flex flex-col`}>
       {youtubeId ? (
         <div className="w-full mb-5">
-          <div className={mediaBoxClasses} style={{ boxShadow: mediaBoxGlow }}>
+          <div
+            className={mediaBoxClasses}
+            style={{ boxShadow: '0 0 28px rgba(230, 57, 70, 0.45), 0 0 60px rgba(230, 57, 70, 0.2)' }}
+          >
             {mediaInner}
           </div>
         </div>
       ) : (
         <Backlight blur={20} className="w-full mb-5">
-          <div className={mediaBoxClasses} style={{ boxShadow: mediaBoxGlow }}>
-            {mediaInner}
-          </div>
+          <div className={mediaBoxClasses}>{mediaInner}</div>
         </Backlight>
       )}
 
