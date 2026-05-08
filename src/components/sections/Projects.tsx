@@ -966,6 +966,11 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
   const mediaBoxClasses = `relative w-full ${isHero ? 'aspect-[16/9]' : 'aspect-[16/9]'}
     border border-dashed ${redBorder ? 'border-[#e63946]/35' : 'border-white/15'}
     bg-[#0a0a0a] overflow-hidden rounded-lg`;
+  // Baseline glow on every featured Media box — guarantees a visible halo
+  // the moment the card paints, even before the video is decoded enough for
+  // the iOS canvas mirror to have frames. The dynamic Backlight halo (where
+  // applicable) layers on top once the canvas/video is producing pixels.
+  const mediaBoxGlow = '0 0 28px rgba(230, 57, 70, 0.45), 0 0 60px rgba(230, 57, 70, 0.2)';
 
   const mediaInner = (
     <>
@@ -1060,16 +1065,15 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
     <article className={`${isHero ? 'sm:col-span-2' : ''} flex flex-col`}>
       {youtubeId ? (
         <div className="w-full mb-5">
-          <div
-            className={mediaBoxClasses}
-            style={{ boxShadow: '0 0 28px rgba(230, 57, 70, 0.45), 0 0 60px rgba(230, 57, 70, 0.2)' }}
-          >
+          <div className={mediaBoxClasses} style={{ boxShadow: mediaBoxGlow }}>
             {mediaInner}
           </div>
         </div>
       ) : (
         <Backlight blur={20} className="w-full mb-5">
-          <div className={mediaBoxClasses}>{mediaInner}</div>
+          <div className={mediaBoxClasses} style={{ boxShadow: mediaBoxGlow }}>
+            {mediaInner}
+          </div>
         </Backlight>
       )}
 
