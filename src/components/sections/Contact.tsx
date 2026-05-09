@@ -76,6 +76,7 @@ function SendEmailCTA() {
   const { spanRef, onMouseEnter, onMouseLeave } = useScrambleHover('Send me an email');
   const ring1Ref = useRef<HTMLSpanElement>(null);
   const ring2Ref = useRef<HTMLSpanElement>(null);
+  const glowRef = useRef<HTMLSpanElement>(null);
   const cooldownRef = useRef(false);
 
   useEffect(() => {
@@ -83,17 +84,39 @@ function SendEmailCTA() {
       if (cooldownRef.current) return;
       cooldownRef.current = true;
 
-      const ring = ring1Ref.current;
-      if (!ring) return;
-      gsap.fromTo(ring,
+      const ring1 = ring1Ref.current;
+      const ring2 = ring2Ref.current;
+      const glow = glowRef.current;
+      if (!ring1 || !ring2 || !glow) return;
+
+      const tl = gsap.timeline({
+        onComplete: () => { cooldownRef.current = false; },
+      });
+
+      // Soft red halo behind the button — snap on, slow fade out
+      tl.to(glow, { opacity: 1, duration: 0.2, ease: 'power2.out' }, 0);
+      tl.to(glow, { opacity: 0, duration: 1.2, ease: 'power2.in' }, 0.25);
+
+      // Primary shockwave ring
+      tl.fromTo(ring1,
         { scale: 1, opacity: 0.7 },
         {
           scale: 2.2,
           opacity: 0,
           duration: 1.4,
           ease: 'power1.out',
-          onComplete: () => { cooldownRef.current = false; },
-        }
+        }, 0,
+      );
+
+      // Secondary ring, slightly delayed and reaches further — layered depth
+      tl.fromTo(ring2,
+        { scale: 1, opacity: 0.45 },
+        {
+          scale: 2.7,
+          opacity: 0,
+          duration: 1.5,
+          ease: 'power1.out',
+        }, 0.18,
       );
     };
 
@@ -105,10 +128,19 @@ function SendEmailCTA() {
       document.removeEventListener('cta-line-reached', onReached);
       document.removeEventListener('cta-line-left', onLeft);
     };
-  }, [onMouseEnter]);
+  }, []);
 
   return (
     <div className="relative inline-flex">
+      {/* Soft red halo behind the button — opacity is GSAP-driven on cta-line-reached */}
+      <span
+        ref={glowRef}
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          opacity: 0,
+          boxShadow: '0 0 50px 6px rgba(230, 57, 70, 0.55), 0 0 100px 16px rgba(230, 57, 70, 0.22)',
+        }}
+      />
       {/* Shockwave rings */}
       <span ref={ring1Ref} className="absolute inset-0 border border-[#e63946] pointer-events-none opacity-0" />
       <span ref={ring2Ref} className="absolute inset-0 border border-[#e63946] pointer-events-none opacity-0" />
