@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 
 const CHARS = 'ABCDEFGHJKLNOPQRSTUXYZ';
 const SCRAMBLE_DURATION = 500;
@@ -35,26 +35,28 @@ function getLabelFromElement(el: Element | null): CursorLabel {
 
 export default function CustomCursor() {
   const [isPointerFine, setIsPointerFine] = useState(false);
-  const [cursorPos, setCursorPos] = useState({ x: -200, y: -200 });
-  const [labelPos, setLabelPos] = useState({ x: -200, y: -200 });
   const [visible, setVisible] = useState(false);
   const [displayLabel, setDisplayLabel] = useState('HELLO');
   const [clicked, setClicked] = useState(false);
   const [inContact, setInContact] = useState(false);
-  const [arrowAngle, setArrowAngle] = useState(0);
 
   useEffect(() => {
     setIsPointerFine(window.matchMedia('(pointer: fine)').matches);
   }, []);
 
+  const cursorElRef = useRef<HTMLDivElement>(null);
+  const labelElRef = useRef<HTMLDivElement>(null);
+  const arrowElRef = useRef<HTMLDivElement>(null);
   const labelPosRef = useRef({ x: -200, y: -200 });
   const cursorPosRef = useRef({ x: -200, y: -200 });
+  const arrowAngleRef = useRef(0);
   const labelRef = useRef<CursorLabel>('HELLO');
   const helloPhaseRef = useRef(true);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const scrambleRafRef = useRef<number>(0);
   const lerpRafRef = useRef<number>(0);
   const inContactRef = useRef(false);
+  const visibleRef = useRef(false);
 
   const animateTo = useCallback((newLabel: string) => {
     cancelAnimationFrame(scrambleRafRef.current);
@@ -81,14 +83,17 @@ export default function CustomCursor() {
     animateTo(next);
   }, [animateTo]);
 
-  // Lerp loop for label position — pauses when tab is hidden
+  // Lerp loop — writes directly to DOM, no React re-render
   useEffect(() => {
     const loop = () => {
       labelPosRef.current = {
         x: labelPosRef.current.x + (cursorPosRef.current.x - labelPosRef.current.x) * LABEL_LERP,
         y: labelPosRef.current.y + (cursorPosRef.current.y - labelPosRef.current.y) * LABEL_LERP,
       };
-      setLabelPos({ ...labelPosRef.current });
+      const labelEl = labelElRef.current;
+      if (labelEl) {
+        labelEl.style.transform = `translate3d(${labelPosRef.current.x}px, ${labelPosRef.current.y}px, 0)`;
+      }
       lerpRafRef.current = requestAnimationFrame(loop);
     };
     lerpRafRef.current = requestAnimationFrame(loop);
@@ -108,6 +113,13 @@ export default function CustomCursor() {
     };
   }, []);
 
+  // Apply arrow rotation synchronously after mount/update to avoid 1-frame flash at 0deg
+  useLayoutEffect(() => {
+    if (inContact && arrowElRef.current) {
+      arrowElRef.current.style.transform = `rotate(${arrowAngleRef.current}deg)`;
+    }
+  }, [inContact]);
+
   // HELLO intro
   useEffect(() => {
     animateTo('HELLO');
@@ -124,13 +136,19 @@ export default function CustomCursor() {
     // true while the sticky idle label (SCROLL / GO THIS WAY!) is showing
     const stickyRef = { current: false };
 
+    const applyArrowRotation = () => {
+      const arrowEl = arrowElRef.current;
+      if (arrowEl) arrowEl.style.transform = `rotate(${arrowAngleRef.current}deg)`;
+    };
+
     const computeArrowAngle = (clientX: number, clientY: number) => {
       const ctaEl = document.getElementById('contact-cta');
       if (!ctaEl) return;
       const rect = ctaEl.getBoundingClientRect();
       const dx = (rect.left + rect.width / 2) - clientX;
       const dy = (rect.top + rect.height / 2) - clientY;
-      setArrowAngle(Math.atan2(dy, dx) * (180 / Math.PI));
+      arrowAngleRef.current = Math.atan2(dy, dx) * (180 / Math.PI);
+      applyArrowRotation();
     };
 
     const resetIdleTimer = () => {
@@ -170,8 +188,14 @@ export default function CustomCursor() {
 
     const onMove = (e: MouseEvent) => {
       cursorPosRef.current = { x: e.clientX, y: e.clientY };
-      setCursorPos({ x: e.clientX, y: e.clientY });
-      setVisible(true);
+      const cursorEl = cursorElRef.current;
+      if (cursorEl) {
+        cursorEl.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+      }
+      if (!visibleRef.current) {
+        visibleRef.current = true;
+        setVisible(true);
+      }
 
       // Track whether cursor is inside the #contact section
       const contactEl = document.getElementById('contact');
@@ -206,8 +230,8 @@ export default function CustomCursor() {
       }
     };
 
-    const onLeave = () => setVisible(false);
-    const onEnter = () => setVisible(true);
+    const onLeave = () => { visibleRef.current = false; setVisible(false); };
+    const onEnter = () => { visibleRef.current = true; setVisible(true); };
     const prevLabelRef = { current: ':)' as CursorLabel };
     const onDown = () => {
       setClicked(true);
@@ -245,52 +269,56 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Crosshair / Arrow — snaps to cursor */}
+      {/* Crosshair / Arrow — transform-positioned on cursor */}
       <div
-        className={`fixed pointer-events-none z-[9999] transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
-        style={{
-          left: cursorPos.x,
-          top: cursorPos.y,
-          transform: clicked ? 'scale(0.6)' : 'scale(1)',
-          transition: 'opacity 300ms, transform 120ms ease-out',
-        }}
+        ref={cursorElRef}
+        className={`fixed top-0 left-0 pointer-events-none z-[9999] transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
+        style={{ willChange: 'transform' }}
         aria-hidden="true"
       >
-        {inContact ? (
-          /* Arrow pointing toward CTA */
-          <div
-            className="absolute"
-            style={{
-              width: 22,
-              height: 22,
-              left: -11,
-              top: -11,
-              transform: `rotate(${arrowAngle}deg)`,
-            }}
-          >
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path
-                d="M3 11H19M19 11L13 5M19 11L13 17"
-                stroke="#e63946"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-        ) : (
-          /* Default crosshair */
-          <div className="absolute" style={{ width: 20, height: 20, left: -10, top: -10 }}>
-            <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2" style={{ height: 1, background: '#e63946' }} />
-            <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2" style={{ width: 1, background: '#e63946' }} />
-          </div>
-        )}
+        <div
+          style={{
+            transform: clicked ? 'scale(0.6)' : 'scale(1)',
+            transition: 'transform 120ms ease-out',
+          }}
+        >
+          {inContact ? (
+            /* Arrow pointing toward CTA — rotation applied via layout effect to avoid reading ref in render */
+            <div
+              ref={arrowElRef}
+              className="absolute"
+              style={{
+                width: 22,
+                height: 22,
+                left: -11,
+                top: -11,
+              }}
+            >
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path
+                  d="M3 11H19M19 11L13 5M19 11L13 17"
+                  stroke="#e63946"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          ) : (
+            /* Default crosshair */
+            <div className="absolute" style={{ width: 20, height: 20, left: -10, top: -10 }}>
+              <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2" style={{ height: 1, background: '#e63946' }} />
+              <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2" style={{ width: 1, background: '#e63946' }} />
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Label — lags behind, positioned upper-right */}
+      {/* Label — lags behind via lerp loop, transform-positioned */}
       <div
-        className={`fixed pointer-events-none z-[9999] transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
-        style={{ left: labelPos.x, top: labelPos.y }}
+        ref={labelElRef}
+        className={`fixed top-0 left-0 pointer-events-none z-[9999] transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
+        style={{ willChange: 'transform' }}
         aria-hidden="true"
       >
         <span
