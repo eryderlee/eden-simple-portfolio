@@ -151,7 +151,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className={`section-grain relative bg-[#111] border-t border-white/[0.04] pt-24 pb-16 md:pt-36 md:pb-20 px-5 overflow-hidden ${lit ? 'is-rippling' : ''}`}
+      className={`section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-16 md:pt-36 md:pb-20 px-5 overflow-hidden ${lit ? 'is-rippling' : ''}`}
       style={cssVars}
     >
       {/* Left architectural accent line (matches the rest of the site) */}
