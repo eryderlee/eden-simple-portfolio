@@ -19,18 +19,25 @@ function scrambleText(text: string, elapsed: number): string {
     .join('');
 }
 
-type CursorLabel = ':)' | 'HELLO' | 'SCROLL' | 'VISIT' | 'OPEN' | 'READ' | 'VIEW' | 'CLOSE' | 'PLAY' | 'CONTACT ME!' | 'GO THIS WAY!';
+type CursorLabel = string;
 
-function getLabelFromElement(el: Element | null): CursorLabel {
-  if (!el) return ':)';
+interface ResolvedLabel {
+  label: CursorLabel;
+  // True when the label came from an explicit data-cursor attribute —
+  // such labels override the section-wide "GO THIS WAY!" remap below.
+  explicit: boolean;
+}
+
+function getLabelFromElement(el: Element | null): ResolvedLabel {
+  if (!el) return { label: ':)', explicit: false };
   const target = el.closest('a, button, video, iframe, [data-cursor]') as HTMLElement | null;
-  if (!target) return ':)';
-  const attr = target.getAttribute('data-cursor') as CursorLabel | null;
-  if (attr) return attr;
-  if (target.tagName === 'A') return 'VISIT';
-  if (target.tagName === 'BUTTON') return 'OPEN';
-  if (target.tagName === 'VIDEO' || target.tagName === 'IFRAME') return 'PLAY';
-  return ':)';
+  if (!target) return { label: ':)', explicit: false };
+  const attr = target.getAttribute('data-cursor');
+  if (attr) return { label: attr, explicit: true };
+  if (target.tagName === 'A') return { label: 'VISIT', explicit: false };
+  if (target.tagName === 'BUTTON') return { label: 'OPEN', explicit: false };
+  if (target.tagName === 'VIDEO' || target.tagName === 'IFRAME') return { label: 'PLAY', explicit: false };
+  return { label: ':)', explicit: false };
 }
 
 export default function CustomCursor() {
@@ -39,6 +46,7 @@ export default function CustomCursor() {
   const [displayLabel, setDisplayLabel] = useState('HELLO');
   const [clicked, setClicked] = useState(false);
   const [inContact, setInContact] = useState(false);
+  const [arrowMode, setArrowMode] = useState(false);
 
   useEffect(() => {
     setIsPointerFine(window.matchMedia('(pointer: fine)').matches);
@@ -80,6 +88,7 @@ export default function CustomCursor() {
   const setLabel = useCallback((next: CursorLabel) => {
     if (next === labelRef.current) return;
     labelRef.current = next;
+    setArrowMode(next === 'GO THIS WAY!');
     animateTo(next);
   }, [animateTo]);
 
@@ -115,10 +124,10 @@ export default function CustomCursor() {
 
   // Apply arrow rotation synchronously after mount/update to avoid 1-frame flash at 0deg
   useLayoutEffect(() => {
-    if (inContact && arrowElRef.current) {
+    if (arrowMode && arrowElRef.current) {
       arrowElRef.current.style.transform = `rotate(${arrowAngleRef.current}deg)`;
     }
-  }, [inContact]);
+  }, [arrowMode]);
 
   // HELLO intro
   useEffect(() => {
@@ -165,8 +174,12 @@ export default function CustomCursor() {
       if (helloPhaseRef.current) return;
       const { x, y } = cursorPosRef.current;
       const el = document.elementFromPoint(x, y);
-      let next = getLabelFromElement(el);
-      if (inContactRef.current && next !== 'CONTACT ME!') {
+      const resolved = getLabelFromElement(el);
+      let next = resolved.label;
+      // Inside #contact we normally remap any non-CTA label to "GO THIS WAY!"
+      // so the section-wide arrow stays consistent — but explicit data-cursor
+      // values (e.g. the contact form's "FILL OUT THE FORM!") override this.
+      if (inContactRef.current && !resolved.explicit && next !== 'CONTACT ME!') {
         next = 'GO THIS WAY!';
       }
 
@@ -282,7 +295,7 @@ export default function CustomCursor() {
             transition: 'transform 120ms ease-out',
           }}
         >
-          {inContact ? (
+          {arrowMode ? (
             /* Arrow pointing toward CTA — rotation applied via layout effect to avoid reading ref in render */
             <div
               ref={arrowElRef}

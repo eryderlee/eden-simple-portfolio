@@ -2,10 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
 
 /* ──────────────────────────────────────────────────────────────────
    Drop-in replacement for components/sections/Contact.tsx
@@ -111,21 +107,18 @@ export default function Contact() {
     };
   }, []);
 
-  // ── Fire impact sequence when CTA scrolls into view ──────────────
+  // ── Fire impact sequence when ScrollLine's tip reaches the CTA ────
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const st = ScrollTrigger.create({
-        trigger: '#contact-cta',
-        start: 'top 80%',
-        once: true,
-        onEnter: () => {
-          setPhase('impact');
-          window.setTimeout(() => setPhase('revealed'), 400);
-        },
-      });
-      return () => st.kill();
-    }, sectionRef);
-    return () => ctx.revert();
+    let revealTimer: ReturnType<typeof setTimeout> | undefined;
+    const onReached = () => {
+      setPhase((p) => (p === 'idle' ? 'impact' : p));
+      revealTimer = setTimeout(() => setPhase('revealed'), 400);
+    };
+    document.addEventListener('cta-line-reached', onReached);
+    return () => {
+      document.removeEventListener('cta-line-reached', onReached);
+      if (revealTimer) clearTimeout(revealTimer);
+    };
   }, []);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -151,7 +144,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className={`section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-16 md:pt-36 md:pb-20 px-5 overflow-hidden ${lit ? 'is-rippling' : ''}`}
+      className={`section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-16 md:pt-36 md:pb-20 px-5 overflow-x-clip overflow-y-visible ${lit ? 'is-rippling' : ''} ${phase !== 'idle' ? 'is-revealed' : ''}`}
       style={cssVars}
     >
       {/* Left architectural accent line (matches the rest of the site) */}
@@ -203,6 +196,10 @@ export default function Contact() {
           <span className="sn-accent">something</span>
           <span className="sn-period">.</span>
         </h2>
+
+        {/* Everything below the heading stays hidden until ScrollLine's tip
+            actually reaches #contact-cta — at which point phase flips. */}
+        <div className="sn-reveal">
         <p className="sn-intro">
           Open to freelance projects, full-time roles, and interesting collaborations.
           Based in Point Cook, VIC &mdash; available remotely worldwide.
@@ -265,7 +262,7 @@ export default function Contact() {
         </div>
 
         {/* ── Email form (Dispatch Manifest variant) ──────────────── */}
-        <form className="fm-man" onSubmit={handleSubmit}>
+        <form className="fm-man" onSubmit={handleSubmit} data-cursor="FILL OUT THE FORM!">
           <header className="fm-man-head">
             <span className="fm-man-stamp">EMAIL · 0001</span>
             <span className="fm-man-date">2026 · POINT COOK, VIC</span>
@@ -353,6 +350,7 @@ export default function Contact() {
           <span className="sn-foot-mark">ERL</span>
           <div className="sn-foot-rule" />
         </div>
+        </div>
       </div>
 
       {/* ── Scoped styles ─────────────────────────────────────────── */}
@@ -374,13 +372,35 @@ const contactStyles = `
   }
   #contact, #contact *, #contact *::before, #contact *::after { box-sizing: border-box; }
 
-  /* Radar grid — concentric rings + cross-hairs centred on the impact */
+  /* Radar grid — concentric rings + cross-hairs centred on the impact.
+     overflow:visible lets the top half of the largest rings extend up
+     into the Skills section above so the full circle is visible. */
   #contact .sn-radar {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     z-index: 1;
     pointer-events: none;
+    overflow: visible;
     transform-origin: var(--impact-x) var(--impact-y);
+  }
+  #contact .sn-rings { overflow: visible; }
+
+  /* Pre-reveal: hide everything below the heading until the scroll line
+     reaches #contact-cta. Layout stays so ScrollLine can still measure. */
+  #contact .sn-reveal {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.7s cubic-bezier(.2,.7,.2,1),
+                transform 0.7s cubic-bezier(.2,.7,.2,1);
+    pointer-events: none;
+  }
+  #contact.is-revealed .sn-reveal {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #contact .sn-reveal { transition: none; }
   }
   #contact .sn-rc {
     stroke: rgba(255,255,255,0.05);
