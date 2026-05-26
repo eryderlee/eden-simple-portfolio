@@ -102,14 +102,22 @@ export default function Experience() {
       timelineEl!.classList.add('animate');
       const bars = tlBody!.querySelectorAll<HTMLElement>('.tl-bar');
       const dots = tlBody!.querySelectorAll<HTMLElement>('.tl-cert-dot');
+      const sweepEl = sweepLineRef.current;
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const duration = reduced ? 0 : SWEEP_DURATION;
       const start = performance.now();
       function tick(now: number) {
         const elapsed = now - start;
-        const t = Math.min(1, elapsed / SWEEP_DURATION);
+        const t = duration === 0 ? 1 : Math.min(1, elapsed / duration);
         const currentPct = t * NOW_PCT;
         const monthIdx = (currentPct / 100) * SPAN;
         const yr = Math.min(2026, 2021 + Math.floor(monthIdx / 12));
         sweepYearEl!.textContent = String(yr);
+        if (sweepEl) {
+          sweepEl.style.left = `${currentPct}%`;
+          // Fade in over the first 3% of the sweep, matching the original keyframe
+          sweepEl.style.opacity = String(Math.min(1, t * 33));
+        }
         bars.forEach((el) => {
           const startPct = parseFloat(el.dataset.startPct || '0');
           const endPct = parseFloat(el.dataset.endPct || '0');
@@ -372,15 +380,9 @@ export default function Experience() {
           transform: translateX(-100%);
           margin-left: -2px;
         }
-        :global(.timeline.animate) .sweep-line {
-          animation: sweep ${SWEEP_DURATION}ms linear forwards;
-        }
-        @keyframes sweep {
-          0%   { left: 0%;    opacity: 0; }
-          3%   { opacity: 1; }
-          97%  { opacity: 1; }
-          100% { left: var(--now-left, 91%); opacity: 1; }
-        }
+        /* Sweep position + opacity are driven from JS in the RAF tick so they
+           stay in sync with the bar reveal — keyframes inside styled-jsx
+           combined with :global() selectors are unreliable. */
 
         /* Timeline bars */
         :global(.tl-bar) {
@@ -543,9 +545,6 @@ export default function Experience() {
             opacity: 1 !important;
             transform: none !important;
             transition: none !important;
-          }
-          :global(.timeline.animate) .sweep-line {
-            animation: none;
           }
           :global(.tl-bar) { clip-path: none; }
           :global(.tl-cert-dot) {
