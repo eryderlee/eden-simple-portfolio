@@ -48,8 +48,6 @@ const SOCIALS = [
 
 const RADAR_RADII = [120, 240, 360, 480, 600, 720, 840];
 
-type Phase = 'idle' | 'impact' | 'revealed';
-
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
   const emailRef   = useRef<HTMLAnchorElement>(null);
@@ -58,7 +56,12 @@ export default function Contact() {
   // at any width / height without preserveAspectRatio stretching them).
   const [size, setSize]         = useState({ w: 1200, h: 1300 });
   const [impactY, setImpactY]   = useState(420);
-  const [phase, setPhase]       = useState<Phase>('idle');
+  // `revealed` is sticky once the ScrollLine first reaches the CTA —
+  // the content below the heading stays visible on subsequent scrolls.
+  // `rippling` toggles each time the line crosses in/out so the radar
+  // ripple + shockwave replay every entry.
+  const [revealed, setRevealed] = useState(false);
+  const [rippling, setRippling] = useState(false);
 
   // form
   const [name, setName] = useState('');
@@ -109,15 +112,19 @@ export default function Contact() {
 
   // ── Fire impact sequence when ScrollLine's tip reaches the CTA ────
   useEffect(() => {
-    let revealTimer: ReturnType<typeof setTimeout> | undefined;
     const onReached = () => {
-      setPhase((p) => (p === 'idle' ? 'impact' : p));
-      revealTimer = setTimeout(() => setPhase('revealed'), 400);
+      setRevealed(true);
+      setRippling(true);
+    };
+    const onLeft = () => {
+      // Drop the rippling class so CSS animations reset for the next entry.
+      setRippling(false);
     };
     document.addEventListener('cta-line-reached', onReached);
+    document.addEventListener('cta-line-left', onLeft);
     return () => {
       document.removeEventListener('cta-line-reached', onReached);
-      if (revealTimer) clearTimeout(revealTimer);
+      document.removeEventListener('cta-line-left', onLeft);
     };
   }, []);
 
@@ -129,7 +136,6 @@ export default function Contact() {
     )}&body=${encodeURIComponent(body + sigLine)}`;
   };
 
-  const lit       = phase === 'impact' || phase === 'revealed';
   const W         = size.w;
   const H         = size.h;
   const lineEndX  = W / 2;
@@ -144,7 +150,7 @@ export default function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className={`section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-16 md:pt-36 md:pb-20 px-5 overflow-x-clip overflow-y-visible ${lit ? 'is-rippling' : ''} ${phase !== 'idle' ? 'is-revealed' : ''}`}
+      className={`section-grain relative bg-black border-t border-white/[0.04] pt-24 pb-16 md:pt-36 md:pb-20 px-5 overflow-x-clip overflow-y-visible ${rippling ? 'is-rippling' : ''} ${revealed ? 'is-revealed' : ''}`}
       style={cssVars}
     >
       {/* Left architectural accent line (matches the rest of the site) */}
@@ -176,7 +182,7 @@ export default function Contact() {
 
       {/* ── Shockwave + core dot ──────────────────────────────────── */}
       <svg
-        className={`sn-rings phase-${phase}`}
+        className="sn-rings"
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
         aria-hidden="true"
@@ -212,6 +218,12 @@ export default function Contact() {
             href="mailto:eden@ryderlee.me"
             className="crv-email"
           >
+            {/* Corner brackets — terminal-field frame around the email */}
+            <span aria-hidden="true" className="crv-corner crv-corner-tl" />
+            <span aria-hidden="true" className="crv-corner crv-corner-tr" />
+            <span aria-hidden="true" className="crv-corner crv-corner-bl" />
+            <span aria-hidden="true" className="crv-corner crv-corner-br" />
+
             <span className="crv-email-key">Write to me at</span>
             <span className="crv-email-val">
               eden<span className="crv-at">@</span>ryderlee.me
@@ -466,8 +478,8 @@ const contactStyles = `
             drop-shadow(0 0 2px rgba(230,57,70,1));
     transition: opacity .25s, r .35s cubic-bezier(.2,.7,.2,1);
   }
-  #contact .sn-rings.phase-impact .sn-core-c,
-  #contact .sn-rings.phase-revealed .sn-core-c {
+  /* Core dot is sticky once revealed — stays glowing on subsequent scrolls */
+  #contact.is-revealed .sn-core-c {
     opacity: 1;
     animation: sn-core-breathe 2.6s ease-in-out infinite;
   }
@@ -484,8 +496,10 @@ const contactStyles = `
     vector-effect: non-scaling-stroke;
     filter: drop-shadow(0 0 8px rgba(230,57,70,0.55));
   }
-  #contact .sn-rings.phase-impact .sn-shockwave,
-  #contact .sn-rings.phase-revealed .sn-shockwave {
+  /* Shockwave replays each time the section becomes rippling.
+     Removing/re-adding .is-rippling restarts the animation, which is
+     how the re-trigger on scroll-in works. */
+  #contact.is-rippling .sn-shockwave {
     animation: sn-shockwave-grow 4.6s cubic-bezier(.22,.55,.30,1) forwards;
   }
   @keyframes sn-shockwave-grow {
@@ -533,11 +547,29 @@ const contactStyles = `
     display: block;
     text-decoration: none;
     color: #f0f0f0;
-    padding: 28px 0 36px;
-    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 36px 28px 40px;
     text-align: center;
-    background: radial-gradient(ellipse 60% 100% at 50% -10%, rgba(230,57,70,0.16), transparent 65%);
     transition: background .35s ease-out;
+  }
+
+  /* Corner-bracket frame — replaces the old top divider + red gradient.
+     Four 18px L-shapes drawn with borders, one per corner. */
+  #contact .crv-corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid rgba(230,57,70,0.55);
+    pointer-events: none;
+    transition: border-color .25s, width .25s, height .25s;
+  }
+  #contact .crv-corner-tl { top: 0;    left: 0;     border-right: none; border-bottom: none; }
+  #contact .crv-corner-tr { top: 0;    right: 0;    border-left:  none; border-bottom: none; }
+  #contact .crv-corner-bl { bottom: 0; left: 0;     border-right: none; border-top:    none; }
+  #contact .crv-corner-br { bottom: 0; right: 0;    border-left:  none; border-top:    none; }
+  #contact .crv-email:hover .crv-corner {
+    border-color: #e63946;
+    width: 22px;
+    height: 22px;
   }
   #contact .crv-cta-anchor {
     position: absolute;
