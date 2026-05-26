@@ -868,10 +868,13 @@ const contactStyles = `
   /* Mobile tweaks */
   @media (max-width: 720px) {
     #contact .sn-intro       { font-size: 13px; margin-bottom: 44px; }
-    #contact .crv-email      { padding: 22px 14px 26px; }
+    #contact .crv-email      { padding: 26px 14px 30px; }
+    /* Match desktop size so the label doesn't look tiny next to the
+       big email; nudge letter-spacing tighter so it reads as one phrase
+       rather than disconnected letters. */
     #contact .crv-email-key  {
-      font-size: 9px; margin-bottom: 10px;
-      letter-spacing: 0.22em;
+      font-size: 10px; margin-bottom: 14px;
+      letter-spacing: 0.24em;
     }
     #contact .crv-email-val  {
       font-size: clamp(1.4rem, 7vw, 2rem);
@@ -890,6 +893,18 @@ const contactStyles = `
     #contact .crv-soc:nth-child(2) { border-right: none; }
     #contact .crv-soc:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.06); }
     #contact .fm-man         { margin-top: 56px; padding: 16px 14px; }
+    /* "EMAIL · 0001" + "2026 · POINT COOK, VIC" together are wider than
+       a phone — stack them on top of each other instead of squeezing
+       them on one row. */
+    #contact .fm-man-head    {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 14px;
+      font-size: 9px;
+      letter-spacing: 0.22em;
+    }
+    #contact .fm-man-stamp   { padding: 3px 8px; }
     #contact .fm-man-row     { grid-template-columns: 28px 1fr; gap: 8px; padding: 10px 4px; }
     #contact .fm-man-num     { padding-top: 0; font-size: 11px; grid-row: 1; }
     #contact .fm-man-key     { padding-top: 0; font-size: 9px; grid-row: 1; grid-column: 2; }
