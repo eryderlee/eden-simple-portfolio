@@ -36,13 +36,30 @@ export default function ScrollLine() {
 
     let st: ScrollTrigger | null = null;
     let prevProgress = 0;
+    let pendingObserver: MutationObserver | null = null;
 
     const setup = () => {
       st?.kill();
       prevProgress = 0;
 
       const cta = document.getElementById('contact-cta');
-      if (!cta) return;
+      if (!cta) {
+        // #contact-cta lives inside a dynamically-imported section
+        // (Contact via BelowFold). If it isn't in the DOM yet, watch for
+        // it to appear and re-run setup — otherwise ScrollLine never
+        // connects and downstream features (the dot reveal in Contact)
+        // never fire.
+        if (pendingObserver) return;
+        pendingObserver = new MutationObserver(() => {
+          if (document.getElementById('contact-cta')) {
+            pendingObserver?.disconnect();
+            pendingObserver = null;
+            setup();
+          }
+        });
+        pendingObserver.observe(document.body, { childList: true, subtree: true });
+        return;
+      }
 
       const wRect = wrapper.getBoundingClientRect();
       const cRect = cta.getBoundingClientRect();
@@ -106,6 +123,7 @@ export default function ScrollLine() {
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', setup);
+      pendingObserver?.disconnect();
       st?.kill();
     };
   }, []);

@@ -78,12 +78,17 @@ export default function Experience() {
     const pop = popoverRef.current;
     if (!pop) return;
     const pad = 16;
+    const safe = 8;
     const w = pop.offsetWidth;
     const h = pop.offsetHeight;
     let x = e.clientX + pad;
     let y = e.clientY + pad;
-    if (x + w > window.innerWidth - 8) x = e.clientX - w - pad;
-    if (y + h > window.innerHeight - 8) y = e.clientY - h - pad;
+    // Flip to the other side if it would escape the right edge…
+    if (x + w > window.innerWidth - safe) x = e.clientX - w - pad;
+    // …then clamp to the left edge in case the cursor itself is near 0.
+    if (x < safe) x = safe;
+    if (y + h > window.innerHeight - safe) y = e.clientY - h - pad;
+    if (y < safe) y = safe;
     pop.style.left = `${x}px`;
     pop.style.top = `${y}px`;
   };
@@ -178,7 +183,7 @@ export default function Experience() {
     >
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
-      <div className="relative max-w-6xl mx-auto px-5 md:px-8 w-full" style={{ zIndex: 2 }}>
+      <div className="relative max-w-6xl mx-auto px-0 md:px-8 w-full" style={{ zIndex: 2 }}>
 
         {/* Heading */}
         <div className="reveal-up flex items-center gap-4 mb-6">
@@ -201,7 +206,7 @@ export default function Experience() {
           <Legend swatchClass="bg-[#61afef]" label="Education" />
           <Legend swatchClass="bg-[#f0a500]" label="Service" />
           <Legend dot label="Certification" color="#22c55e" />
-          <div className="ml-auto text-[#f0f0f0]/25">↪ Hover for details</div>
+          <div className="hidden sm:block ml-auto text-[#f0f0f0]/25">↪ Hover for details</div>
         </div>
 
         {/* Timeline */}
@@ -291,7 +296,7 @@ export default function Experience() {
         </div>
 
         {/* Currently */}
-        <div className="reveal-up relative px-7 pt-7 pb-6 border border-white/[0.12] border-l-[3px] border-l-[#e63946] mb-7" style={{ background: 'linear-gradient(135deg, rgba(230,57,70,0.04), transparent 50%)' }}>
+        <div className="reveal-up relative px-5 sm:px-7 pt-6 sm:pt-7 pb-5 sm:pb-6 border border-white/[0.12] border-l-[3px] border-l-[#e63946] mb-7" style={{ background: 'linear-gradient(135deg, rgba(230,57,70,0.04), transparent 50%)' }}>
           <span className="absolute top-[18px] right-[18px] w-2 h-2 rounded-full bg-[#e63946] animate-pulse" style={{ boxShadow: '0 0 10px #e63946' }} />
           <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#e63946] mb-[18px]">
             Currently — active commitments
@@ -313,7 +318,7 @@ export default function Experience() {
         </div>
 
         {/* Milestones */}
-        <div className="reveal-up mb-7 px-7 py-[22px] border border-white/[0.06]">
+        <div className="reveal-up mb-7 px-5 sm:px-7 py-4 sm:py-[22px] border border-white/[0.06]">
           <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#f0f0f0]/45 mb-[14px]">
             Recent milestones
           </div>
@@ -550,6 +555,33 @@ export default function Experience() {
           :global(.tl-cert-dot) {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
+          }
+        }
+
+        /* ── Mobile ──────────────────────────────────────────────── */
+        @media (max-width: 720px) {
+          :global(.role-popover) {
+            min-width: 0;
+            max-width: calc(100vw - 16px);
+            padding: 12px 14px;
+          }
+          :global(.role-popover .pop-name) { font-size: 13px; }
+          :global(.role-popover .pop-org)  { font-size: 11px; }
+          :global(.role-popover .pop-desc) { font-size: 11px; line-height: 1.5; }
+
+          /* Bars on mobile: keep the visual rhythm but drop the org sub-label
+             (most bars are too narrow to render any text legibly) and shrink
+             the title size. Cert dots shrink to match. */
+          :global(.tl-bar) {
+            height: 28px;
+            padding: 0 8px;
+            gap: 6px;
+          }
+          :global(.tl-bar .bar-title) { font-size: 11px; }
+          :global(.tl-bar .bar-org)   { display: none; }
+          :global(.tl-cert-dot) {
+            width: 11px;
+            height: 11px;
           }
         }
       `}</style>

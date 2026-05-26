@@ -122,9 +122,32 @@ export default function Contact() {
     };
     document.addEventListener('cta-line-reached', onReached);
     document.addEventListener('cta-line-left', onLeft);
+
+    // Fallback: on mobile, fast scrolling or ScrollLine timing can miss
+    // the cta-line-reached dispatch. Once the CTA is well inside the
+    // viewport, fire the reveal ourselves so the section never stays
+    // visibly broken.
+    const cta = document.getElementById('contact-cta');
+    let fallbackIO: IntersectionObserver | null = null;
+    if (cta) {
+      fallbackIO = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setRevealed(true);
+            setRippling(true);
+          } else {
+            setRippling(false);
+          }
+        },
+        { threshold: 0, rootMargin: '0px 0px -20% 0px' },
+      );
+      fallbackIO.observe(cta);
+    }
+
     return () => {
       document.removeEventListener('cta-line-reached', onReached);
       document.removeEventListener('cta-line-left', onLeft);
+      fallbackIO?.disconnect();
     };
   }, []);
 
@@ -187,8 +210,8 @@ export default function Contact() {
         preserveAspectRatio="none"
         aria-hidden="true"
       >
-        <circle cx={lineEndX} cy={lineEndY} className="sn-core-c" />
-        <circle cx={lineEndX} cy={lineEndY} className="sn-shockwave" />
+        <circle cx={lineEndX} cy={lineEndY} r={7} className="sn-core-c" />
+        <circle cx={lineEndX} cy={lineEndY} r={6} className="sn-shockwave" />
       </svg>
 
       {/* ── Content ───────────────────────────────────────────────── */}
@@ -808,12 +831,30 @@ const contactStyles = `
 
   /* Mobile tweaks */
   @media (max-width: 720px) {
-    #contact .crv-meta-strip { grid-template-columns: 1fr; gap: 18px; }
+    #contact .sn-intro       { font-size: 13px; margin-bottom: 44px; }
+    #contact .crv-email      { padding: 28px 16px 32px; }
+    #contact .crv-email-key  { font-size: 9px; margin-bottom: 12px; }
+    #contact .crv-email-val  { font-size: clamp(1.5rem, 8vw, 2.4rem); letter-spacing: -0.02em; }
+    #contact .crv-corner     { width: 14px; height: 14px; border-width: 1.25px; }
+    #contact .crv-email:hover .crv-corner { width: 16px; height: 16px; }
+    #contact .crv-meta-strip { grid-template-columns: 1fr; gap: 18px; margin: 28px 0 36px; }
     #contact .crv-socials    { grid-template-columns: repeat(2, 1fr); }
+    #contact .crv-soc        { padding: 18px 14px; gap: 10px; }
+    #contact .crv-soc-icon svg { width: 18px; height: 18px; }
+    #contact .crv-soc-label  { font-size: 14px; }
+    #contact .crv-soc-handle { font-size: 9.5px; }
     #contact .crv-soc:nth-child(2) { border-right: none; }
     #contact .crv-soc:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.06); }
-    #contact .fm-man-row     { grid-template-columns: 32px 80px 1fr; gap: 10px; }
+    #contact .fm-man         { margin-top: 56px; padding: 16px 14px; }
+    #contact .fm-man-row     { grid-template-columns: 28px 1fr; gap: 8px; padding: 10px 4px; }
+    #contact .fm-man-num     { padding-top: 0; font-size: 11px; grid-row: 1; }
+    #contact .fm-man-key     { padding-top: 0; font-size: 9px; grid-row: 1; grid-column: 2; }
+    #contact .fm-man-row input,
+    #contact .fm-man-row textarea { grid-column: 1 / -1; }
     #contact .fm-man-foot    { flex-direction: column; align-items: stretch; gap: 14px; }
+    #contact .fm-man-sig     { justify-content: space-between; }
     #contact .fm-man-sig-bars { width: 100px; }
+    /* Make the core dot a touch larger so it stays legible on retina/mobile */
+    #contact .sn-core-c      { r: 8; }
   }
 `;

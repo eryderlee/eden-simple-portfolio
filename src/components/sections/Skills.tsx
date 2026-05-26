@@ -153,12 +153,15 @@ export default function Skills() {
     const pop = popoverRef.current;
     if (!pop) return;
     const pad = 16;
+    const safe = 8;
     const w = pop.offsetWidth;
     const h = pop.offsetHeight;
     let x = e.clientX + pad;
     let y = e.clientY + pad;
-    if (x + w > window.innerWidth - 8) x = e.clientX - w - pad;
-    if (y + h > window.innerHeight - 8) y = e.clientY - h - pad;
+    if (x + w > window.innerWidth - safe) x = e.clientX - w - pad;
+    if (x < safe) x = safe;
+    if (y + h > window.innerHeight - safe) y = e.clientY - h - pad;
+    if (y < safe) y = safe;
     pop.style.left = `${x}px`;
     pop.style.top = `${y}px`;
   };
@@ -244,7 +247,7 @@ export default function Skills() {
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 
       <div
-        className="relative max-w-6xl mx-auto px-5 md:px-8 w-full"
+        className="relative max-w-6xl mx-auto px-0 md:px-8 w-full"
         style={{ position: 'relative', zIndex: 2 }}
       >
         {/* Heading */}
@@ -344,8 +347,14 @@ export default function Skills() {
       {/* Floating popover */}
       <div
         ref={popoverRef}
-        className="fixed pointer-events-none bg-[rgba(20,20,20,0.98)] border border-[#e63946] backdrop-blur-md z-[1000] min-w-[240px] max-w-[320px] opacity-0 translate-y-1 transition-all duration-150 shadow-[0_12px_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(230,57,70,0.1)]"
-        style={{ padding: '14px 18px' }}
+        className="fixed pointer-events-none bg-[rgba(20,20,20,0.98)] border border-[#e63946] backdrop-blur-md z-[1000] opacity-0 translate-y-1 transition-all duration-150 shadow-[0_12px_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(230,57,70,0.1)]"
+        style={{
+          padding: '14px 18px',
+          // Stay readable on phones: shrink min-width on narrow viewports and
+          // never let max-width push past the viewport edges.
+          minWidth: 'min(240px, calc(100vw - 32px))',
+          maxWidth: 'min(320px, calc(100vw - 16px))',
+        }}
       >
         <div
           ref={popNameRef}
@@ -379,13 +388,13 @@ interface PopHandlers {
 
 function RenderedView({ showPop, movePop, hidePop }: PopHandlers) {
   return (
-    <div className="px-6 md:px-8 py-7">
+    <div className="px-4 md:px-8 py-5 md:py-7">
       {/* Legend */}
-      <div className="flex gap-6 flex-wrap pb-4 mb-5 border-b border-dashed border-white/[0.12] font-mono text-[10px] tracking-[0.15em] uppercase text-[#f0f0f0]/45">
+      <div className="flex gap-x-4 gap-y-2 sm:gap-6 flex-wrap pb-4 mb-5 border-b border-dashed border-white/[0.12] font-mono text-[10px] tracking-[0.15em] uppercase text-[#f0f0f0]/45">
         <LegendItem tier="expert" label="Expert · daily driver" />
         <LegendItem tier="proficient" label="Proficient · shipped with" />
         <LegendItem tier="familiar" label="Familiar · explored" />
-        <div className="ml-auto text-[#f0f0f0]/25">↪ Hover any skill for projects</div>
+        <div className="hidden sm:block ml-auto text-[#f0f0f0]/25">↪ Hover any skill for projects</div>
       </div>
 
       {/* Rows */}
@@ -397,19 +406,22 @@ function RenderedView({ showPop, movePop, hidePop }: PopHandlers) {
         return (
           <div
             key={group}
-            className="skill-row grid items-center gap-4 py-4 border-t border-white/[0.06] last:border-b last:border-white/[0.06]"
-            style={{ gridTemplateColumns: '36px 130px 1px 1fr' }}
+            className="skill-row flex flex-col gap-3 py-4 border-t border-white/[0.06] last:border-b last:border-white/[0.06] sm:grid sm:items-center sm:gap-4 sm:[grid-template-columns:36px_130px_1px_1fr]"
           >
-            <div className="font-mono text-[10px] text-[#f0f0f0]/25 text-right tabular-nums">
-              {String(i + 1).padStart(2, '0')}
+            {/* Header row on mobile / number cell on desktop */}
+            <div className="flex items-center gap-3 sm:contents">
+              <div className="font-mono text-[10px] text-[#f0f0f0]/25 tabular-nums sm:text-right">
+                {String(i + 1).padStart(2, '0')}
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="h-px w-3.5 bg-[#e63946]/50" />
+                <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#e63946]/75">
+                  {group}
+                </span>
+              </div>
+              {/* Separator — desktop only */}
+              <div className="hidden sm:block w-px h-6 bg-white/[0.06]" />
             </div>
-            <div className="flex items-center gap-2.5">
-              <div className="h-px w-3.5 bg-[#e63946]/50" />
-              <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-[#e63946]/75">
-                {group}
-              </span>
-            </div>
-            <div className="w-px h-6 bg-white/[0.06]" />
             <div className="flex flex-wrap gap-2">
               {items.map((skill) => (
                 <Chip
