@@ -313,7 +313,7 @@ export default function Skills() {
           </div>
 
           {/* Status bar */}
-          <div className="flex items-center gap-5 px-4 py-2 bg-[#1a1a1a] border-t border-white/[0.08] font-mono text-[10px] text-[#f0f0f0]/30">
+          <div className="flex items-center gap-2 sm:gap-5 px-3 sm:px-4 py-2 bg-[#1a1a1a] border-t border-white/[0.08] font-mono text-[9px] sm:text-[10px] text-[#f0f0f0]/30">
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#e63946] animate-pulse" />
               3 tiers
@@ -321,8 +321,11 @@ export default function Skills() {
             <div className="flex items-center gap-1.5">
               <span className="text-[#f0f0f0]/60">{SKILLS.length}</span> entries
             </div>
-            <div>↪ hover for projects</div>
-            <div className="ml-auto">View: {view === 'rendered' ? 'rendered' : 'raw · skills.ts'}</div>
+            <div className="hidden sm:block">↪ hover for projects</div>
+            <div className="ml-auto">
+              <span className="hidden sm:inline">View: </span>
+              {view === 'rendered' ? 'rendered' : <span><span className="sm:hidden">raw</span><span className="hidden sm:inline">raw · skills.ts</span></span>}
+            </div>
           </div>
         </div>
 
@@ -566,13 +569,13 @@ function RawView({ showPop, movePop, hidePop }: PopHandlers) {
   });
 
   return (
-    <div className="flex font-mono text-[13px] leading-[1.75] py-4">
+    <div className="flex font-mono text-[11px] sm:text-[13px] leading-[1.7] sm:leading-[1.75] py-4">
       {/* Gutter */}
-      <div className="flex-shrink-0 px-4 text-right text-[#f0f0f0]/25 select-none border-r border-white/[0.06] whitespace-pre">
+      <div className="flex-shrink-0 px-2 sm:px-4 text-right text-[#f0f0f0]/25 select-none border-r border-white/[0.06] whitespace-pre">
         {lines.map((_, i) => `${i + 1}`).join('\n')}
       </div>
       {/* Code */}
-      <div className="flex-1 px-5 text-[#f0f0f0]/70 whitespace-pre overflow-x-auto">
+      <div className="flex-1 px-3 sm:px-5 text-[#f0f0f0]/70 whitespace-pre overflow-x-auto">
         {lines.map((line, i) => (
           <div key={i} className="whitespace-pre">
             {line}

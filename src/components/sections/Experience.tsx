@@ -216,19 +216,27 @@ export default function Experience() {
         >
           {/* Header */}
           <div className="relative h-10 border-b border-white/[0.06] bg-black/20">
-            {[2021, 2022, 2023, 2024, 2025, 2026].map((y, i) => (
-              <div
-                key={y}
-                className="absolute top-0 bottom-0 flex items-center font-mono text-[11px] text-[#f0f0f0]/45 tracking-[0.1em] h-full"
-                style={{
-                  left: `${pct(mIdx(y, 0))}%`,
-                  paddingLeft: i === 0 ? 16 : 12,
-                  borderLeft: i === 0 ? 'none' : '1px solid rgba(255,255,255,0.06)',
-                }}
-              >
-                {y}
-              </div>
-            ))}
+            {[2021, 2022, 2023, 2024, 2025, 2026].map((y, i) => {
+              const isLast = i === 6 - 1;
+              return (
+                <div
+                  key={y}
+                  className="tl-year absolute top-0 bottom-0 flex items-center font-mono text-[11px] text-[#f0f0f0]/45 tracking-[0.1em] h-full"
+                  style={{
+                    left: `${pct(mIdx(y, 0))}%`,
+                    paddingLeft: i === 0 ? 16 : 12,
+                    borderLeft: i === 0 ? 'none' : '1px solid rgba(255,255,255,0.06)',
+                  }}
+                  data-last={isLast ? 'true' : undefined}
+                >
+                  <span className="hidden sm:inline">{y}</span>
+                  {/* Abbreviated form on mobile so the last year (which sits
+                      near the right edge with only ~7.7% column width) fits
+                      without being clipped by the timeline's overflow:hidden. */}
+                  <span className="sm:hidden">{`'${y % 100}`}</span>
+                </div>
+              );
+            })}
             {/* Sweep line */}
             <div
               ref={sweepLineRef}
@@ -243,12 +251,18 @@ export default function Experience() {
           <div
             ref={tlBodyRef}
             className="relative py-4"
-            style={{
-              backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)',
-              backgroundSize: 'calc(100% / 5) 100%',
-              backgroundPosition: '18.5% 0, 36.9% 0, 55.4% 0, 73.8% 0, 92.3% 0',
-            }}
           >
+            {/* Column dividers aligned to the year-header borders. The previous
+                CSS gradient repeated at 20% but the years sit at 18.5/36.9/55.4
+                /73.8/92.3 — they didn't line up. */}
+            {[2022, 2023, 2024, 2025, 2026].map((y) => (
+              <div
+                key={`divider-${y}`}
+                aria-hidden="true"
+                className="absolute top-0 bottom-0 w-px bg-white/[0.06] pointer-events-none"
+                style={{ left: `${pct(mIdx(y, 0))}%` }}
+              />
+            ))}
             {ROLES.map((r) => (
               <div key={r.name} className="relative h-11 my-1">
                 <div
@@ -568,6 +582,10 @@ export default function Experience() {
           :global(.role-popover .pop-name) { font-size: 13px; }
           :global(.role-popover .pop-org)  { font-size: 11px; }
           :global(.role-popover .pop-desc) { font-size: 11px; line-height: 1.5; }
+
+          /* Years: shrink font + padding so '26 (the only year sitting near
+             the right edge) fits inside the timeline's overflow:hidden. */
+          .tl-year { font-size: 9.5px !important; padding-left: 5px !important; }
 
           /* Bars on mobile: keep the visual rhythm but drop the org sub-label
              (most bars are too narrow to render any text legibly) and shrink

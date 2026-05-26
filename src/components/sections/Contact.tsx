@@ -203,16 +203,25 @@ export default function Contact() {
         <line className="sn-cx" x1={lineEndX} y1={0}        x2={lineEndX} y2={H}        />
       </svg>
 
-      {/* ── Shockwave + core dot ──────────────────────────────────── */}
+      {/* ── Shockwave (SVG — needs to grow from 6 to 850) ─────────── */}
       <svg
         className="sn-rings"
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
         aria-hidden="true"
       >
-        <circle cx={lineEndX} cy={lineEndY} r={7} className="sn-core-c" />
         <circle cx={lineEndX} cy={lineEndY} r={6} className="sn-shockwave" />
       </svg>
+
+      {/* ── Core dot (CSS pixels, not SVG) — guaranteed-consistent
+            rendering across mobile/desktop. The earlier SVG-circle
+            approach showed up squashed on mobile when preserveAspectRatio
+            was 'none' and the viewBox briefly mismatched the section size. */}
+      <div
+        className="sn-core-dot"
+        style={{ left: `${lineEndX}px`, top: `${lineEndY}px` }}
+        aria-hidden="true"
+      />
 
       {/* ── Content ───────────────────────────────────────────────── */}
       <div className="relative max-w-[1000px] mx-auto w-full sn-wrap">
@@ -290,7 +299,12 @@ export default function Contact() {
                   <span className="crv-soc-label">{s.label}</span>
                   <span className="crv-soc-handle">{s.handle}</span>
                 </span>
-                <span className="crv-soc-arrow">↗</span>
+                <span className="crv-soc-arrow" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="7" y1="17" x2="17" y2="7" />
+                    <polyline points="7 7 17 7 17 17" />
+                  </svg>
+                </span>
               </a>
             ))}
           </nav>
@@ -493,22 +507,34 @@ const contactStyles = `
     pointer-events: none;
     overflow: visible;
   }
-  #contact .sn-core-c {
-    r: 7;
-    fill: #e63946;
+  /* Core dot — CSS-pixel-based for consistent rendering on any viewport */
+  #contact .sn-core-dot {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #e63946;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
     opacity: 0;
-    filter: drop-shadow(0 0 10px rgba(230,57,70,0.9))
-            drop-shadow(0 0 2px rgba(230,57,70,1));
-    transition: opacity .25s, r .35s cubic-bezier(.2,.7,.2,1);
+    z-index: 3;
+    pointer-events: none;
+    box-shadow: 0 0 10px rgba(230,57,70,0.9), 0 0 2px rgba(230,57,70,1);
+    transition: opacity .25s;
   }
-  /* Core dot is sticky once revealed — stays glowing on subsequent scrolls */
-  #contact.is-revealed .sn-core-c {
+  /* Sticky once revealed — keeps glowing on subsequent scrolls */
+  #contact.is-revealed .sn-core-dot {
     opacity: 1;
     animation: sn-core-breathe 2.6s ease-in-out infinite;
   }
   @keyframes sn-core-breathe {
-    0%, 100% { r: 7; filter: drop-shadow(0 0 10px rgba(230,57,70,0.9)) drop-shadow(0 0 2px rgba(230,57,70,1)); }
-    50%      { r: 8; filter: drop-shadow(0 0 16px rgba(230,57,70,1))   drop-shadow(0 0 3px rgba(230,57,70,1)); }
+    0%, 100% {
+      width: 14px; height: 14px;
+      box-shadow: 0 0 10px rgba(230,57,70,0.9), 0 0 2px rgba(230,57,70,1);
+    }
+    50% {
+      width: 16px; height: 16px;
+      box-shadow: 0 0 16px rgba(230,57,70,1), 0 0 3px rgba(230,57,70,1);
+    }
   }
   #contact .sn-shockwave {
     r: 6;
@@ -685,7 +711,8 @@ const contactStyles = `
     color: rgba(240,240,240,0.25); letter-spacing: 0.06em;
   }
   #contact .crv-soc-arrow {
-    font-size: 14px; color: rgba(240,240,240,0.25);
+    display: inline-flex; align-items: center;
+    color: rgba(240,240,240,0.25);
     transition: color .2s, transform .25s;
   }
   #contact .crv-soc:hover .crv-soc-arrow { color: #e63946; transform: translate(2px, -2px); }
@@ -832,11 +859,19 @@ const contactStyles = `
   /* Mobile tweaks */
   @media (max-width: 720px) {
     #contact .sn-intro       { font-size: 13px; margin-bottom: 44px; }
-    #contact .crv-email      { padding: 28px 16px 32px; }
-    #contact .crv-email-key  { font-size: 9px; margin-bottom: 12px; }
-    #contact .crv-email-val  { font-size: clamp(1.5rem, 8vw, 2.4rem); letter-spacing: -0.02em; }
-    #contact .crv-corner     { width: 14px; height: 14px; border-width: 1.25px; }
-    #contact .crv-email:hover .crv-corner { width: 16px; height: 16px; }
+    #contact .crv-email      { padding: 22px 14px 26px; }
+    #contact .crv-email-key  {
+      font-size: 9px; margin-bottom: 10px;
+      letter-spacing: 0.22em;
+    }
+    #contact .crv-email-val  {
+      font-size: clamp(1.4rem, 7vw, 2rem);
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+    #contact .crv-email-underline { max-width: 320px; }
+    #contact .crv-corner     { width: 16px; height: 16px; border-width: 1.25px; }
+    #contact .crv-email:hover .crv-corner { width: 18px; height: 18px; }
     #contact .crv-meta-strip { grid-template-columns: 1fr; gap: 18px; margin: 28px 0 36px; }
     #contact .crv-socials    { grid-template-columns: repeat(2, 1fr); }
     #contact .crv-soc        { padding: 18px 14px; gap: 10px; }
@@ -854,7 +889,5 @@ const contactStyles = `
     #contact .fm-man-foot    { flex-direction: column; align-items: stretch; gap: 14px; }
     #contact .fm-man-sig     { justify-content: space-between; }
     #contact .fm-man-sig-bars { width: 100px; }
-    /* Make the core dot a touch larger so it stays legible on retina/mobile */
-    #contact .sn-core-c      { r: 8; }
   }
 `;
