@@ -151,9 +151,14 @@ export default function CustomCursor() {
     };
 
     const computeArrowAngle = (clientX: number, clientY: number) => {
-      const ctaEl = document.getElementById('contact-cta');
-      if (!ctaEl) return;
-      const rect = ctaEl.getBoundingClientRect();
+      // Point at #contact-form when present (the actual destination the
+      // user should be directed toward), otherwise fall back to the
+      // scroll-line landing dot at #contact-cta.
+      const targetEl =
+        document.getElementById('contact-form') ||
+        document.getElementById('contact-cta');
+      if (!targetEl) return;
+      const rect = targetEl.getBoundingClientRect();
       const dx = (rect.left + rect.width / 2) - clientX;
       const dy = (rect.top + rect.height / 2) - clientY;
       arrowAngleRef.current = Math.atan2(dy, dx) * (180 / Math.PI);

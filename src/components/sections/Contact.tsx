@@ -262,7 +262,7 @@ export default function Contact() {
         </div>
 
         {/* ── Email form (Dispatch Manifest variant) ──────────────── */}
-        <form className="fm-man" onSubmit={handleSubmit} data-cursor="FILL OUT THE FORM!">
+        <form id="contact-form" className="fm-man" onSubmit={handleSubmit} data-cursor="FILL OUT THE FORM!">
           <header className="fm-man-head">
             <span className="fm-man-stamp">EMAIL · 0001</span>
             <span className="fm-man-date">2026 · POINT COOK, VIC</span>
@@ -566,11 +566,12 @@ const contactStyles = `
     display: block;
     height: 2px;
     width: 0;
+    max-width: 480px;
     background: #e63946;
     margin: 6px auto 0;
     transition: width .35s cubic-bezier(.2,.7,.2,1);
   }
-  #contact .crv-email:hover .crv-email-underline { width: 100%; max-width: 480px; }
+  #contact .crv-email:hover .crv-email-underline { width: 100%; }
   #contact .crv-email:hover .crv-email-val { color: #e63946; }
 
   #contact .crv-meta-strip {
