@@ -266,22 +266,23 @@ export default function Skills() {
         {/* Editor frame */}
         <div className="skills-editor rounded-md overflow-hidden border border-white/[0.12] bg-[#0d0d0d] shadow-[0_24px_80px_rgba(0,0,0,0.6)] opacity-0">
           {/* Chrome */}
-          <div className="flex items-center gap-3 px-4 py-3 bg-[#1a1a1a] border-b border-white/[0.08] flex-wrap">
-            <div className="flex gap-1.5">
-              <span className="w-[11px] h-[11px] rounded-full bg-[#ff5f57] opacity-65" />
-              <span className="w-[11px] h-[11px] rounded-full bg-[#febc2e] opacity-65" />
-              <span className="w-[11px] h-[11px] rounded-full bg-[#28c840] opacity-65" />
+          <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-[#1a1a1a] border-b border-white/[0.08]">
+            <div className="flex gap-1 sm:gap-1.5 shrink-0">
+              <span className="w-2 h-2 sm:w-[11px] sm:h-[11px] rounded-full bg-[#ff5f57] opacity-65" />
+              <span className="w-2 h-2 sm:w-[11px] sm:h-[11px] rounded-full bg-[#febc2e] opacity-65" />
+              <span className="w-2 h-2 sm:w-[11px] sm:h-[11px] rounded-full bg-[#28c840] opacity-65" />
             </div>
-            <div className="font-mono text-[11px] text-[#f0f0f0]/45 flex items-center gap-1">
-              <span>~</span>
-              <span className="text-[#f0f0f0]/25">/</span>
-              <span>eden-portfolio</span>
-              <span className="text-[#f0f0f0]/25">/</span>
-              <span className="text-[#e63946]">skills.ts</span>
-              <span className="text-[#e63946]/70 ml-1">●</span>
+            {/* Breadcrumb — full path on desktop, just the filename on mobile */}
+            <div className="font-mono text-[10px] sm:text-[11px] text-[#f0f0f0]/45 flex items-center gap-1 min-w-0">
+              <span className="hidden sm:inline">~</span>
+              <span className="hidden sm:inline text-[#f0f0f0]/25">/</span>
+              <span className="hidden sm:inline">eden-portfolio</span>
+              <span className="hidden sm:inline text-[#f0f0f0]/25">/</span>
+              <span className="text-[#e63946] truncate">skills.ts</span>
+              <span className="text-[#e63946]/70 ml-1 shrink-0">●</span>
             </div>
             <div
-              className="ml-auto inline-flex border border-white/[0.12] rounded-sm overflow-hidden"
+              className="ml-auto inline-flex border border-white/[0.12] rounded-sm overflow-hidden shrink-0"
               role="tablist"
             >
               {(['rendered', 'raw'] as const).map((v) => (
@@ -291,7 +292,7 @@ export default function Skills() {
                   role="tab"
                   aria-selected={view === v}
                   onClick={() => setView(v)}
-                  className={`px-3 py-1 font-mono text-[10px] tracking-[0.12em] uppercase transition-colors ${
+                  className={`px-2 sm:px-3 py-0.5 sm:py-1 font-mono text-[9px] sm:text-[10px] tracking-[0.1em] sm:tracking-[0.12em] uppercase transition-colors ${
                     view === v
                       ? 'bg-[#e63946]/[0.12] text-[#e63946]'
                       : 'text-[#f0f0f0]/45 hover:text-[#f0f0f0]'

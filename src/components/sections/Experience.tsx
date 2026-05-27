@@ -300,8 +300,8 @@ export default function Experience() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="flex flex-wrap gap-x-7 gap-y-2 px-[18px] py-[14px] border-t border-white/[0.06] bg-black/20 font-mono text-[10px] tracking-[0.1em] uppercase text-[#f0f0f0]/45">
+          {/* Stats — 2x2 grid on mobile, flex row on sm+ */}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-7 sm:gap-y-2 px-3 sm:px-[18px] py-3 sm:py-[14px] border-t border-white/[0.06] bg-black/20 font-mono text-[10px] tracking-[0.1em] uppercase text-[#f0f0f0]/45">
             <Stat strong="5" strongAccent label="active" />
             <Stat strong="2" label="businesses" />
             <Stat strong="1" label="undergrad" />
@@ -631,7 +631,7 @@ function Stat({ strong, strongAccent, label }: { strong: string; strongAccent?: 
   return (
     <div>
       <strong
-        className="font-display font-bold text-[18px] mr-2"
+        className="font-display font-bold text-[16px] sm:text-[18px] mr-2"
         style={{ color: strongAccent ? '#e63946' : '#f0f0f0' }}
       >
         {strong}

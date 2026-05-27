@@ -199,8 +199,6 @@ export default function Contact() {
             fill="none"
           />
         ))}
-        <line className="sn-cx" x1={0}        y1={lineEndY} x2={W}        y2={lineEndY} />
-        <line className="sn-cx" x1={lineEndX} y1={0}        x2={lineEndX} y2={H}        />
       </svg>
 
       {/* ── Shockwave (SVG — needs to grow from r=6 to r=850, so it has
@@ -469,13 +467,6 @@ const contactStyles = `
     transform: scale(1);
     vector-effect: non-scaling-stroke;
   }
-  #contact .sn-cx {
-    stroke: rgba(255,255,255,0.08);
-    stroke-width: 1;
-    fill: none;
-    vector-effect: non-scaling-stroke;
-  }
-
   /* Ripple wave — each ring flashes red with a delay timed to when the
      shockwave actually passes through it. */
   #contact.is-rippling .sn-rc-0 { animation: rc-flash 1.3s ease-out 0.30s forwards; }
@@ -490,14 +481,6 @@ const contactStyles = `
     16%  { stroke: rgba(230,57,70,1);      stroke-width: 1.8; transform: scale(1.025); filter: drop-shadow(0 0 5px rgba(230,57,70,0.8)); }
     55%  { stroke: rgba(230,57,70,0.45);   stroke-width: 1.2; transform: scale(1.012); filter: drop-shadow(0 0 2px rgba(230,57,70,0.35)); }
     100% { stroke: rgba(255,255,255,0.05); stroke-width: 0.8; transform: scale(1);     filter: none; }
-  }
-  #contact.is-rippling .sn-cx {
-    animation: cx-flash 1.6s ease-out 0.05s forwards;
-  }
-  @keyframes cx-flash {
-    0%   { stroke: rgba(255,255,255,0.08); stroke-width: 1; }
-    14%  { stroke: rgba(230,57,70,0.65);   stroke-width: 1.4; filter: drop-shadow(0 0 4px rgba(230,57,70,0.5)); }
-    100% { stroke: rgba(255,255,255,0.08); stroke-width: 1; filter: none; }
   }
   #contact.is-rippling .sn-radar {
     animation: radar-pump 1.3s cubic-bezier(.2,.7,.2,1);
