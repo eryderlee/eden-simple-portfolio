@@ -138,7 +138,7 @@ export default function Contact() {
 
       const impactX = rr.left + rr.width * 0.5;
       const impactY = er.bottom;
-      const SPEED   = 340;   // px / sec — wave-front speed
+      const SPEED   = 240;   // px / sec — wave-front speed (lower = slower spread)
       const HEAD    = 0.05;  // sec — head-start before the closest target fires
 
       root.querySelectorAll<HTMLElement>('[data-ripple-target]').forEach((el) => {
@@ -508,7 +508,7 @@ const contactStyles = `
     transform-origin: 50% 60% 0;
   }
   #contact.is-rippling [data-ripple-target] {
-    animation: water-bob 0.85s cubic-bezier(.18,.72,.20,1) forwards;
+    animation: water-bob 1.1s cubic-bezier(.18,.72,.20,1) forwards;
     animation-delay: var(--ripple-delay, 0s);
   }
   @keyframes water-bob {
