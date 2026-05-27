@@ -268,23 +268,19 @@ export default function Contact() {
         <circle cx={lineEndX} cy={lineEndY} r={6} className="sn-shockwave" />
       </svg>
 
-      {/* ── Core dot — same SVG <circle> as before, but in its own SVG
-            with a fixed viewBox and default preserveAspectRatio. The
-            previous arrangement put the dot inside the section-sized
-            rings SVG (preserveAspectRatio="none"), which on mobile
-            stretched the circle into an oval whenever the section
-            aspect ratio was tall-and-narrow. With its own 20x20 viewBox
-            the circle is always a true circle on every viewport. */}
-      <svg
-        className="sn-core-svg"
+      {/* ── Core dot — rendered as a CSS div, not SVG.
+            Previous SVG approach used stacked filter:drop-shadow() for
+            the glow halo. iOS Safari renders stacked SVG drop-shadows
+            with noticeably less blur than Chrome desktop (and CSS
+            geometry properties on <circle> have had patchy Safari
+            support), so the dot showed up on iOS as a thin hard red
+            ring with no visible center fill. box-shadow on a div is
+            pure CSS 2D compositing and renders identically everywhere. */}
+      <div
+        className="sn-core-dot"
         style={{ left: `${lineEndX}px`, top: `${lineEndY}px` }}
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
         aria-hidden="true"
-      >
-        <circle cx={10} cy={10} className="sn-core-c" />
-      </svg>
+      />
 
       {/* ── Content ───────────────────────────────────────────────── */}
       <div className="relative max-w-[1000px] mx-auto w-full sn-wrap">
@@ -592,34 +588,39 @@ const contactStyles = `
     pointer-events: none;
     overflow: visible;
   }
-  /* Core dot — the original drop-shadow SVG treatment, hosted in its
-     own absolutely-positioned SVG (see JSX) so the rings SVG's
-     preserveAspectRatio="none" can't distort it. */
-  #contact .sn-core-svg {
+  /* Core dot — CSS div + box-shadow.
+     14px circle, two stacked red glows tuned to match the original
+     SVG drop-shadow look on desktop while rendering identically on
+     iOS (which couldn't be relied on for SVG drop-shadow). */
+  #contact .sn-core-dot {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 14px;
+    height: 14px;
+    background: #e63946;
+    border-radius: 50%;
     transform: translate(-50%, -50%);
+    opacity: 0;
     z-index: 3;
     pointer-events: none;
-    overflow: visible;
-  }
-  #contact .sn-core-c {
-    r: 7;
-    fill: #e63946;
-    opacity: 0;
-    filter: drop-shadow(0 0 10px rgba(230,57,70,0.9))
-            drop-shadow(0 0 2px rgba(230,57,70,1));
-    transition: opacity .25s, r .35s cubic-bezier(.2,.7,.2,1);
+    box-shadow:
+      0 0 10px rgba(230,57,70,0.9),
+      0 0 2px  rgba(230,57,70,1);
+    transition: opacity .25s;
   }
   /* Sticky once revealed — keeps glowing on subsequent scrolls */
-  #contact.is-revealed .sn-core-c {
+  #contact.is-revealed .sn-core-dot {
     opacity: 1;
     animation: sn-core-breathe 2.6s ease-in-out infinite;
   }
   @keyframes sn-core-breathe {
-    0%, 100% { r: 7; filter: drop-shadow(0 0 10px rgba(230,57,70,0.9)) drop-shadow(0 0 2px rgba(230,57,70,1)); }
-    50%      { r: 8; filter: drop-shadow(0 0 16px rgba(230,57,70,1))   drop-shadow(0 0 3px rgba(230,57,70,1)); }
+    0%, 100% {
+      width: 14px; height: 14px;
+      box-shadow: 0 0 10px rgba(230,57,70,0.9), 0 0 2px rgba(230,57,70,1);
+    }
+    50% {
+      width: 16px; height: 16px;
+      box-shadow: 0 0 16px rgba(230,57,70,1), 0 0 3px rgba(230,57,70,1);
+    }
   }
   #contact .sn-shockwave {
     r: 6;
