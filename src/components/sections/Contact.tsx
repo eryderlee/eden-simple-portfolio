@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
+import { useScrambleHover } from '@/components/ui/ScrambleLink';
 
 /* ──────────────────────────────────────────────────────────────────
    Drop-in replacement for components/sections/Contact.tsx
@@ -39,12 +40,54 @@ const ICON_YOUTUBE = (
   </svg>
 );
 
-const SOCIALS = [
+interface Social {
+  label: string;
+  handle: string;
+  href: string;
+  icon: React.ReactElement;
+}
+
+const SOCIALS: Social[] = [
   { label: 'LinkedIn', handle: '/in/edenryderlee', href: 'https://linkedin.com/in/edenryderlee',         icon: ICON_LINKEDIN },
   { label: 'GitHub',   handle: '/eryderlee',       href: 'https://github.com/eryderlee',                 icon: ICON_GITHUB },
   { label: 'Upwork',   handle: '/eryderlee',       href: 'https://www.upwork.com/freelancers/eryderlee', icon: ICON_UPWORK },
   { label: 'YouTube',  handle: '/@eryderlee',      href: 'https://youtu.be/HAOkVh_K5Kk',                 icon: ICON_YOUTUBE },
 ];
+
+/* ──────────────────────────────────────────────────────────────────
+   SocialCard — one row in the socials grid. Wraps the label in
+   useScrambleHover so each card's label glitch-scrambles on hover,
+   matching the site's existing scramble pattern (used in About,
+   Projects, Navbar). The handle stays static.
+   ────────────────────────────────────────────────────────────────── */
+function SocialCard({ social }: { social: Social }) {
+  const scramble = useScrambleHover(social.label);
+  return (
+    <a
+      href={social.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="crv-soc"
+      data-ripple-target="true"
+      onMouseEnter={scramble.onMouseEnter}
+      onMouseLeave={scramble.onMouseLeave}
+    >
+      <span className="crv-soc-icon">{social.icon}</span>
+      <span className="crv-soc-text">
+        <span className="crv-soc-label">
+          <span ref={scramble.spanRef}>{social.label}</span>
+        </span>
+        <span className="crv-soc-handle">{social.handle}</span>
+      </span>
+      <span className="crv-soc-arrow" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="7" y1="17" x2="17" y2="7" />
+          <polyline points="7 7 17 7 17 17" />
+        </svg>
+      </span>
+    </a>
+  );
+}
 
 const RADAR_RADII = [120, 240, 360, 480, 600, 720, 840];
 
@@ -81,6 +124,21 @@ export default function Contact() {
   const [name, setName] = useState('');
   const [subj, setSubj] = useState('');
   const [body, setBody] = useState('');
+
+  // Scramble hover: two parallel runs for the email so the red `@`
+  // between them stays static, one for the Send button.
+  const emailLeftScramble  = useScrambleHover('eden');
+  const emailRightScramble = useScrambleHover('ryderlee.me');
+  const sendScramble       = useScrambleHover('Send');
+
+  const onEmailEnter = useCallback(() => {
+    emailLeftScramble.onMouseEnter();
+    emailRightScramble.onMouseEnter();
+  }, [emailLeftScramble, emailRightScramble]);
+  const onEmailLeave = useCallback(() => {
+    emailLeftScramble.onMouseLeave();
+    emailRightScramble.onMouseLeave();
+  }, [emailLeftScramble, emailRightScramble]);
 
   // waveform signal-strength meter (24 bars, idle-pulse until lit)
   const N_BARS    = 24;
@@ -168,16 +226,24 @@ export default function Contact() {
 
   // ── Fire impact sequence when ScrollLine's tip reaches the CTA ────
   useEffect(() => {
-    const onReached = () => {
+    const RIPPLE_COOLDOWN = 5000;
+    let lastRippleAt = 0;
+
+    const fireRipple = () => {
       setRevealed(true);
+      const now = performance.now();
+      if (now - lastRippleAt < RIPPLE_COOLDOWN) return;
+      lastRippleAt = now;
       setRippling(true);
     };
-    const onLeft = () => {
+    const clearRipple = () => {
       // Drop the rippling class so CSS animations reset for the next entry.
+      // Cooldown still applies on the *re-fire* — clearing doesn't unlock it.
       setRippling(false);
     };
-    document.addEventListener('cta-line-reached', onReached);
-    document.addEventListener('cta-line-left', onLeft);
+
+    document.addEventListener('cta-line-reached', fireRipple);
+    document.addEventListener('cta-line-left', clearRipple);
 
     // Fallback: on mobile, fast scrolling or ScrollLine timing can miss
     // the cta-line-reached dispatch. Once the CTA is well inside the
@@ -188,12 +254,8 @@ export default function Contact() {
     if (cta) {
       fallbackIO = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) {
-            setRevealed(true);
-            setRippling(true);
-          } else {
-            setRippling(false);
-          }
+          if (entry.isIntersecting) fireRipple();
+          else clearRipple();
         },
         { threshold: 0, rootMargin: '0px 0px -20% 0px' },
       );
@@ -201,8 +263,8 @@ export default function Contact() {
     }
 
     return () => {
-      document.removeEventListener('cta-line-reached', onReached);
-      document.removeEventListener('cta-line-left', onLeft);
+      document.removeEventListener('cta-line-reached', fireRipple);
+      document.removeEventListener('cta-line-left', clearRipple);
       fallbackIO?.disconnect();
     };
   }, []);
@@ -314,6 +376,8 @@ export default function Contact() {
             href="mailto:eden@ryderlee.me"
             className="crv-email"
             data-ripple-target="true"
+            onMouseEnter={onEmailEnter}
+            onMouseLeave={onEmailLeave}
           >
             {/* Corner brackets — terminal-field frame around the email */}
             <span aria-hidden="true" className="crv-corner crv-corner-tl" />
@@ -323,7 +387,9 @@ export default function Contact() {
 
             <span className="crv-email-key">Write to me at</span>
             <span className="crv-email-val" data-ripple-target="true">
-              eden<span className="crv-at">@</span>ryderlee.me
+              <span ref={emailLeftScramble.spanRef}>eden</span>
+              <span className="crv-at">@</span>
+              <span ref={emailRightScramble.spanRef}>ryderlee.me</span>
               <span className="crv-email-underline" />
             </span>
             {/* This is the anchor ScrollLine.tsx targets. Its TOP edge sits
@@ -352,26 +418,7 @@ export default function Contact() {
 
           <nav className="crv-socials">
             {SOCIALS.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="crv-soc"
-                data-ripple-target="true"
-              >
-                <span className="crv-soc-icon">{s.icon}</span>
-                <span className="crv-soc-text">
-                  <span className="crv-soc-label">{s.label}</span>
-                  <span className="crv-soc-handle">{s.handle}</span>
-                </span>
-                <span className="crv-soc-arrow" aria-hidden="true">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="7" y1="17" x2="17" y2="7" />
-                    <polyline points="7 7 17 7 17 17" />
-                  </svg>
-                </span>
-              </a>
+              <SocialCard key={s.label} social={s} />
             ))}
           </nav>
         </div>
@@ -440,8 +487,11 @@ export default function Contact() {
               type="submit"
               className="fm-man-send"
               disabled={!body.trim()}
+              data-cursor="SEND IT!"
+              onMouseEnter={sendScramble.onMouseEnter}
+              onMouseLeave={sendScramble.onMouseLeave}
             >
-              Send
+              <span ref={sendScramble.spanRef}>Send</span>
               <svg
                 width="13"
                 height="13"
@@ -459,11 +509,15 @@ export default function Contact() {
           </footer>
         </form>
 
-        {/* Bottom ERL mark — matches the original Contact's footer rhythm */}
+        {/* Bottom ERL mark + location strip — carried over from the
+            original Contact's footer rhythm. */}
         <div className="sn-foot">
           <div className="sn-foot-rule" />
           <span className="sn-foot-mark">ERL</span>
           <div className="sn-foot-rule" />
+        </div>
+        <div className="sn-location">
+          Point Cook, VIC &middot; Australia &middot; Available Remotely
         </div>
         </div>
       </div>
@@ -940,6 +994,15 @@ const contactStyles = `
     font-weight: 900;
     font-size: 10px; letter-spacing: 0.4em;
     color: rgba(230,57,70,0.4);
+  }
+  #contact .sn-location {
+    margin-top: 18px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(240,240,240,0.18);
   }
 
   /* Mobile tweaks */
