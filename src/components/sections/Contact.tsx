@@ -612,17 +612,17 @@ const contactStyles = `
   }
   /* Ripple wave — each ring flashes at the moment the expanding
      shockwave's radius actually reaches that ring's radius.
-     Delays solved against the shockwave's cubic-bezier(.22,.55,.30,1)
-     easing over its 4.6s duration:
-       ring R=120 → 0.25s, R=240 → 0.50s, R=360 → 0.75s,
-       R=480 → 1.05s, R=600 → 1.45s, R=720 → 2.10s, R=840 → 3.80s. */
-  #contact.is-rippling .sn-rc-0 { animation: rc-flash 1.3s ease-out 0.25s forwards; }
-  #contact.is-rippling .sn-rc-1 { animation: rc-flash 1.3s ease-out 0.50s forwards; }
-  #contact.is-rippling .sn-rc-2 { animation: rc-flash 1.3s ease-out 0.75s forwards; }
-  #contact.is-rippling .sn-rc-3 { animation: rc-flash 1.3s ease-out 1.05s forwards; }
-  #contact.is-rippling .sn-rc-4 { animation: rc-flash 1.4s ease-out 1.45s forwards; }
-  #contact.is-rippling .sn-rc-5 { animation: rc-flash 1.5s ease-out 2.10s forwards; }
-  #contact.is-rippling .sn-rc-6 { animation: rc-flash 1.6s ease-out 3.80s forwards; }
+     Delays re-solved against the softened shockwave easing
+     cubic-bezier(.25,.45,.30,1) over its 4.6s duration:
+       R=120 → 0.30s, R=240 → 0.60s, R=360 → 0.90s,
+       R=480 → 1.25s, R=600 → 1.65s, R=720 → 2.30s, R=840 → 3.85s. */
+  #contact.is-rippling .sn-rc-0 { animation: rc-flash 1.3s ease-out 0.30s forwards; }
+  #contact.is-rippling .sn-rc-1 { animation: rc-flash 1.3s ease-out 0.60s forwards; }
+  #contact.is-rippling .sn-rc-2 { animation: rc-flash 1.3s ease-out 0.90s forwards; }
+  #contact.is-rippling .sn-rc-3 { animation: rc-flash 1.3s ease-out 1.25s forwards; }
+  #contact.is-rippling .sn-rc-4 { animation: rc-flash 1.4s ease-out 1.65s forwards; }
+  #contact.is-rippling .sn-rc-5 { animation: rc-flash 1.5s ease-out 2.30s forwards; }
+  #contact.is-rippling .sn-rc-6 { animation: rc-flash 1.6s ease-out 3.85s forwards; }
   @keyframes rc-flash {
     0%   { stroke: rgba(255,255,255,0.05); stroke-width: 0.8; transform: scale(1);     filter: none; }
     16%  { stroke: rgba(230,57,70,1);      stroke-width: 1.8; transform: scale(1.025); filter: drop-shadow(0 0 5px rgba(230,57,70,0.8)); }
@@ -691,9 +691,12 @@ const contactStyles = `
   }
   /* Shockwave replays each time the section becomes rippling.
      Removing/re-adding .is-rippling restarts the animation, which is
-     how the re-trigger on scroll-in works. */
+     how the re-trigger on scroll-in works.
+     Easing softened from cubic-bezier(.22,.55,.30,1) to (.25,.45,.30,1)
+     so the wave eases out of r=6 a bit more gently before it really
+     gets going. */
   #contact.is-rippling .sn-shockwave {
-    animation: sn-shockwave-grow 4.6s cubic-bezier(.22,.55,.30,1) forwards;
+    animation: sn-shockwave-grow 4.6s cubic-bezier(.25,.45,.30,1) forwards;
   }
   @keyframes sn-shockwave-grow {
     0%   { r: 6;   opacity: 1;    stroke-width: 3.5; stroke: rgba(230,57,70,1);   filter: drop-shadow(0 0 12px rgba(230,57,70,0.85)); }
