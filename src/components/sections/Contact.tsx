@@ -610,15 +610,19 @@ const contactStyles = `
     transform: scale(1);
     vector-effect: non-scaling-stroke;
   }
-  /* Ripple wave — each ring flashes red with a delay timed to when the
-     shockwave actually passes through it. */
-  #contact.is-rippling .sn-rc-0 { animation: rc-flash 1.3s ease-out 0.30s forwards; }
-  #contact.is-rippling .sn-rc-1 { animation: rc-flash 1.3s ease-out 0.70s forwards; }
-  #contact.is-rippling .sn-rc-2 { animation: rc-flash 1.3s ease-out 1.10s forwards; }
-  #contact.is-rippling .sn-rc-3 { animation: rc-flash 1.3s ease-out 1.55s forwards; }
-  #contact.is-rippling .sn-rc-4 { animation: rc-flash 1.4s ease-out 2.00s forwards; }
-  #contact.is-rippling .sn-rc-5 { animation: rc-flash 1.5s ease-out 2.50s forwards; }
-  #contact.is-rippling .sn-rc-6 { animation: rc-flash 1.6s ease-out 3.05s forwards; }
+  /* Ripple wave — each ring flashes at the moment the expanding
+     shockwave's radius actually reaches that ring's radius.
+     Delays solved against the shockwave's cubic-bezier(.22,.55,.30,1)
+     easing over its 4.6s duration:
+       ring R=120 → 0.25s, R=240 → 0.50s, R=360 → 0.75s,
+       R=480 → 1.05s, R=600 → 1.45s, R=720 → 2.10s, R=840 → 3.80s. */
+  #contact.is-rippling .sn-rc-0 { animation: rc-flash 1.3s ease-out 0.25s forwards; }
+  #contact.is-rippling .sn-rc-1 { animation: rc-flash 1.3s ease-out 0.50s forwards; }
+  #contact.is-rippling .sn-rc-2 { animation: rc-flash 1.3s ease-out 0.75s forwards; }
+  #contact.is-rippling .sn-rc-3 { animation: rc-flash 1.3s ease-out 1.05s forwards; }
+  #contact.is-rippling .sn-rc-4 { animation: rc-flash 1.4s ease-out 1.45s forwards; }
+  #contact.is-rippling .sn-rc-5 { animation: rc-flash 1.5s ease-out 2.10s forwards; }
+  #contact.is-rippling .sn-rc-6 { animation: rc-flash 1.6s ease-out 3.80s forwards; }
   @keyframes rc-flash {
     0%   { stroke: rgba(255,255,255,0.05); stroke-width: 0.8; transform: scale(1);     filter: none; }
     16%  { stroke: rgba(230,57,70,1);      stroke-width: 1.8; transform: scale(1.025); filter: drop-shadow(0 0 5px rgba(230,57,70,0.8)); }
