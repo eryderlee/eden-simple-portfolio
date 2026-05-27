@@ -48,6 +48,20 @@ const SOCIALS = [
 
 const RADAR_RADII = [120, 240, 360, 480, 600, 720, 840];
 
+/* ──────────────────────────────────────────────────────────────────
+   Chars — splits a string into per-letter spans so the radial bob
+   ripple can pass through individual letters of the heading.
+   ────────────────────────────────────────────────────────────────── */
+const Chars = ({ text }: { text: string }) => (
+  <>
+    {text.split('').map((ch, i) => (
+      <span key={i} className="sn-char" data-ripple-target="true">
+        {ch === ' ' ? ' ' : ch}
+      </span>
+    ))}
+  </>
+);
+
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
   const emailRef   = useRef<HTMLAnchorElement>(null);
@@ -101,6 +115,48 @@ export default function Contact() {
       document.fonts.ready.then(measure);
     }
     const ro = new ResizeObserver(measure);
+    if (sectionRef.current) ro.observe(sectionRef.current);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+      ro.disconnect();
+    };
+  }, []);
+
+  // ── Radial bob: measure every [data-ripple-target]'s distance from
+  // the email-block bottom (impact point) and set --ripple-delay so the
+  // water-bob keyframe fires when the wave-front reaches that element.
+  useEffect(() => {
+    const measureRipple = () => {
+      const root  = sectionRef.current;
+      const email = emailRef.current;
+      if (!root || !email) return;
+      const rr = root.getBoundingClientRect();
+      const er = email.getBoundingClientRect();
+      if (rr.height === 0) return;
+
+      const impactX = rr.left + rr.width * 0.5;
+      const impactY = er.bottom;
+      const SPEED   = 340;   // px / sec — wave-front speed
+      const HEAD    = 0.05;  // sec — head-start before the closest target fires
+
+      root.querySelectorAll<HTMLElement>('[data-ripple-target]').forEach((el) => {
+        const r  = el.getBoundingClientRect();
+        const cx = r.left + r.width  / 2;
+        const cy = r.top  + r.height / 2;
+        const d  = Math.hypot(cx - impactX, cy - impactY);
+        el.style.setProperty('--ripple-delay', `${(HEAD + d / SPEED).toFixed(3)}s`);
+      });
+    };
+    measureRipple();
+    const t1 = window.setTimeout(measureRipple, 80);
+    const t2 = window.setTimeout(measureRipple, 400);
+    const t3 = window.setTimeout(measureRipple, 1200);
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      document.fonts.ready.then(measureRipple);
+    }
+    const ro = new ResizeObserver(measureRipple);
     if (sectionRef.current) ro.observe(sectionRef.current);
     return () => {
       window.clearTimeout(t1);
@@ -232,20 +288,25 @@ export default function Contact() {
 
       {/* ── Content ───────────────────────────────────────────────── */}
       <div className="relative max-w-[1000px] mx-auto w-full sn-wrap">
-        <div className="sn-label">
+        <div className="sn-label" data-ripple-target="true">
           <div className="sn-dash" />
           <span>Contact</span>
         </div>
-        <h2 className="sn-heading">
-          Let&apos;s build<br />
-          <span className="sn-accent">something</span>
-          <span className="sn-period">.</span>
+        <h2 className="sn-heading" data-ripple-target="true" aria-label="Let's build something.">
+          <span aria-hidden="true">
+            <Chars text={'Let’s build'} />
+          </span>
+          <br />
+          <span className="sn-accent" aria-hidden="true">
+            <Chars text="something" />
+          </span>
+          <span className="sn-period" aria-hidden="true" data-ripple-target="true">.</span>
         </h2>
 
         {/* Everything below the heading stays hidden until ScrollLine's tip
             actually reaches #contact-cta — at which point phase flips. */}
         <div className="sn-reveal">
-        <p className="sn-intro">
+        <p className="sn-intro" data-ripple-target="true">
           Open to freelance projects, full-time roles, and interesting collaborations.
           Based in Point Cook, VIC &mdash; available remotely worldwide.
         </p>
@@ -256,6 +317,7 @@ export default function Contact() {
             ref={emailRef}
             href="mailto:eden@ryderlee.me"
             className="crv-email"
+            data-ripple-target="true"
           >
             {/* Corner brackets — terminal-field frame around the email */}
             <span aria-hidden="true" className="crv-corner crv-corner-tl" />
@@ -264,7 +326,7 @@ export default function Contact() {
             <span aria-hidden="true" className="crv-corner crv-corner-br" />
 
             <span className="crv-email-key">Write to me at</span>
-            <span className="crv-email-val">
+            <span className="crv-email-val" data-ripple-target="true">
               eden<span className="crv-at">@</span>ryderlee.me
               <span className="crv-email-underline" />
             </span>
@@ -278,15 +340,15 @@ export default function Contact() {
           </a>
 
           <div className="crv-meta-strip">
-            <div className="crv-meta">
+            <div className="crv-meta" data-ripple-target="true">
               <span className="crv-meta-key">Open for</span>
               <span className="crv-meta-val">Freelance · Full-time · Collabs</span>
             </div>
-            <div className="crv-meta">
+            <div className="crv-meta" data-ripple-target="true">
               <span className="crv-meta-key">Based</span>
               <span className="crv-meta-val">Point Cook, VIC · remote worldwide</span>
             </div>
-            <div className="crv-meta">
+            <div className="crv-meta" data-ripple-target="true">
               <span className="crv-meta-key">Reply</span>
               <span className="crv-meta-val">Within ~24 hours</span>
             </div>
@@ -300,6 +362,7 @@ export default function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="crv-soc"
+                data-ripple-target="true"
               >
                 <span className="crv-soc-icon">{s.icon}</span>
                 <span className="crv-soc-text">
@@ -318,13 +381,13 @@ export default function Contact() {
         </div>
 
         {/* ── Email form (Dispatch Manifest variant) ──────────────── */}
-        <form id="contact-form" className="fm-man" onSubmit={handleSubmit} data-cursor="FILL OUT THE FORM!">
-          <header className="fm-man-head">
+        <form id="contact-form" className="fm-man" onSubmit={handleSubmit} data-cursor="FILL OUT THE FORM!" data-ripple-target="true">
+          <header className="fm-man-head" data-ripple-target="true">
             <span className="fm-man-stamp">EMAIL · 0001</span>
             <span className="fm-man-date">2026 · POINT COOK, VIC</span>
           </header>
 
-          <div className="fm-man-row">
+          <div className="fm-man-row" data-ripple-target="true">
             <span className="fm-man-num">01.</span>
             <span className="fm-man-key">FROM</span>
             <input
@@ -335,7 +398,7 @@ export default function Contact() {
               autoComplete="name"
             />
           </div>
-          <div className="fm-man-row">
+          <div className="fm-man-row" data-ripple-target="true">
             <span className="fm-man-num">02.</span>
             <span className="fm-man-key">SUBJECT</span>
             <input
@@ -345,7 +408,7 @@ export default function Contact() {
               placeholder="what about"
             />
           </div>
-          <div className="fm-man-row fm-man-row-body">
+          <div className="fm-man-row fm-man-row-body" data-ripple-target="true">
             <span className="fm-man-num">03.</span>
             <span className="fm-man-key">MESSAGE</span>
             <textarea
@@ -356,7 +419,7 @@ export default function Contact() {
             />
           </div>
 
-          <footer className="fm-man-foot">
+          <footer className="fm-man-foot" data-ripple-target="true">
             <div className="fm-man-sig">
               <span className="fm-man-sig-key">SIG STR.</span>
               <div className="fm-man-sig-bars">
@@ -425,8 +488,38 @@ const contactStyles = `
     color: #f0f0f0;
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
+    /* 3D perspective so [data-ripple-target] translateZ reads as depth */
+    perspective: 1600px;
   }
   #contact, #contact *, #contact *::before, #contact *::after { box-sizing: border-box; }
+
+  /* ── Radial bob ─────────────────────────────────────────────────
+     Every [data-ripple-target] gets a 3D context, then when the
+     section becomes .is-rippling each one animates with its own
+     --ripple-delay (set in JS based on its real-pixel distance from
+     the impact point, so the wave radiates outward in 3D). */
+  #contact [data-ripple-target] {
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    will-change: transform, filter;
+  }
+  #contact .sn-char {
+    display: inline-block;
+    transform-origin: 50% 60% 0;
+  }
+  #contact.is-rippling [data-ripple-target] {
+    animation: water-bob 0.85s cubic-bezier(.18,.72,.20,1) forwards;
+    animation-delay: var(--ripple-delay, 0s);
+  }
+  @keyframes water-bob {
+    0%   { transform: translateZ(0)    rotateX(0deg)  scale(1);    filter: brightness(1); }
+    28%  { transform: translateZ(55px) rotateX(-8deg) scale(1.05); filter: brightness(1.5) drop-shadow(0 10px 22px rgba(230,57,70,0.55)); }
+    58%  { transform: translateZ(-10px) rotateX(3deg) scale(0.99); filter: brightness(1.08); }
+    100% { transform: translateZ(0)    rotateX(0deg)  scale(1);    filter: brightness(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #contact.is-rippling [data-ripple-target] { animation: none; }
+  }
 
   /* Radar grid — concentric rings + cross-hairs centred on the impact.
      overflow:visible lets the top half of the largest rings extend up
