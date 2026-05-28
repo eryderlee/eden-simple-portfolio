@@ -81,6 +81,7 @@ body {
   animation-play-state: paused;
 }
 
+
 /* ── Scroll indicator animation ───────────────────────────── */
 @keyframes scrollPulse {
   0% {

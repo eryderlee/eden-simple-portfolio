@@ -16,13 +16,20 @@ interface Props {
 
 export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
-  /* Fade the entire background in smoothly after mount so there's no abrupt
-     flash when the ASCII grid starts rendering. */
+  /* Double-rAF: guarantees the initial opacity:0 frame paints before we
+     flip the state, so the CSS transition reliably fires regardless of
+     hydration timing. */
   useEffect(() => {
-    const timer = setTimeout(() => setMounted(true), 200);
-    return () => clearTimeout(timer);
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => setRevealed(true));
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
   }, []);
 
   useEffect(() => {
@@ -414,32 +421,22 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     };
   }, []);
 
-  const sideMask = 'linear-gradient(to right, black 0%, black 18%, transparent 36%, transparent 64%, black 82%, black 100%)';
+  const sideMask =
+    'linear-gradient(to right, black 0%, black 18%, transparent 36%, transparent 64%, black 82%, black 100%)';
 
-  // The ASCII itself only uses the horizontal side mask (well supported
-  // everywhere). The bottom fade is implemented below as a sibling overlay
-  // div — not as a mask — because iOS Safari's mask-composite support is
-  // unreliable and was silently ignoring our previous two-layer mask.
-  //
-  // Opacity lives on the inner ASCII element so the bottom overlay can
-  // render at full (100%) opacity and actually hide the ASCII underneath.
   return (
-    <div
-      className="absolute inset-0 overflow-hidden pointer-events-none"
-      style={{
-        opacity: mounted ? 1 : 0,
-        transition: 'opacity 0.8s ease',
-      }}
-    >
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <div
         ref={containerRef}
         className="absolute inset-0"
         style={{
-          opacity,
+          opacity: revealed ? opacity : 0,
+          transition: 'opacity 1.5s linear',
           maskImage: sideMask,
           WebkitMaskImage: sideMask,
         }}
       />
+
       {maskBottom && (
         <div
           aria-hidden="true"

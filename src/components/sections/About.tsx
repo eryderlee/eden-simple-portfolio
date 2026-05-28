@@ -178,7 +178,6 @@ export default function About() {
       id="about"
       className="section-grain relative border-t border-white/[0.04] pt-24 pb-0 md:pt-28 px-5"
     >
-
       {/* Subtle left accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#e63946]/20 to-transparent" />
 

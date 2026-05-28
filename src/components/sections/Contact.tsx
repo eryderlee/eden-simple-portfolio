@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
 import { useScrambleHover } from '@/components/ui/ScrambleLink';
+import PixelSwap from '@/components/ui/PixelSwap';
 
 /* ──────────────────────────────────────────────────────────────────
    Drop-in replacement for components/sections/Contact.tsx
@@ -124,6 +125,9 @@ export default function Contact() {
   const [name, setName] = useState('');
   const [subj, setSubj] = useState('');
   const [body, setBody] = useState('');
+  // pixel-transition + sent state
+  const [pixelPlaying, setPixelPlaying] = useState(false);
+  const [sent, setSent] = useState(false);
 
   // Scramble hover: two parallel runs for the email so the red `@`
   // between them stays static, one for the Send button.
@@ -271,11 +275,24 @@ export default function Contact() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (pixelPlaying || sent) return;
+    setPixelPlaying(true);
+  };
+
+  // Fires at the midpoint of the pixel transition — form is fully covered,
+  // so swap to the sent state under the pixels.
+  const onPixelMidpoint = useCallback(() => {
+    setSent(true);
+  }, []);
+
+  // Fires once pixels have fully cleared — open the user's mail client.
+  const onPixelDone = useCallback(() => {
+    setPixelPlaying(false);
     const sigLine = name ? `\n\n— ${name}` : '';
     window.location.href = `mailto:eden@ryderlee.me?subject=${encodeURIComponent(
       subj || 'Hello',
     )}&body=${encodeURIComponent(body + sigLine)}`;
-  };
+  }, [name, subj, body]);
 
   const W         = size.w;
   const H         = size.h;
@@ -424,6 +441,10 @@ export default function Contact() {
         </div>
 
         {/* ── Email form (Dispatch Manifest variant) ──────────────── */}
+        <div className="relative mx-auto mt-[72px] w-full max-w-[720px]">
+        {/* Form — always rendered, drives the wrapper height (becomes
+            invisible after submit so the sent panel doesn't shift things). */}
+        <div style={{ visibility: sent ? 'hidden' : 'visible' }}>
         <form id="contact-form" className="fm-man" onSubmit={handleSubmit} data-cursor="FILL OUT THE FORM!" data-ripple-target="true">
           <header className="fm-man-head" data-ripple-target="true">
             <span className="fm-man-stamp">EMAIL · 0001</span>
@@ -508,6 +529,40 @@ export default function Contact() {
             </button>
           </footer>
         </form>
+        </div>
+
+        {/* Sent panel — absolutely overlays the form (same outer box). */}
+        {sent && (
+          <div className="absolute inset-0">
+            <div className="fm-man fm-man-sent h-full" data-cursor="EMAIL DISPATCHED" data-ripple-target="true">
+              <header className="fm-man-head">
+                <span className="fm-man-stamp">EMAIL · 0001 — DISPATCHED</span>
+                <span className="fm-man-date">2026 · POINT COOK, VIC</span>
+              </header>
+              <div className="fm-man-sent-body">
+                <span className="fm-man-sent-mark">✓</span>
+                <h3 className="fm-man-sent-title">Email dispatch</h3>
+                <p className="fm-man-sent-sub">
+                  {name ? `Thanks, ${name}. ` : ''}Your mail client should be opening now.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <PixelSwap
+          playing={pixelPlaying}
+          onMidpoint={onPixelMidpoint}
+          onDone={onPixelDone}
+          cols={7}
+          rows={4}
+          appearDur={0.4}
+          holdDur={0.18}
+          disappearDur={0.45}
+          color="#000000"
+          zIndex={30}
+        />
+        </div>
 
         {/* Bottom ERL mark + location strip — carried over from the
             original Contact's footer rhythm. */}
@@ -566,6 +621,18 @@ const contactStyles = `
     28%  { transform: translateZ(55px) rotateX(-8deg) scale(1.05); filter: brightness(1.5) drop-shadow(0 10px 22px rgba(230,57,70,0.55)); }
     58%  { transform: translateZ(-10px) rotateX(3deg) scale(0.99); filter: brightness(1.08); }
     100% { transform: translateZ(0)    rotateX(0deg)  scale(1);    filter: brightness(1); }
+  }
+  /* Email block sits at the impact point itself, so the default bob
+     reads as way too tall there. Run a softer variant just on it. */
+  #contact.is-rippling .crv-email[data-ripple-target] {
+    animation: water-bob-email 1.1s cubic-bezier(.18,.72,.20,1) forwards;
+    animation-delay: var(--ripple-delay, 0s);
+  }
+  @keyframes water-bob-email {
+    0%   { transform: translateZ(0)    rotateX(0deg)  scale(1);     filter: brightness(1); }
+    28%  { transform: translateZ(18px) rotateX(-3deg) scale(1.02);  filter: brightness(1.25) drop-shadow(0 6px 14px rgba(230,57,70,0.4)); }
+    58%  { transform: translateZ(-3px) rotateX(1deg)  scale(0.997); filter: brightness(1.04); }
+    100% { transform: translateZ(0)    rotateX(0deg)  scale(1);     filter: brightness(1); }
   }
   @media (prefers-reduced-motion: reduce) {
     #contact.is-rippling [data-ripple-target] { animation: none; }
@@ -868,8 +935,6 @@ const contactStyles = `
   #contact .fm-man {
     position: relative;
     z-index: 5;
-    margin: 72px auto 0;
-    max-width: 720px;
     text-align: left;
     font-family: 'Inter', sans-serif;
     background: #161616;
@@ -945,6 +1010,34 @@ const contactStyles = `
   }
   #contact .fm-man-send:hover:not(:disabled) { background: #e63946; color: #fff; }
   #contact .fm-man-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* DISPATCHED panel — shown after the pixel transition swap. */
+  #contact .fm-man-sent { padding: 20px 18px 42px; }
+  #contact .fm-man-sent-body {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 14px; padding: 48px 24px 24px;
+    text-align: center;
+  }
+  #contact .fm-man-sent-mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 52px; height: 52px;
+    border: 1px solid rgba(230,57,70,0.5);
+    color: #e63946;
+    font-size: 22px; line-height: 1;
+    box-shadow: 0 0 32px rgba(230,57,70,0.18);
+  }
+  #contact .fm-man-sent-title {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13px; letter-spacing: 0.28em;
+    text-transform: uppercase; color: #f0f0f0;
+    margin: 4px 0 2px;
+  }
+  #contact .fm-man-sent-sub {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 0.05em;
+    color: rgba(240,240,240,0.35);
+    max-width: 36ch;
+  }
 
   #contact .fm-man-sig {
     display: flex; align-items: center; gap: 14px;
