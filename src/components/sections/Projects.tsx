@@ -795,7 +795,15 @@ const GRAIN_SVG = "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='
  * normally — so the canvas becomes the dynamic, content-derived source for
  * the backlight on platforms where the video itself can't be sampled.
  */
-function VideoBacklightSource({ videoRef }: { videoRef: React.RefObject<HTMLVideoElement | null> }) {
+function VideoBacklightSource({
+  videoRef,
+  className,
+  style,
+}: {
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -808,6 +816,7 @@ function VideoBacklightSource({ videoRef }: { videoRef: React.RefObject<HTMLVide
 
     let raf = 0;
     let last = 0;
+    let running = false;
     const frameInterval = 1000 / 8; // 8 fps is plenty for an ambient glow
 
     const drawIfReady = () => {
@@ -821,7 +830,7 @@ function VideoBacklightSource({ videoRef }: { videoRef: React.RefObject<HTMLVide
     };
 
     // Paint the first available frame eagerly (even before play()) so the
-    // Backlight has pixel data the moment the card scrolls into view.
+    // glow has pixel data the moment the card scrolls into view.
     drawIfReady();
     const video = videoRef.current;
     video?.addEventListener('loadeddata', drawIfReady);
@@ -838,9 +847,29 @@ function VideoBacklightSource({ videoRef }: { videoRef: React.RefObject<HTMLVide
         /* transient draw error (e.g. tainted source) — skip this frame */
       }
     };
-    raf = requestAnimationFrame(tick);
-    return () => {
+
+    const start = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      running = false;
       cancelAnimationFrame(raf);
+    };
+
+    // Only run the mirror loop while the card is near the viewport — same
+    // window the video autoplay observer uses, so the glow is live whenever
+    // the video is playing but costs nothing while scrolled away.
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { rootMargin: '600px 0px' },
+    );
+    io.observe(canvas);
+
+    return () => {
+      stop();
+      io.disconnect();
       video?.removeEventListener('loadeddata', drawIfReady);
     };
   }, [videoRef]);
@@ -849,7 +878,8 @@ function VideoBacklightSource({ videoRef }: { videoRef: React.RefObject<HTMLVide
     <canvas
       ref={canvasRef}
       aria-hidden
-      className="absolute inset-0 w-full h-full pointer-events-none"
+      className={className ?? 'absolute inset-0 w-full h-full pointer-events-none'}
+      style={style}
     />
   );
 }
@@ -908,6 +938,8 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
           videoSrc, videoSrc2, videoLabel, videoLabel2, youtubeId, imageSrc, specs, isHero, redBorder } = item;
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoRef2 = useRef<HTMLVideoElement>(null);
+  const pipRef = useRef<HTMLVideoElement>(null);
+  const inViewRef = useRef(false);
   const [showSpecs, setShowSpecs] = useState(false);
   // 0 = first video is main, 1 = second video is main
   const [activeVideo, setActiveVideo] = useState(0);
@@ -923,18 +955,30 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
     return () => { document.body.style.overflow = ''; };
   }, [showSpecs]);
 
-  // Autoplay — observe article, play/pause all video refs
+  // Autoplay — observe article, play/pause all video refs (incl. the PiP
+  // thumbnail, which previously played unconditionally from mount).
   useEffect(() => {
-    const allVideos = [videoRef.current, videoRef2.current].filter((v): v is HTMLVideoElement => !!v);
-    if (!allVideos.length) return;
+    if (!videoRef.current && !videoRef2.current) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
+        inViewRef.current = entry.isIntersecting;
+        const allVideos = [videoRef.current, videoRef2.current, pipRef.current]
+          .filter((v): v is HTMLVideoElement => !!v);
         allVideos.forEach(v => {
-          if (entry.isIntersecting) { v.play().catch(() => {}); }
-          else { v.pause(); }
+          if (entry.isIntersecting) {
+            // Upgrade preload before play(): non-hero cards mount with
+            // preload="metadata" to save bandwidth on the initial load,
+            // then promote to "auto" once they're about to be needed.
+            if (v.preload !== 'auto') v.preload = 'auto';
+            v.play().catch(() => {});
+          } else {
+            v.pause();
+          }
         });
       },
-      { threshold: 0.2 },
+      // Widen the window: start downloading + playing ~one viewport before
+      // the card scrolls in so it's ready when the user reaches it.
+      { threshold: 0, rootMargin: '600px 0px' },
     );
     // observe the article wrapper (parent of the videos)
     const article = videoRef.current?.closest('article');
@@ -970,12 +1014,15 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
     }
   }, [activeVideo, startAutoRotate]);
 
-  // When active video changes: play the new main from start, reset the outgoing one
+  // When active video changes: play the new main from start, reset the outgoing
+  // one, and restart the PiP thumbnail (its src swaps, which stops playback).
   useEffect(() => {
     const main = activeVideo === 0 ? videoRef.current : videoRef2.current;
     const other = activeVideo === 0 ? videoRef2.current : videoRef.current;
     if (main) { main.currentTime = 0; main.play().catch(() => {}); }
     if (other) { other.pause(); other.currentTime = 0; }
+    const pip = pipRef.current;
+    if (pip && inViewRef.current) { pip.play().catch(() => {}); }
   }, [activeVideo]);
 
   // Media box markup is shared between the Backlight-wrapped path and the
@@ -991,16 +1038,15 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
       {videoSrc && videoSrc2 ? (
           /* Both videos always mounted — stable refs, swap via z-index */
           <div className="absolute inset-0">
-            {/* Canvas mirror of the active video — gives the Backlight an
-                iOS-readable pixel source so the halo shows up on mobile. */}
-            <VideoBacklightSource videoRef={activeVideo === 0 ? videoRef : videoRef2} />
-            {/* Video 1 — preload="auto" so the iOS canvas mirror has frames
-                ready as soon as the card scrolls into view. */}
+            {/* Video 1 — preload="auto" only for the hero card (visible
+                first); other cards start at "metadata" and get promoted to
+                "auto" by the autoplay IntersectionObserver above when they
+                approach the viewport. */}
             <video
               ref={videoRef}
               src={videoSrc}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 0 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
-              muted loop playsInline preload="auto"
+              muted loop playsInline preload={isHero ? 'auto' : 'metadata'}
               onLoadedMetadata={activeVideo === 0 ? handleVideoMetadata : undefined}
             />
             {/* Video 2 */}
@@ -1008,7 +1054,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
               ref={videoRef2}
               src={videoSrc2}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 1 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
-              muted loop playsInline preload="auto"
+              muted loop playsInline preload={isHero ? 'auto' : 'metadata'}
               onLoadedMetadata={activeVideo === 1 ? handleVideoMetadata : undefined}
             />
             {/* Main label */}
@@ -1025,10 +1071,10 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
             >
               <div className="absolute inset-0 overflow-hidden">
                 <video
+                  ref={pipRef}
                   src={activeVideo === 0 ? videoSrc2 : videoSrc}
                   className="w-full h-full object-cover"
                   muted loop playsInline preload="none"
-                  ref={(el) => { if (el) el.play().catch(() => {}); }}
                 />
               </div>
               {/* Label top-left of PiP */}
@@ -1057,10 +1103,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
         ) : youtubeId ? (
           <YouTubeFacade youtubeId={youtubeId} />
         ) : videoSrc ? (
-          <>
-            <VideoBacklightSource videoRef={videoRef} />
-            <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline preload="auto" />
-          </>
+          <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline preload={isHero ? 'auto' : 'metadata'} />
         ) : (
           <>
             <div className="absolute inset-0 opacity-[0.07] pointer-events-none" style={{ backgroundImage: GRAIN_SVG, backgroundSize: '256px 256px' }} />
@@ -1086,6 +1129,28 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
           >
             {mediaInner}
           </div>
+        </div>
+      ) : videoSrc ? (
+        /* Video cards: the magicui Backlight wrapped the playing video in an
+           SVG feGaussianBlur filter, which the browser re-ran at full card
+           size on every video frame — a major scroll-jank source. Instead,
+           blur the tiny 32×18 canvas mirror with plain CSS and let it bleed
+           past the media box. Same dynamic content-derived halo, a fraction
+           of the cost. */
+        <div className="relative w-full mb-5">
+          <VideoBacklightSource
+            videoRef={videoSrc2 && activeVideo === 1 ? videoRef2 : videoRef}
+            className="absolute pointer-events-none"
+            style={{
+              top: -14,
+              left: -14,
+              width: 'calc(100% + 28px)',
+              height: 'calc(100% + 28px)',
+              filter: 'blur(26px) saturate(2.5)',
+              opacity: 0.7,
+            }}
+          />
+          <div className={mediaBoxClasses}>{mediaInner}</div>
         </div>
       ) : (
         <Backlight blur={20} className="w-full mb-5">
@@ -1336,19 +1401,18 @@ export default function Projects() {
   }, [displayCategory, activeWorkflowTab, page]);
 
   /* Mobile: highlight the most-centered card on scroll (pop + red outline).
-     Uses rAF-throttled scroll listener, only active below md (768px). */
+     Uses rAF-throttled scroll listener, only attached below md (768px) — and
+     re-evaluated when the viewport crosses the breakpoint, so desktop users
+     never run the per-card getBoundingClientRect() loop. */
   useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)');
     let rafId = 0;
     let prevActive: HTMLElement | null = null;
+    let attached = false;
 
     function onScroll() {
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
-        if (window.innerWidth >= 768) {
-          // Desktop: clear any leftover highlight
-          if (prevActive) { prevActive.removeAttribute('data-center'); prevActive = null; }
-          return;
-        }
         const cards = gridRef.current?.querySelectorAll<HTMLElement>('.project-card');
         if (!cards || cards.length === 0) return;
 
@@ -1372,13 +1436,32 @@ export default function Projects() {
       });
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll(); // initial check
-
-    return () => {
+    function attach() {
+      if (attached) return;
+      attached = true;
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+    function detach() {
+      if (!attached) return;
+      attached = false;
       window.removeEventListener('scroll', onScroll);
       cancelAnimationFrame(rafId);
       prevActive?.removeAttribute('data-center');
+      prevActive = null;
+    }
+
+    function onMqlChange() {
+      if (mql.matches) attach();
+      else detach();
+    }
+
+    onMqlChange();
+    mql.addEventListener('change', onMqlChange);
+
+    return () => {
+      mql.removeEventListener('change', onMqlChange);
+      detach();
     };
   }, [pageItems]); // re-attach when cards change
 

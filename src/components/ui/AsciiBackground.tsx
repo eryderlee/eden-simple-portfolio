@@ -36,6 +36,10 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     const host = containerRef.current;
     if (!host) return;
 
+    // Respect reduced-motion: render one static frame, keep DOM stable so
+    // the fade-in overlay logic above still works.
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
     // ── Config ────────────────────────────────────────────────────────────
     const CFG = {
       frequency:       11,
@@ -61,25 +65,32 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       fpsCap:          30,
     };
 
-    // ── Create <pre> ──────────────────────────────────────────────────────
-    const pre = document.createElement('pre');
-    pre.setAttribute('aria-hidden', 'true');
-    Object.assign(pre.style, {
+    const FONT_SIZE   = 13;
+    const LINE_HEIGHT = 1.15;
+    const FONT        = `${FONT_SIZE}px "Courier New", Courier, monospace`;
+
+    // ── Create <canvas> ───────────────────────────────────────────────────
+    // Previously this rendered into a <pre> via textContent — which forced
+    // the browser to re-layout + repaint ~40k glyphs of DOM text at 30fps,
+    // the single biggest cost on the page. Canvas fillText (one call per
+    // row) produces the same glyph output with zero DOM layout.
+    const canvas = document.createElement('canvas');
+    canvas.setAttribute('aria-hidden', 'true');
+    Object.assign(canvas.style, {
       position: 'absolute',
       inset: '0',
-      margin: '0',
-      padding: '0',
-      color: '#e63946',
-      fontFamily: '"Courier New", Courier, monospace',
-      fontSize: '13px',
-      lineHeight: '1.15',
-      whiteSpace: 'pre',
-      overflow: 'hidden',
-      background: 'transparent',
-      userSelect: 'none',
+      width: '100%',
+      height: '100%',
       pointerEvents: 'none',
+      userSelect: 'none',
     });
-    host.appendChild(pre);
+    host.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return () => {
+        if (host.contains(canvas)) host.removeChild(canvas);
+      };
+    }
 
     // ── Perlin noise setup ────────────────────────────────────────────────
     const G: { x: number; y: number }[] = [];
@@ -144,55 +155,46 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
 
     // ── Grid state ────────────────────────────────────────────────────────
     let cols = 0, rows = 0, sShort = 1;
-    let cellW = 8, cellH = 14;
+    let cellW = 8, cellH = FONT_SIZE * LINE_HEIGHT;
+    let cssW = 0, cssH = 0;
     let eraseBuf = new Float32Array(1);
-
-    function measureCell() {
-      if (!host) return;
-      // Use a <pre> probe with 6 lines so we can measure actual rendered
-      // line-height from the bounding rect, rather than parsing
-      // getComputedStyle(pre).lineHeight — which on some WebKit versions
-      // returns "1.15" (unitless) or "normal", breaking the calculation and
-      // leaving the grid far shorter than the host on mobile.
-      const probe = document.createElement('pre');
-      probe.textContent = 'M'.repeat(200) + '\nM\nM\nM\nM\nM';
-      const cs = getComputedStyle(pre);
-      Object.assign(probe.style, {
-        position: 'absolute', left: '-9999px', top: '-9999px',
-        whiteSpace: 'pre', pointerEvents: 'none', visibility: 'hidden',
-        margin: '0', padding: '0',
-        font: cs.font,
-        letterSpacing: cs.letterSpacing,
-        lineHeight: cs.lineHeight,
-      });
-      host.appendChild(probe);
-      const rect = probe.getBoundingClientRect();
-      const w = rect.width / 200 || 8;
-      const lh = rect.height / 6 || 14;
-      host.removeChild(probe);
-      return { cw: w, lh };
-    }
+    // Cached noise-field result per cell: 0 = random shimmer, 1 = line char,
+    // 2 = gap char, 3 = blank (gap cloud). Chars for kinds 1/2 are stored in
+    // fieldChar. The field drifts extremely slowly (warpSpeed 0.001, drift
+    // 0.018 rows/s), so it's re-sampled at FIELD_INTERVAL instead of every
+    // frame — that's where all the expensive fbm/perlin calls live.
+    let kindBuf = new Uint8Array(1);
+    let fieldChar: string[] = [];
+    let fieldDirty = true;
+    const FIELD_INTERVAL = 0.125; // seconds (8 Hz field refresh)
+    let lastFieldT = -Infinity;
 
     function computeGrid() {
-      if (!host) return;
-      const m = measureCell();
-      if (!m) return;
-      cellW = m.cw; cellH = m.lh;
+      if (!host || !ctx) return;
       const rect = host.getBoundingClientRect();
-      const c = Math.max(1, Math.floor(rect.width  / cellW - 0.15));
-      // Over-fill aggressively: 5% more rows than fit PLUS a 12-row floor.
-      // Excess rows are clipped by overflow: hidden on the outer wrapper,
-      // so there's no visual cost — but we're now guaranteed to fill the
-      // host even if the rect reports a stale/short height (common on
-      // mobile while About is still stacking its stacked layout, iOS's
-      // address bar is animating, or images are finishing layout).
-      const baseRows = Math.ceil(rect.height / cellH);
-      const r = Math.max(1, Math.ceil(baseRows * 1.05) + 12);
+      if (rect.width === 0 || rect.height === 0) return;
+      cssW = rect.width;
+      cssH = rect.height;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width  = Math.max(1, Math.round(cssW * dpr));
+      canvas.height = Math.max(1, Math.round(cssH * dpr));
+      // Setting canvas.width resets all ctx state — restore it here.
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.font = FONT;
+      ctx.textBaseline = 'top';
+      cellW = ctx.measureText('M').width || 8;
+      cellH = FONT_SIZE * LINE_HEIGHT;
+      const c = Math.max(1, Math.floor(cssW / cellW - 0.15));
+      const r = Math.max(1, Math.ceil(cssH / cellH) + 1);
       if (c !== cols || r !== rows) {
         cols = c; rows = r;
         sShort = Math.min(cols, rows);
-        eraseBuf = new Float32Array(cols * rows);
+        eraseBuf  = new Float32Array(cols * rows);
+        kindBuf   = new Uint8Array(cols * rows);
+        fieldChar = new Array(cols * rows).fill(' ');
       }
+      fieldDirty = true;
+      if (reduceMotion) drawStatic();
     }
 
     // ── Erase trail ───────────────────────────────────────────────────────
@@ -219,14 +221,27 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       }
     }
 
-    // Listen on window so pointer-events:none doesn't block it
+    // Mousemove events fire far more often than frames render (100s/sec on
+    // high-Hz mice), and each erase pass loops 25×25 cells — so coalesce to
+    // the latest position and apply it once per rendered frame instead.
+    let pendingErase = false;
+    let pendingEraseX = 0;
+    let pendingEraseY = 0;
     function onMouseMove(ev: MouseEvent) {
-      const rect = pre.getBoundingClientRect();
-      const cx = Math.max(0, Math.min(cols - 1, Math.floor((ev.clientX - rect.left) / cellW)));
-      const cy = Math.max(0, Math.min(rows - 1, Math.floor((ev.clientY - rect.top)  / cellH)));
+      pendingEraseX = ev.clientX;
+      pendingEraseY = ev.clientY;
+      pendingErase = true;
+    }
+    function flushErase() {
+      if (!pendingErase) return;
+      pendingErase = false;
+      const rect = canvas.getBoundingClientRect();
+      const cx = Math.max(0, Math.min(cols - 1, Math.floor((pendingEraseX - rect.left) / cellW)));
+      const cy = Math.max(0, Math.min(rows - 1, Math.floor((pendingEraseY - rect.top)  / cellH)));
       applyErase(cx, cy);
     }
-    window.addEventListener('mousemove', onMouseMove);
+    // Listen on window so pointer-events:none doesn't block it
+    if (!reduceMotion) window.addEventListener('mousemove', onMouseMove);
 
     // ── Gap clouds ────────────────────────────────────────────────────────
     function inGapCloud(u: number, v: number, t: number) {
@@ -241,8 +256,8 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // ── Band sampling ─────────────────────────────────────────────────────
     function sampleBands(x: number, y: number, t: number, rowNorm: number) {
       const s = sShort || 1;
-      let u = x / s - CFG.driftX * t;
-      let v = y / s - CFG.driftY * t;
+      const u = x / s - CFG.driftX * t;
+      const v = y / s - CFG.driftY * t;
       const wt = t * CFG.warpSpeed;
       const wx = CFG.warpAmp * fbm(u * CFG.warpScale + 10.1 + wt, v * CFG.warpScale - 9.3 - wt, 3, 0.55, 2);
       const wy = CFG.warpAmp * fbm(u * CFG.warpScale - 30.9 - wt, v * CFG.warpScale + 19.7 + wt, 3, 0.8, 2);
@@ -265,16 +280,55 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       return { u: u + wx, v: v + wy, bandIndex, tLine, tGap };
     }
 
-    function chooseChar(x: number, y: number, t: number, b: ReturnType<typeof sampleBands>) {
-      if (eraseBuf[y * cols + x] > 0) return ' ';
-      if (inGapCloud(b.u, b.v, t)) return ' ';
-      if (b.tLine > CFG.lineThreshold)
-        return pickFrom(CFG.lineSet, hash32(b.bandIndex * 73856093));
-      if (b.tGap > CFG.gapThreshold)
-        return pickFrom(CFG.gapSet, hash32(b.bandIndex * 19349663));
+    // Re-sample the noise field into kindBuf/fieldChar — the expensive part.
+    function computeField(t: number) {
+      let i = 0;
+      for (let y = 0; y < rows; y++) {
+        const rowNorm = rows <= 1 ? 0 : y / (rows - 1);
+        for (let x = 0; x < cols; x++, i++) {
+          const b = sampleBands(x, y, t, rowNorm);
+          if (inGapCloud(b.u, b.v, t)) { kindBuf[i] = 3; continue; }
+          if (b.tLine > CFG.lineThreshold) {
+            kindBuf[i] = 1;
+            fieldChar[i] = pickFrom(CFG.lineSet, hash32(b.bandIndex * 73856093));
+          } else if (b.tGap > CFG.gapThreshold) {
+            kindBuf[i] = 2;
+            fieldChar[i] = pickFrom(CFG.gapSet, hash32(b.bandIndex * 19349663));
+          } else {
+            kindBuf[i] = 0;
+          }
+        }
+      }
+    }
+
+    // Paint the cached field + per-frame dynamics (erase trail, shimmer).
+    function drawGrid(t: number) {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, cssW, cssH);
+      ctx.fillStyle = '#e63946';
       const slice = Math.floor(t * CFG.randomChangeHz);
-      const h = hash32((x + 1) * 15485863 ^ (y + 1) * 32452843 ^ slice * 49979687);
-      return CFG.randomSet[h % CFG.randomSet.length];
+      let i = 0;
+      for (let y = 0; y < rows; y++) {
+        let line = '';
+        for (let x = 0; x < cols; x++, i++) {
+          if (eraseBuf[i] > 0 || kindBuf[i] === 3) { line += ' '; continue; }
+          if (kindBuf[i] === 0) {
+            const h = hash32((x + 1) * 15485863 ^ (y + 1) * 32452843 ^ slice * 49979687);
+            line += CFG.randomSet[h % CFG.randomSet.length];
+          } else {
+            line += fieldChar[i];
+          }
+        }
+        ctx.fillText(line, 0, y * cellH);
+      }
+    }
+
+    function drawStatic() {
+      const t = (performance.now() - t0) / 1000;
+      computeField(t);
+      lastFieldT = t;
+      fieldDirty = false;
+      drawGrid(t);
     }
 
     // ── Render loop ───────────────────────────────────────────────────────
@@ -282,6 +336,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     let t0 = performance.now();
     let lastFrame = performance.now();
     let lastT = 0;
+    let inView = true; // updated by IntersectionObserver below
 
     function render(now: number) {
       if (now - lastFrame < 1000 / CFG.fpsCap) { rafId = requestAnimationFrame(render); return; }
@@ -296,23 +351,22 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
           eraseBuf[i] = v > 0 ? v : 0;
         }
       }
+      flushErase();
 
-      let out = '';
-      for (let y = 0; y < rows; y++) {
-        const rowNorm = rows <= 1 ? 0 : y / (rows - 1);
-        for (let x = 0; x < cols; x++) {
-          out += chooseChar(x, y, t, sampleBands(x, y, t, rowNorm));
-        }
-        if (y < rows - 1) out += '\n';
+      if (fieldDirty || t - lastFieldT >= FIELD_INTERVAL) {
+        computeField(t);
+        lastFieldT = t;
+        fieldDirty = false;
       }
-      pre.textContent = out;
+
+      drawGrid(t);
       rafId = requestAnimationFrame(render);
     }
 
     // ── Pause when tab hidden / resume when visible ───────────────────────
     let pausedAt: number | null = null;
     function onVisibility() {
-      if (document.visibilityState === 'hidden') {
+      if (document.visibilityState === 'hidden' || !inView) {
         cancelAnimationFrame(rafId);
         pausedAt = performance.now();
       } else {
@@ -325,7 +379,9 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
         lastFrame = 0;
         cancelAnimationFrame(rafId);
         computeGrid(); // layout may have shifted while hidden
-        rafId = requestAnimationFrame(render);
+        if (!reduceMotion && inView) {
+          rafId = requestAnimationFrame(render);
+        }
       }
     }
     document.addEventListener('visibilitychange', onVisibility);
@@ -339,12 +395,40 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       lastFrame = 0;
       pausedAt = null;
       computeGrid();
-      rafId = requestAnimationFrame(render);
+      if (!reduceMotion && inView) {
+        rafId = requestAnimationFrame(render);
+      }
     }
     window.addEventListener('pageshow', onPageShow);
 
     const ro = new ResizeObserver(computeGrid);
     ro.observe(host);
+
+    // ── Pause RAF when the ASCII host scrolls offscreen ──────────────────
+    // Big perf + battery win on long pages: skip ~30 fps of full-grid work
+    // while the user is reading the Projects section below.
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries[0]?.isIntersecting ?? true;
+        if (visible === inView) return;
+        inView = visible;
+        if (!inView) {
+          cancelAnimationFrame(rafId);
+          pausedAt = performance.now();
+        } else if (document.visibilityState === 'visible') {
+          if (pausedAt !== null) {
+            t0 += performance.now() - pausedAt;
+            pausedAt = null;
+          }
+          lastFrame = 0;
+          cancelAnimationFrame(rafId);
+          computeGrid();
+          if (!reduceMotion) rafId = requestAnimationFrame(render);
+        }
+      },
+      { rootMargin: '200px 0px' }, // start ramp-up just before it scrolls in
+    );
+    io.observe(host);
 
     // Also listen on window — catches iOS address-bar collapse / orientation
     // changes where ResizeObserver on the host alone sometimes fires too early
@@ -359,6 +443,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // browser freeze/resume without visibilitychange, etc.) — restart.
     const watchdog = window.setInterval(() => {
       if (document.visibilityState !== 'visible') return;
+      if (reduceMotion || !inView) return;
       if (performance.now() - lastFrame < 2000) return;
       cancelAnimationFrame(rafId);
       lastFrame = performance.now();
@@ -370,6 +455,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // Window focus — extra safety net for browsers that swallow the
     // visibilitychange event when returning from long inactivity.
     function onFocus() {
+      if (reduceMotion || !inView) return;
       if (performance.now() - lastFrame < 500) return;
       cancelAnimationFrame(rafId);
       lastFrame = performance.now();
@@ -379,12 +465,13 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     }
     window.addEventListener('focus', onFocus);
 
-    // Kick off the loop immediately — don't gate on document.fonts.ready,
-    // which can hang indefinitely on font-load failures and leave the
-    // background permanently blank. Fall back to Courier immediately, then
-    // re-measure once custom fonts do load.
+    // Kick off the loop immediately. Courier is a system font so canvas
+    // measureText is reliable from the first frame; the delayed recomputes
+    // below cover late layout shifts of the host itself.
     computeGrid();
-    rafId = requestAnimationFrame(render);
+    if (!reduceMotion) {
+      rafId = requestAnimationFrame(render);
+    }
 
     if (document.fonts?.ready) {
       document.fonts.ready.then(() => computeGrid()).catch(() => {});
@@ -409,6 +496,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       cancelAnimationFrame(rafId);
       clearInterval(watchdog);
       ro.disconnect();
+      io.disconnect();
       delayedComputes.forEach(clearTimeout);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('pageshow', onPageShow);
@@ -417,7 +505,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       window.removeEventListener('focus', onFocus);
       window.removeEventListener('load', onLoad);
       document.removeEventListener('visibilitychange', onVisibility);
-      if (host.contains(pre)) host.removeChild(pre);
+      if (host.contains(canvas)) host.removeChild(canvas);
     };
   }, []);
 

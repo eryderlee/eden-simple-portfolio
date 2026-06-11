@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Strip console.log/info/debug in production but keep console.error/warn
+  // so genuine runtime errors are still surfaced.
+  compiler: {
+    removeConsole: { exclude: ['error', 'warn'] },
+  },
 };
 
 export default nextConfig;

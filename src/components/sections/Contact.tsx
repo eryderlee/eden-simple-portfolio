@@ -606,19 +606,22 @@ const contactStyles = `
   #contact [data-ripple-target] {
     transform-style: preserve-3d;
     backface-visibility: hidden;
-    will-change: transform, filter;
   }
   #contact .sn-char {
     display: inline-block;
     transform-origin: 50% 60% 0;
   }
+  /* will-change only while the ripple is actually running — a permanent
+     will-change: transform, filter on every target (including each heading
+     letter) held ~40 compositor layers alive for the section's lifetime. */
   #contact.is-rippling [data-ripple-target] {
+    will-change: transform, filter;
     animation: water-bob 1.1s cubic-bezier(.18,.72,.20,1) forwards;
     animation-delay: var(--ripple-delay, 0s);
   }
   @keyframes water-bob {
     0%   { transform: translateZ(0)    rotateX(0deg)  scale(1);    filter: brightness(1); }
-    28%  { transform: translateZ(55px) rotateX(-8deg) scale(1.05); filter: brightness(1.5) drop-shadow(0 10px 22px rgba(230,57,70,0.55)); }
+    28%  { transform: translateZ(55px) rotateX(-8deg) scale(1.05); filter: brightness(1.5); }
     58%  { transform: translateZ(-10px) rotateX(3deg) scale(0.99); filter: brightness(1.08); }
     100% { transform: translateZ(0)    rotateX(0deg)  scale(1);    filter: brightness(1); }
   }

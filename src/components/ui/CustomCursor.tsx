@@ -145,23 +145,49 @@ export default function CustomCursor() {
     // true while the sticky idle label (SCROLL / GO THIS WAY!) is showing
     const stickyRef = { current: false };
 
+    // Cache the #contact element + its viewport rect once per scroll/resize
+    // rather than re-querying + measuring on every mousemove (was ~100/s).
+    let contactEl: HTMLElement | null = null;
+    let contactRect: DOMRect | null = null;
+    let contactTopAbs = 0;
+    let contactBottomAbs = 0;
+
+    // Same caching pattern for the arrow target element — picked once,
+    // re-measured only on scroll/resize.
+    let arrowTargetEl: HTMLElement | null = null;
+    let arrowTargetCx = 0;
+    let arrowTargetCy = 0;
+
+    const refreshLayoutCaches = () => {
+      contactEl = contactEl ?? document.getElementById('contact');
+      if (contactEl) {
+        contactRect = contactEl.getBoundingClientRect();
+        const scrollY = window.scrollY;
+        contactTopAbs = contactRect.top + scrollY;
+        contactBottomAbs = contactRect.bottom + scrollY;
+      }
+      arrowTargetEl =
+        document.getElementById('contact-form') ||
+        document.getElementById('contact-cta');
+      if (arrowTargetEl) {
+        const r = arrowTargetEl.getBoundingClientRect();
+        arrowTargetCx = r.left + r.width / 2 + window.scrollX;
+        arrowTargetCy = r.top + r.height / 2 + window.scrollY;
+      }
+    };
+    refreshLayoutCaches();
+
     const applyArrowRotation = () => {
       const arrowEl = arrowElRef.current;
       if (arrowEl) arrowEl.style.transform = `rotate(${arrowAngleRef.current}deg)`;
     };
 
     const computeArrowAngle = (clientX: number, clientY: number) => {
-      // Point at #contact-form when present (the actual destination the
-      // user should be directed toward), otherwise fall back to the
-      // scroll-line landing dot at #contact-cta.
-      const targetEl =
-        document.getElementById('contact-form') ||
-        document.getElementById('contact-cta');
-      if (!targetEl) return;
-      const rect = targetEl.getBoundingClientRect();
-      const dx = (rect.left + rect.width / 2) - clientX;
-      const dy = (rect.top + rect.height / 2) - clientY;
-      arrowAngleRef.current = Math.atan2(dy, dx) * (180 / Math.PI);
+      if (!arrowTargetEl) return;
+      // Convert cached absolute target back to viewport-relative via current scroll
+      const tx = arrowTargetCx - window.scrollX;
+      const ty = arrowTargetCy - window.scrollY;
+      arrowAngleRef.current = Math.atan2(ty - clientY, tx - clientX) * (180 / Math.PI);
       applyArrowRotation();
     };
 
@@ -204,6 +230,35 @@ export default function CustomCursor() {
       setLabel(next);
     };
 
+    // rAF-throttle the per-move work (elementFromPoint, label updates) so
+    // it never runs more than once per frame even at 240 Hz mice / trackpads.
+    let pendingFrame = 0;
+    let pendingClientX = 0;
+    let pendingClientY = 0;
+    const flushPending = () => {
+      pendingFrame = 0;
+      const cx = pendingClientX;
+      const cy = pendingClientY;
+
+      // Track whether cursor is inside the #contact section (cached rect,
+      // no per-frame getBoundingClientRect()).
+      if (contactRect) {
+        const scrollY = window.scrollY;
+        const absY = cy + scrollY;
+        const nowIn = absY >= contactTopAbs && absY <= contactBottomAbs;
+        if (nowIn !== inContactRef.current) {
+          inContactRef.current = nowIn;
+          setInContact(nowIn);
+        }
+        if (nowIn) computeArrowAngle(cx, cy);
+      }
+
+      const wasStickyBefore = stickyRef.current;
+      updateLabelFromCurrentPos();
+      if (!stickyRef.current) resetIdleTimer();
+      else if (wasStickyBefore) { /* still sticky — leave timer alone */ }
+    };
+
     const onMove = (e: MouseEvent) => {
       cursorPosRef.current = { x: e.clientX, y: e.clientY };
       const cursorEl = cursorElRef.current;
@@ -214,24 +269,9 @@ export default function CustomCursor() {
         visibleRef.current = true;
         setVisible(true);
       }
-
-      // Track whether cursor is inside the #contact section
-      const contactEl = document.getElementById('contact');
-      if (contactEl) {
-        const rect = contactEl.getBoundingClientRect();
-        const nowIn = e.clientY >= rect.top && e.clientY <= rect.bottom;
-        if (nowIn !== inContactRef.current) {
-          inContactRef.current = nowIn;
-          setInContact(nowIn);
-        }
-        if (nowIn) computeArrowAngle(e.clientX, e.clientY);
-      }
-
-      const wasStickyBefore = stickyRef.current;
-      updateLabelFromCurrentPos();
-      // Restart idle timer only when not sticky, or when sticky just ended
-      if (!stickyRef.current) resetIdleTimer();
-      else if (wasStickyBefore) { /* still sticky — leave timer alone */ }
+      pendingClientX = e.clientX;
+      pendingClientY = e.clientY;
+      if (!pendingFrame) pendingFrame = requestAnimationFrame(flushPending);
     };
 
     const onScroll = () => {
@@ -265,21 +305,36 @@ export default function CustomCursor() {
       setDisplayLabel(prevLabelRef.current);
     };
 
-    window.addEventListener('mousemove', onMove);
+    const onResize = () => refreshLayoutCaches();
+    // Recompute cached rects when scroll/resize/layout changes, NOT per move.
+    window.addEventListener('mousemove', onMove, { passive: true });
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('mousedown', onDown);
-    window.addEventListener('mouseup', onUp);
+    window.addEventListener('scroll', refreshLayoutCaches, { passive: true });
+    window.addEventListener('resize', onResize);
+    window.addEventListener('mousedown', onDown, { passive: true });
+    window.addEventListener('mouseup', onUp, { passive: true });
     document.addEventListener('mouseleave', onLeave);
     document.addEventListener('mouseenter', onEnter);
+
+    // Layout settles after fonts/images load — re-measure then.
+    const settleTimers = [
+      window.setTimeout(refreshLayoutCaches, 500),
+      window.setTimeout(refreshLayoutCaches, 1500),
+    ];
+
     return () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scroll', refreshLayoutCaches);
+      window.removeEventListener('resize', onResize);
       window.removeEventListener('mousedown', onDown);
       window.removeEventListener('mouseup', onUp);
       document.removeEventListener('mouseleave', onLeave);
       document.removeEventListener('mouseenter', onEnter);
       clearTimeout(idleTimerRef.current);
       cancelAnimationFrame(scrambleRafRef.current);
+      if (pendingFrame) cancelAnimationFrame(pendingFrame);
+      settleTimers.forEach(clearTimeout);
     };
   }, [setLabel, isPointerFine]);
 

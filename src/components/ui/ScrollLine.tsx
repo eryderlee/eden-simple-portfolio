@@ -35,12 +35,10 @@ export default function ScrollLine() {
     if (!wrapper || !svg || !path) return;
 
     let st: ScrollTrigger | null = null;
-    let prevProgress = 0;
     let pendingObserver: MutationObserver | null = null;
 
     const setup = () => {
       st?.kill();
-      prevProgress = 0;
 
       const cta = document.getElementById('contact-cta');
       if (!cta) {
@@ -86,6 +84,24 @@ export default function ScrollLine() {
       path.style.strokeDasharray  = String(totalLen);
       path.style.strokeDashoffset = String(totalLen);
 
+      // Precompute the scrub progress at which the tip's y reaches the CTA
+      // top (endY is the CTA top in SVG coordinates, and svg + cta scroll
+      // together, so the threshold is scroll-invariant). Doing this once
+      // here means onUpdate is a pure number comparison — the previous
+      // version called getPointAtLength + 2× getBoundingClientRect on every
+      // scrubbed frame, forcing layout while Lenis was scrolling.
+      const yThresh = endY - 4;
+      let lenThresh = totalLen;
+      const SAMPLES = 400;
+      for (let i = 0; i <= SAMPLES; i++) {
+        const l = (i / SAMPLES) * totalLen;
+        if (path.getPointAtLength(l).y >= yThresh) {
+          lenThresh = l;
+          break;
+        }
+      }
+      const progressThresh = Math.min(1, (lenThresh + 1) / totalLen);
+
       let ctaReached = false;
 
       st = ScrollTrigger.create({
@@ -94,17 +110,9 @@ export default function ScrollLine() {
         end:     `top+=${endY} 80%`,
         scrub:   1.2,
         onUpdate(self) {
-          const offset = totalLen * (1 - self.progress);
-          path.style.strokeDashoffset = String(offset);
+          path.style.strokeDashoffset = String(totalLen * (1 - self.progress));
 
-          // Compare actual tip viewport position to CTA viewport position
-          const drawnLen = Math.max(0, totalLen - offset - 1);
-          const tipSVG  = path.getPointAtLength(drawnLen);
-          const svgRect = svg.getBoundingClientRect();
-          const ctaRect = cta.getBoundingClientRect();
-          const tipY    = svgRect.top + tipSVG.y;
-          const nearCta = tipY >= ctaRect.top - 4;
-
+          const nearCta = self.progress >= progressThresh;
           if (!ctaReached && nearCta) {
             ctaReached = true;
             document.dispatchEvent(new CustomEvent('cta-line-reached'));
@@ -112,8 +120,6 @@ export default function ScrollLine() {
             ctaReached = false;
             document.dispatchEvent(new CustomEvent('cta-line-left'));
           }
-
-          prevProgress = self.progress;
         },
       });
     };

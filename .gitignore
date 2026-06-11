@@ -42,3 +42,10 @@ next-env.d.ts
 
 # Claude Code worktrees / internal tooling
 .claude/
+
+# Local scratch / screenshots / reference material
+/*.png
+/demo.html
+/n8n_workflows_export.json
+.playwright-mcp/
+reference/
