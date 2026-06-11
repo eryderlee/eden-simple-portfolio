@@ -195,7 +195,10 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       if (Math.abs(rect.width - cssW) < 0.5 && Math.abs(rect.height - cssH) < 0.5) return;
       cssW = rect.width;
       cssH = rect.height;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // 1.5 (not the full devicePixelRatio) — this layer renders at 18-24%
+      // opacity behind everything, and it spans Hero + About, so full-retina
+      // rasterization roughly doubled paint cost for no visible gain.
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width  = Math.max(1, Math.round(cssW * dpr));
       canvas.height = Math.max(1, Math.round(cssH * dpr));
       // Setting canvas.width resets all ctx state — restore it here.
@@ -343,13 +346,28 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     }
 
     // Paint the cached field + per-frame dynamics (erase trail, shimmer).
-    function drawGrid(t: number) {
-      if (!ctx) return;
+    // Only the rows currently in (or near) the viewport are drawn — the
+    // host spans Hero + About (~2 viewport heights), so rasterizing the
+    // offscreen half every frame was pure paint waste. A scroll listener
+    // flags a redraw so newly revealed rows paint within a frame.
+    function drawGrid(t: number, full = false) {
+      if (!ctx || !host) return;
+      let rowStart = 0;
+      let rowEnd = rows;
+      if (!full) {
+        const rect = host.getBoundingClientRect();
+        const vh = window.innerHeight || 800;
+        const yMin = Math.max(0, -rect.top);
+        const yMax = Math.min(rect.height, vh - rect.top);
+        if (yMax <= yMin) return; // fully offscreen (IO pauses us anyway)
+        rowStart = Math.max(0, Math.floor(yMin / cellH) - 4);
+        rowEnd   = Math.min(rows, Math.ceil(yMax / cellH) + 4);
+      }
       ctx.clearRect(0, 0, cssW, cssH);
       ctx.fillStyle = '#e63946';
       const slice = Math.floor(t * CFG.randomChangeHz);
-      let i = 0;
-      for (let y = 0; y < rows; y++) {
+      for (let y = rowStart; y < rowEnd; y++) {
+        let i = y * cols;
         let line = '';
         for (let x = 0; x < cols; x++, i++) {
           if (eraseBuf[i] > 0 || kindBuf[i] === 3) { line += ' '; continue; }
@@ -367,7 +385,9 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     function drawStatic() {
       const t = (performance.now() - t0) / 1000;
       computeFieldFull(t);
-      drawGrid(t);
+      // Full-range draw: in reduced-motion there's no loop to repaint rows
+      // revealed by scrolling, so everything must be on the canvas already.
+      drawGrid(t, true);
     }
 
     // ── Render loop ───────────────────────────────────────────────────────
@@ -376,6 +396,17 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     let lastFrame = performance.now();
     let lastT = 0;
     let inView = true; // updated by IntersectionObserver below
+
+    // Dirty-frame tracking: between shimmer ticks (1.5 Hz), field swaps
+    // (~8 Hz) and erase activity the canvas content is IDENTICAL frame to
+    // frame — repainting it anyway was the largest remaining per-frame cost
+    // (full-layer raster). Scrolling also flags a redraw since drawGrid only
+    // paints the visible row range.
+    let needsRedraw = true;
+    let lastSlice = -1;
+    let eraseUntil = -1;
+    const onScrollRedraw = () => { needsRedraw = true; };
+    if (!reduceMotion) window.addEventListener('scroll', onScrollRedraw, { passive: true });
 
     function render(now: number) {
       if (now - lastFrame < 1000 / CFG.fpsCap) { rafId = requestAnimationFrame(render); return; }
@@ -390,7 +421,11 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
           eraseBuf[i] = v > 0 ? v : 0;
         }
       }
-      flushErase();
+      if (pendingErase) {
+        eraseUntil = t + CFG.erase.durationSec;
+        flushErase();
+      }
+      if (t < eraseUntil) needsRedraw = true;
 
       // Incremental field scan: start a new scan when due, then fill rows
       // of the back buffer until the per-frame budget runs out. Swapping
@@ -410,12 +445,22 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
           swapFieldBuffers();
           lastFieldT = scanT;
           scanY = -1;
+          needsRedraw = true;
         }
+      }
+
+      const slice = Math.floor(t * CFG.randomChangeHz);
+      if (slice !== lastSlice) {
+        lastSlice = slice;
+        needsRedraw = true;
       }
 
       // Until the very first scan completes the front buffer is all zeros
       // (= random shimmer everywhere) — skip drawing rather than flash it.
-      if (hasField) drawGrid(t);
+      if (hasField && needsRedraw) {
+        needsRedraw = false;
+        drawGrid(t);
+      }
       rafId = requestAnimationFrame(render);
     }
 
@@ -576,6 +621,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       io.disconnect();
       delayedComputes.forEach(clearTimeout);
       window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('scroll', onScrollRedraw);
       window.removeEventListener('pageshow', onPageShow);
       window.removeEventListener('resize', onWinResize);
       window.removeEventListener('orientationchange', onWinResize);
