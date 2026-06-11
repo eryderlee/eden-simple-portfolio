@@ -1038,15 +1038,16 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
       {videoSrc && videoSrc2 ? (
           /* Both videos always mounted — stable refs, swap via z-index */
           <div className="absolute inset-0">
-            {/* Video 1 — preload="auto" only for the hero card (visible
-                first); other cards start at "metadata" and get promoted to
-                "auto" by the autoplay IntersectionObserver above when they
-                approach the viewport. */}
+            {/* Video 1 — all cards start at "metadata" (even the hero, which
+                sits well below the fold, so preload="auto" was downloading
+                full videos during initial page load). The autoplay
+                IntersectionObserver above promotes to "auto" ~600px before
+                the card scrolls in. */}
             <video
               ref={videoRef}
               src={videoSrc}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 0 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
-              muted loop playsInline preload={isHero ? 'auto' : 'metadata'}
+              muted loop playsInline preload="metadata"
               onLoadedMetadata={activeVideo === 0 ? handleVideoMetadata : undefined}
             />
             {/* Video 2 */}
@@ -1054,7 +1055,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
               ref={videoRef2}
               src={videoSrc2}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${activeVideo === 1 ? 'z-[2] opacity-100' : 'z-[1] opacity-0'}`}
-              muted loop playsInline preload={isHero ? 'auto' : 'metadata'}
+              muted loop playsInline preload="metadata"
               onLoadedMetadata={activeVideo === 1 ? handleVideoMetadata : undefined}
             />
             {/* Main label */}
@@ -1103,7 +1104,7 @@ function FeaturedCard({ item }: { item: FeaturedItem }) {
         ) : youtubeId ? (
           <YouTubeFacade youtubeId={youtubeId} />
         ) : videoSrc ? (
-          <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline preload={isHero ? 'auto' : 'metadata'} />
+          <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline preload="metadata" />
         ) : (
           <>
             <div className="absolute inset-0 opacity-[0.07] pointer-events-none" style={{ backgroundImage: GRAIN_SVG, backgroundSize: '256px 256px' }} />

@@ -169,10 +169,18 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     const FIELD_INTERVAL = 0.125; // seconds (8 Hz field refresh)
     let lastFieldT = -Infinity;
 
+    let loopStarted = false;
+
     function computeGrid() {
       if (!host || !ctx) return;
       const rect = host.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
+      // No-op when the host hasn't actually changed size. Critical: setting
+      // canvas.width (even to the same value) CLEARS the canvas, and this
+      // runs from ResizeObserver + several delayed safety recomputes — each
+      // needless clear left the canvas blank until the next 30fps tick,
+      // which read as a flicker during page load.
+      if (Math.abs(rect.width - cssW) < 0.5 && Math.abs(rect.height - cssH) < 0.5) return;
       cssW = rect.width;
       cssH = rect.height;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -194,7 +202,9 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
         fieldChar = new Array(cols * rows).fill(' ');
       }
       fieldDirty = true;
-      if (reduceMotion) drawStatic();
+      // Repaint in the same task as the resize so the cleared canvas is
+      // never shown blank while waiting for the next rAF tick.
+      if (reduceMotion || loopStarted) drawStatic();
     }
 
     // ── Erase trail ───────────────────────────────────────────────────────
@@ -465,12 +475,31 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     }
     window.addEventListener('focus', onFocus);
 
-    // Kick off the loop immediately. Courier is a system font so canvas
-    // measureText is reliable from the first frame; the delayed recomputes
-    // below cover late layout shifts of the host itself.
+    // Size the canvas now, but defer the first (expensive) field computation
+    // and loop start to idle time: the layer fades in from opacity 0 over
+    // 1.5s, so starting a few hundred ms late is invisible — and it keeps
+    // the initial noise pass off the hydration-critical path at page load.
     computeGrid();
-    if (!reduceMotion) {
+    function startLoop() {
+      loopStarted = true;
+      cancelAnimationFrame(rafId);
+      if (reduceMotion) {
+        drawStatic();
+        return;
+      }
+      lastFrame = 0; // draw on the very first tick
       rafId = requestAnimationFrame(render);
+    }
+    let idleId = 0;
+    let idleTimer = 0;
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof w.requestIdleCallback === 'function') {
+      idleId = w.requestIdleCallback(startLoop, { timeout: 600 });
+    } else {
+      idleTimer = window.setTimeout(startLoop, 250);
     }
 
     if (document.fonts?.ready) {
@@ -494,6 +523,8 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
 
     return () => {
       cancelAnimationFrame(rafId);
+      if (idleId && typeof w.cancelIdleCallback === 'function') w.cancelIdleCallback(idleId);
+      clearTimeout(idleTimer);
       clearInterval(watchdog);
       ro.disconnect();
       io.disconnect();
