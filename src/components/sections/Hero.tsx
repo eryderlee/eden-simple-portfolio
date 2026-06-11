@@ -42,8 +42,11 @@ export default function Hero() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
 
-      // Set initial states
-      gsap.set('.char', { y: '105%', opacity: 0 });
+      // Set initial states. will-change promotes each char to its own
+      // compositor layer for the entrance — without it, the heavy multi-blur
+      // text-shadow repaints on every animation frame; with it the shadow
+      // rasterizes once and the y/opacity tween is pure compositing.
+      gsap.set('.char', { y: '105%', opacity: 0, willChange: 'transform, opacity' });
       gsap.set([subtitleRef.current, taglineRef.current, separatorRef.current], {
         opacity: 0,
         y: 20,
@@ -56,6 +59,9 @@ export default function Hero() {
         opacity: 1,
         duration: 0.9,
         stagger: 0.03,
+        // Release the layers once the entrance settles so the glyphs go
+        // back to normal (crisp, non-rasterized) text rendering.
+        onComplete: () => gsap.set('.char', { clearProps: 'willChange' }),
       })
         .to(
           separatorRef.current,

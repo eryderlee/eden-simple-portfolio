@@ -163,10 +163,22 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
     // fieldChar. The field drifts extremely slowly (warpSpeed 0.001, drift
     // 0.018 rows/s), so it's re-sampled at FIELD_INTERVAL instead of every
     // frame — that's where all the expensive fbm/perlin calls live.
-    let kindBuf = new Uint8Array(1);
+    //
+    // Double-buffered + incrementally scanned: a full-grid noise pass in one
+    // frame is a ~20-40ms spike that visibly stutters anything animating at
+    // the same time (the Hero entrance, scrolling). Instead each frame fills
+    // a few rows of the back buffer within a small time budget and the
+    // buffers swap when the scan completes — same work, constant cost.
+    let kindBuf = new Uint8Array(1);   // front (displayed)
     let fieldChar: string[] = [];
+    let kindBack = new Uint8Array(1);  // back (being filled)
+    let charBack: string[] = [];
+    let hasField = false;              // front buffer has valid data
+    let scanY = -1;                    // -1 = no scan in progress
+    let scanT = 0;                     // t captured at scan start (field coherence)
     let fieldDirty = true;
-    const FIELD_INTERVAL = 0.125; // seconds (8 Hz field refresh)
+    const FIELD_INTERVAL = 0.125;      // min seconds between field scans
+    const FIELD_BUDGET_MS = 3;         // per-frame time budget for field rows
     let lastFieldT = -Infinity;
 
     let loopStarted = false;
@@ -200,6 +212,10 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
         eraseBuf  = new Float32Array(cols * rows);
         kindBuf   = new Uint8Array(cols * rows);
         fieldChar = new Array(cols * rows).fill(' ');
+        kindBack  = new Uint8Array(cols * rows);
+        charBack  = new Array(cols * rows).fill(' ');
+        hasField = false;
+        scanY = -1; // abort any in-flight scan — buffer geometry changed
       }
       fieldDirty = true;
       // Repaint in the same task as the resize so the cleared canvas is
@@ -290,25 +306,40 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       return { u: u + wx, v: v + wy, bandIndex, tLine, tGap };
     }
 
-    // Re-sample the noise field into kindBuf/fieldChar — the expensive part.
-    function computeField(t: number) {
-      let i = 0;
-      for (let y = 0; y < rows; y++) {
-        const rowNorm = rows <= 1 ? 0 : y / (rows - 1);
-        for (let x = 0; x < cols; x++, i++) {
-          const b = sampleBands(x, y, t, rowNorm);
-          if (inGapCloud(b.u, b.v, t)) { kindBuf[i] = 3; continue; }
-          if (b.tLine > CFG.lineThreshold) {
-            kindBuf[i] = 1;
-            fieldChar[i] = pickFrom(CFG.lineSet, hash32(b.bandIndex * 73856093));
-          } else if (b.tGap > CFG.gapThreshold) {
-            kindBuf[i] = 2;
-            fieldChar[i] = pickFrom(CFG.gapSet, hash32(b.bandIndex * 19349663));
-          } else {
-            kindBuf[i] = 0;
-          }
+    // Re-sample one row of the noise field into the BACK buffers — the
+    // expensive part, amortized across frames by the scan in render().
+    function computeFieldRow(y: number, t: number) {
+      const rowNorm = rows <= 1 ? 0 : y / (rows - 1);
+      let i = y * cols;
+      for (let x = 0; x < cols; x++, i++) {
+        const b = sampleBands(x, y, t, rowNorm);
+        if (inGapCloud(b.u, b.v, t)) { kindBack[i] = 3; continue; }
+        if (b.tLine > CFG.lineThreshold) {
+          kindBack[i] = 1;
+          charBack[i] = pickFrom(CFG.lineSet, hash32(b.bandIndex * 73856093));
+        } else if (b.tGap > CFG.gapThreshold) {
+          kindBack[i] = 2;
+          charBack[i] = pickFrom(CFG.gapSet, hash32(b.bandIndex * 19349663));
+        } else {
+          kindBack[i] = 0;
         }
       }
+    }
+
+    function swapFieldBuffers() {
+      const k = kindBuf; kindBuf = kindBack; kindBack = k;
+      const f = fieldChar; fieldChar = charBack; charBack = f;
+      hasField = true;
+    }
+
+    // Full synchronous pass — only for resizes and the reduced-motion
+    // static frame, where a one-off blocking pass is acceptable.
+    function computeFieldFull(t: number) {
+      for (let y = 0; y < rows; y++) computeFieldRow(y, t);
+      swapFieldBuffers();
+      lastFieldT = t;
+      fieldDirty = false;
+      scanY = -1;
     }
 
     // Paint the cached field + per-frame dynamics (erase trail, shimmer).
@@ -335,9 +366,7 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
 
     function drawStatic() {
       const t = (performance.now() - t0) / 1000;
-      computeField(t);
-      lastFieldT = t;
-      fieldDirty = false;
+      computeFieldFull(t);
       drawGrid(t);
     }
 
@@ -363,13 +392,30 @@ export default function AsciiBackground({ opacity = 0.18, maskBottom }: Props) {
       }
       flushErase();
 
-      if (fieldDirty || t - lastFieldT >= FIELD_INTERVAL) {
-        computeField(t);
-        lastFieldT = t;
+      // Incremental field scan: start a new scan when due, then fill rows
+      // of the back buffer until the per-frame budget runs out. Swapping
+      // only on completion keeps the displayed field coherent.
+      if (scanY < 0 && (fieldDirty || t - lastFieldT >= FIELD_INTERVAL)) {
+        scanY = 0;
+        scanT = t;
         fieldDirty = false;
       }
+      if (scanY >= 0) {
+        const budgetEnd = performance.now() + FIELD_BUDGET_MS;
+        while (scanY < rows && performance.now() < budgetEnd) {
+          computeFieldRow(scanY, scanT);
+          scanY++;
+        }
+        if (scanY >= rows) {
+          swapFieldBuffers();
+          lastFieldT = scanT;
+          scanY = -1;
+        }
+      }
 
-      drawGrid(t);
+      // Until the very first scan completes the front buffer is all zeros
+      // (= random shimmer everywhere) — skip drawing rather than flash it.
+      if (hasField) drawGrid(t);
       rafId = requestAnimationFrame(render);
     }
 
