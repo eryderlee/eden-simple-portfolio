@@ -49,7 +49,7 @@ interface Social {
 }
 
 const SOCIALS: Social[] = [
-  { label: 'LinkedIn', handle: '/in/edenryderlee', href: 'https://linkedin.com/in/edenryderlee',         icon: ICON_LINKEDIN },
+  { label: 'LinkedIn', handle: '/in/eden-lee-6016a4300', href: 'https://www.linkedin.com/in/eden-lee-6016a4300', icon: ICON_LINKEDIN },
   { label: 'GitHub',   handle: '/eryderlee',       href: 'https://github.com/eryderlee',                 icon: ICON_GITHUB },
   { label: 'Upwork',   handle: '/eryderlee',       href: 'https://www.upwork.com/freelancers/eryderlee', icon: ICON_UPWORK },
   { label: 'YouTube',  handle: '/@eryderlee',      href: 'https://youtu.be/HAOkVh_K5Kk',                 icon: ICON_YOUTUBE },

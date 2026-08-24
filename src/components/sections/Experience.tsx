@@ -43,6 +43,8 @@ const ROLES: Role[] = [
 ];
 
 const CERTS: Cert[] = [
+  { name: 'Certificate III in Laboratory Skills',      type: 'cert', at: mIdx(2021, 5), period: 'Jun 2021', desc: 'ABC Training and Consulting. Completed alongside high school.' },
+  { name: 'Certificate II in Sampling and Measurement', type: 'cert', at: mIdx(2021, 5), period: 'Jun 2021', desc: 'ABC Training and Consulting. Completed alongside high school.' },
   { name: 'HubSpot Inbound', type: 'cert', at: mIdx(2026, 1), period: 'Feb 2026',                  desc: 'Inbound Marketing certification.' },
   { name: 'Lyra Certified',  type: 'cert', at: mIdx(2026, 2), period: 'Mar 2026', badge: 'Top 5%', desc: 'Lyra Certified Full-Stack Engineer · Top 5% in cohort.' },
 ];
@@ -286,12 +288,15 @@ export default function Experience() {
 
             {/* Cert dots row */}
             <div className="tl-cert-dots-row">
-              {CERTS.map((c) => (
+              {CERTS.map((c, ci) => (
                 <div
                   key={c.name}
                   className="tl-cert-dot"
                   data-start-pct={pct(c.at)}
-                  style={{ left: `${pct(c.at)}%` }}
+                  style={{
+                    left: `${pct(c.at)}%`,
+                    marginLeft: CERTS.slice(0, ci).filter((other) => other.at === c.at).length * 11,
+                  }}
                   onMouseEnter={(e) => showPop(e, c, 'cert')}
                   onMouseMove={posPop}
                   onMouseLeave={hidePop}
