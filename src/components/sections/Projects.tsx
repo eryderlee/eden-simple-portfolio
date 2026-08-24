@@ -81,9 +81,41 @@ interface Workflow {
 const PROJECTS: Project[] = [
   // Web
   {
+    name: 'Ryder Digital',
+    description:
+      'My studio. Premium websites, custom client dashboards and automation for local service businesses across Australia.',
+    tech: ['Next.js', 'Astro', 'Cloudflare', 'SEO'],
+    url: 'https://ryderdigital.studio',
+    category: 'Web',
+  },
+  {
+    name: 'R Dhillon & Co',
+    description:
+      'Accounting firm site built end to end: local SEO, schema-marked service pages, and contrast plus breadcrumb checks gating every deploy',
+    tech: ['Astro', 'Cloudflare Pages', 'Playwright', 'Local SEO'],
+    url: 'https://dhillonco.com.au',
+    category: 'Web',
+  },
+  {
+    name: 'Ryder Client Dashboard',
+    description:
+      'The studio flagship: multi-tenant client portal with CRM pipeline, booking sync, invoicing, transactional email and Google Workspace integration',
+    tech: ['Next.js 16', 'Prisma', 'PostgreSQL', 'NextAuth', 'Stripe', 'Sentry'],
+    url: '#',
+    category: 'Web',
+  },
+  {
+    name: 'Vortex AI OS',
+    description:
+      'Self-built operating system for running AI coding agents: live chat panels, scheduled agent loops, a hardened headless runner and a work board',
+    tech: ['React', 'TypeScript', 'Vite', 'Fastify', 'Claude Code'],
+    url: '#',
+    category: 'Web',
+  },
+  {
     name: 'Baseaim.co',
     description:
-      'Marketing agency platform with AI chatbot, voice bot, automated SEO blog, growth calculator',
+      'Marketing agency platform built as CTO: AI chatbot, voice bot, automated SEO blog, growth calculator',
     tech: ['Next.js', 'Supabase', 'n8n'],
     url: 'https://baseaim.co',
     category: 'Web',
@@ -105,26 +137,11 @@ const PROJECTS: Project[] = [
     category: 'Web',
   },
   {
-    name: 'CYS Accountants',
-    description: 'Full redesign with funnel landing page for Meta ad campaigns',
-    tech: ['HTML', 'CSS', 'Meta Pixel'],
-    url: 'https://cysaccountants.baseaim.co/',
-    category: 'Web',
-  },
-  {
     name: 'CoFarming Hub',
     description:
       'Designed website, e-commerce, digital presentations, business solutions',
     tech: ['HTML', 'CSS'],
     url: 'https://cofarminghub.com',
-    category: 'Web',
-  },
-  {
-    name: 'RyderAgency',
-    description:
-      'Built websites for car companies, accountants. SEO optimization, responsive design.',
-    tech: ['Next.js', 'HTML', 'CSS', 'SEO'],
-    url: 'https://ryderagency.com',
     category: 'Web',
   },
   {
@@ -338,7 +355,6 @@ const FEATURED_ITEMS: FeaturedItem[] = [
     tech: ['Next.js', 'Supabase', 'n8n', 'OpenAI', 'Stripe', 'Retell'],
     links: [
       { label: 'Live Site', url: 'https://baseaim.co' },
-      { label: 'Dashboard Walkthrough', url: '#' },
     ],
     status: 'LIVE SITE',
     statusColor: 'bg-[#22c55e]',
@@ -392,11 +408,9 @@ const FEATURED_ITEMS: FeaturedItem[] = [
     name: 'CYS Accountants',
     description: 'Full redesign with high-conversion funnel landing page built for Meta ad campaigns. Delivered as part of the Baseaim agency product suite.',
     tech: ['HTML', 'CSS', 'Meta Pixel'],
-    links: [
-      { label: 'View Site', url: 'https://cysaccountants.baseaim.co/' },
-    ],
-    status: 'LIVE SITE',
-    statusColor: 'bg-[#22c55e]',
+    links: [],
+    status: 'ARCHIVED',
+    statusColor: 'bg-[#f0f0f0]/30',
     aspectRatio: '16:9',
     mediaLabel: 'Autoplays when in view',
     mediaFile: 'cys accountants.mp4',

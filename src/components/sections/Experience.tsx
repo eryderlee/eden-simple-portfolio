@@ -28,18 +28,18 @@ interface Cert {
   desc: string;
 }
 
-const SPAN = 65; // Jan 2021 (0) → Jun 2026 (65)
+const SPAN = 71; // Jan 2021 (0) → Dec 2026 (71)
 const mIdx = (y: number, mo: number) => (y - 2021) * 12 + mo;
 const pct = (mi: number) => (mi / SPAN) * 100;
 
 const ROLES: Role[] = [
-  { name: 'IB Studies',    org: 'Queensland Academy of Health Science', type: 'edu',     start: mIdx(2021, 0),  end: mIdx(2023, 11), active: false, period: '2021 – 2023',         desc: 'International Baccalaureate. High grade. Dragon dancing, tai chi, badminton, volleyball, jiu-jitsu on the side.' },
-  { name: 'Chef',          org: 'Sushi Train',                            type: 'service', start: mIdx(2022, 11), end: mIdx(2023, 11), active: false, period: 'Dec 2022 – Dec 2023', desc: 'Year of night shifts through high school. Where the work-under-pressure habit started.' },
-  { name: 'BSc Computing', org: 'University of Melbourne',                type: 'edu',     start: mIdx(2024, 0),  end: mIdx(2026, 5),  active: true,  period: '2024 – Present',      desc: 'Computing & Software Systems undergrad. Concurrent with everything else listed here.' },
-  { name: 'Web Developer', org: 'Freelance / RyderAgency',                type: 'work',    start: mIdx(2024, 0),  end: mIdx(2026, 5),  active: true,  period: '2024 – Present',      desc: 'Sites for car companies, accountants, agencies. SEO-first, responsive, conversion-focused.' },
-  { name: 'Waiter',        org: 'Jade Stream',                            type: 'service', start: mIdx(2024, 7),  end: mIdx(2024, 11), active: false, period: 'Aug – Dec 2024',      desc: 'Service shifts while at uni. Paid rent.' },
-  { name: 'CTO',           org: 'Baseaim',                                type: 'work',    start: mIdx(2025, 5),  end: mIdx(2026, 5),  active: true,  period: 'Jun 2025 – Present',  desc: 'Marketing agency for accountants. Built the AI chatbot, voice agent, automated CRM, 93 n8n workflows shipped.' },
-  { name: 'Partner',       org: 'CoFarming-Hub',                          type: 'work',    start: mIdx(2025, 0),  end: mIdx(2026, 5),  active: true,  period: '2025 – Present',      desc: 'Sustainable agriculture startup. Website, e-commerce, investor decks, business systems.' },
+  { name: 'IB Studies',    org: 'Queensland Academy of Health Science', type: 'edu',     start: mIdx(2021, 0),  end: mIdx(2023, 11), active: false, period: '2021 to 2023',         desc: 'International Baccalaureate. High grade. Dragon dancing, tai chi, badminton, volleyball, jiu-jitsu on the side.' },
+  { name: 'Chef',          org: 'Sushi Train',                            type: 'service', start: mIdx(2022, 11), end: mIdx(2023, 11), active: false, period: 'Dec 2022 to Dec 2023', desc: 'Year of night shifts through high school. Where the work-under-pressure habit started.' },
+  { name: 'BSc Computing', org: 'University of Melbourne',                type: 'edu',     start: mIdx(2024, 0),  end: mIdx(2026, 7),  active: true,  period: '2024 to Present',      desc: 'Computing & Software Systems undergrad. Concurrent with everything else listed here.' },
+  { name: 'Founder',       org: 'Ryder Digital',                          type: 'work',    start: mIdx(2024, 0),  end: mIdx(2026, 7),  active: true,  period: '2024 to Present',      desc: 'My own studio. Premium sites, custom client dashboards and automation for local service businesses. Started freelance as RyderAgency, now runs as Ryder Digital.' },
+  { name: 'Waiter',        org: 'Jade Stream',                            type: 'service', start: mIdx(2024, 7),  end: mIdx(2024, 11), active: false, period: 'Aug to Dec 2024',      desc: 'Service shifts while at uni. Paid rent.' },
+  { name: 'CTO',           org: 'Baseaim',                                type: 'work',    start: mIdx(2025, 5),  end: mIdx(2026, 5),  active: false, period: 'Jun 2025 to Jun 2026',  desc: 'Marketing agency for accountants. Built the AI chatbot, voice agent, automated CRM, 93 n8n workflows shipped.' },
+  { name: 'Partner',       org: 'CoFarming-Hub',                          type: 'work',    start: mIdx(2025, 0),  end: mIdx(2026, 7),  active: true,  period: '2025 to Present',      desc: 'Sustainable agriculture startup. Website, e-commerce, investor decks, business systems.' },
 ];
 
 const CERTS: Cert[] = [
@@ -47,7 +47,7 @@ const CERTS: Cert[] = [
   { name: 'Lyra Certified',  type: 'cert', at: mIdx(2026, 2), period: 'Mar 2026', badge: 'Top 5%', desc: 'Lyra Certified Full-Stack Engineer · Top 5% in cohort.' },
 ];
 
-const NOW_PCT = pct(mIdx(2026, 4));
+const NOW_PCT = pct(mIdx(2026, 7));
 const SWEEP_DURATION = 5500;
 
 /* ───────────────────────────────────────────── */
@@ -254,7 +254,7 @@ export default function Experience() {
           >
             {/* Column dividers aligned to the year-header borders. The previous
                 CSS gradient repeated at 20% but the years sit at 18.5/36.9/55.4
-                /73.8/92.3 — they didn't line up. */}
+                /73.8/92.3, they didn't line up. */}
             {[2022, 2023, 2024, 2025, 2026].map((y) => (
               <div
                 key={`divider-${y}`}
@@ -300,12 +300,12 @@ export default function Experience() {
             </div>
           </div>
 
-          {/* Stats — 2x2 grid on mobile, flex row on sm+ */}
+          {/* Stats: 2x2 grid on mobile, flex row on sm+ */}
           <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-7 sm:gap-y-2 px-3 sm:px-[18px] py-3 sm:py-[14px] border-t border-white/[0.06] bg-black/20 font-mono text-[10px] tracking-[0.1em] uppercase text-[#f0f0f0]/45">
-            <Stat strong="5" strongAccent label="active" />
-            <Stat strong="2" label="businesses" />
-            <Stat strong="1" label="undergrad" />
-            <Stat strong="4" label="certs" />
+            <Stat strong={String(ROLES.filter((r) => r.active).length)} strongAccent label="active" />
+            <Stat strong={String(ROLES.filter((r) => r.active && r.type === 'work').length)} label="businesses" />
+            <Stat strong={String(ROLES.filter((r) => r.active && r.type === 'edu').length)} label="undergrad" />
+            <Stat strong={String(CERTS.length)} label="certs" />
           </div>
         </div>
 
@@ -313,20 +313,17 @@ export default function Experience() {
         <div className="reveal-up relative px-5 sm:px-7 pt-6 sm:pt-7 pb-5 sm:pb-6 border border-white/[0.12] border-l-[3px] border-l-[#e63946] mb-7" style={{ background: 'linear-gradient(135deg, rgba(230,57,70,0.04), transparent 50%)' }}>
           <span className="absolute top-[18px] right-[18px] w-2 h-2 rounded-full bg-[#e63946] animate-pulse" style={{ boxShadow: '0 0 10px #e63946' }} />
           <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#e63946] mb-[18px]">
-            Currently — active commitments
+            Currently · active commitments
           </div>
           <div className="reveal-stagger grid gap-[18px]">
-            <NowItem title="CTO" org="Baseaim" period="Jun 2025 — Present">
-              Marketing agency for accountants. Built the AI chatbot, voice agent, automated CRM, and 93 n8n workflows currently running in production.
+            <NowItem title="Founder" org="Ryder Digital" period="2024 to Present">
+              My own studio. Premium websites, custom client dashboards and automation for local service businesses. Started freelance as RyderAgency, now runs as Ryder Digital.
             </NowItem>
-            <NowItem title="Partner" org="CoFarming-Hub" period="2025 — Present">
+            <NowItem title="Partner" org="CoFarming-Hub" period="2025 to Present">
               Sustainable agriculture startup. Designed the website, e-commerce layer, investor decks, business systems.
             </NowItem>
-            <NowItem title="BSc Computing & Software Systems" org="UniMelb" period="2024 — Present">
+            <NowItem title="BSc Computing & Software Systems" org="UniMelb" period="2024 to Present">
               Undergrad in computing. Same time as the agency work.
-            </NowItem>
-            <NowItem title="Web Developer" org="Freelance / RyderAgency" period="2024 — Present">
-              Sites for car companies, accountants, agencies. SEO-first, responsive, conversion-focused.
             </NowItem>
           </div>
         </div>
@@ -348,7 +345,7 @@ export default function Experience() {
             <span className="text-[#e63946]">— </span>Path here
           </div>
           <div className="reveal-stagger">
-            <PathRow year="2024" items={[{ title: 'Waiter', org: 'Jade Stream', meta: 'Aug – Dec 2024' }]} />
+            <PathRow year="2024" items={[{ title: 'Waiter', org: 'Jade Stream', meta: 'Aug to Dec 2024' }]} />
             <PathRow year="2023" items={[
               { title: 'International Baccalaureate completed', org: 'Queensland Academy' },
               { title: 'Chef', org: 'Sushi Train', meta: 'until Dec 2023' },
@@ -400,7 +397,7 @@ export default function Experience() {
           margin-left: -2px;
         }
         /* Sweep position + opacity are driven from JS in the RAF tick so they
-           stay in sync with the bar reveal — keyframes inside styled-jsx
+           stay in sync with the bar reveal; keyframes inside styled-jsx
            combined with :global() selectors are unreliable. */
 
         /* Timeline bars */

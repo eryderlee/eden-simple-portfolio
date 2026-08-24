@@ -30,7 +30,7 @@ const SKILLS: Skill[] = [
   { name: 'JavaScript', group: 'Languages', tier: 'expert', projects: ['Baseaim', 'CYS', 'CoFarming', 'every web project'] },
   { name: 'HTML', group: 'Languages', tier: 'proficient', projects: ['CYS', 'CoFarming', 'most landing pages'] },
   { name: 'CSS', group: 'Languages', tier: 'proficient', projects: ['CYS', 'CoFarming', 'Portfolio'] },
-  { name: 'Python', group: 'Languages', tier: 'familiar', projects: ['Coursework', 'misc scripts'] },
+  { name: 'Python', group: 'Languages', tier: 'proficient', projects: ['Lead scraper', 'data pipelines', 'coursework'] },
   { name: 'C', group: 'Languages', tier: 'familiar', projects: ['AI Puzzle Solver'] },
 
   // Frontend
@@ -39,13 +39,15 @@ const SKILLS: Skill[] = [
   { name: 'Tailwind CSS', group: 'Frontend', tier: 'expert', projects: ['Baseaim', 'ClientHub', 'Portfolio'] },
   { name: 'GSAP', group: 'Frontend', tier: 'proficient', projects: ['Portfolio', 'Baseaim'] },
   { name: 'TanStack Query', group: 'Frontend', tier: 'familiar', projects: ['Airtable Clone'] },
+  { name: 'Astro', group: 'Frontend', tier: 'proficient', projects: ['R Dhillon & Co'] },
 
   // Backend
-  { name: 'Node.js', group: 'Backend', tier: 'expert', projects: ['Baseaim', 'ClientHub', '93 workflows'] },
-  { name: 'REST APIs', group: 'Backend', tier: 'expert', projects: ['Baseaim', 'ClientHub', '93 workflows'] },
+  { name: 'Node.js', group: 'Backend', tier: 'expert', projects: ['Baseaim', 'ClientHub', '109 workflows'] },
+  { name: 'REST APIs', group: 'Backend', tier: 'expert', projects: ['Baseaim', 'ClientHub', '109 workflows'] },
   { name: 'tRPC', group: 'Backend', tier: 'proficient', projects: ['Airtable Clone'] },
-  { name: 'Prisma', group: 'Backend', tier: 'proficient', projects: ['ClientHub', 'MVPcommunity'] },
-  { name: 'NextAuth', group: 'Backend', tier: 'proficient', projects: ['ClientHub', 'MVPcommunity'] },
+  { name: 'Prisma', group: 'Backend', tier: 'expert', projects: ['Ryder Dashboard', 'ClientHub', 'MVPcommunity'] },
+  { name: 'NextAuth', group: 'Backend', tier: 'proficient', projects: ['ClientHub', 'MVPcommunity', 'Ryder Dashboard'] },
+  { name: 'Fastify', group: 'Backend', tier: 'proficient', projects: ['Vortex AI OS'] },
 
   // Data
   { name: 'PostgreSQL', group: 'Data', tier: 'proficient', projects: ['Airtable Clone', 'ClientHub'] },
@@ -54,11 +56,13 @@ const SKILLS: Skill[] = [
   { name: 'MongoDB', group: 'Data', tier: 'familiar', projects: ['Coursework'] },
 
   // Automation
-  { name: 'n8n', group: 'Automation', tier: 'expert', projects: ['93 workflows shipped'] },
+  { name: 'n8n', group: 'Automation', tier: 'expert', projects: ['109 workflows shipped'] },
   { name: 'OpenAI API', group: 'Automation', tier: 'expert', projects: ['Chatbot', 'voice agent', 'content workflows'] },
   { name: 'Retell', group: 'Automation', tier: 'proficient', projects: ['Baseaim Voice Agent'] },
   { name: 'Cal.com', group: 'Automation', tier: 'proficient', projects: ['Voice Agent', 'booking workflows'] },
   { name: 'SignNow', group: 'Automation', tier: 'proficient', projects: ['Contract Generator'] },
+  { name: 'Claude Code', group: 'Automation', tier: 'expert', projects: ['Vortex AI OS', 'Ryder Dashboard', 'client builds'] },
+  { name: 'Agent Orchestration', group: 'Automation', tier: 'proficient', projects: ['Vortex AI OS'] },
 
   // Infra
   { name: 'Git', group: 'Infra', tier: 'expert', projects: ['everything'] },
@@ -66,7 +70,9 @@ const SKILLS: Skill[] = [
   { name: 'Vercel', group: 'Infra', tier: 'expert', projects: ['most web projects'] },
   { name: 'Stripe', group: 'Infra', tier: 'proficient', projects: ['Baseaim', 'ClientHub'] },
   { name: 'Figma', group: 'Infra', tier: 'proficient', projects: ['design files'] },
-  { name: 'Netlify', group: 'Infra', tier: 'familiar', projects: ['legacy deployments'] },
+  { name: 'Cloudflare Pages', group: 'Infra', tier: 'proficient', projects: ['R Dhillon & Co', 'client deploys'] },
+  { name: 'Playwright', group: 'Infra', tier: 'proficient', projects: ['R Dhillon & Co', 'visual regression'] },
+  { name: 'Netlify', group: 'Infra', tier: 'proficient', projects: ['this portfolio'] },
 ];
 
 const HOBBIES = [

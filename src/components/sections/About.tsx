@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const STATS = [
   { target: 109, prefix: '', suffix: '+', label: 'Workflows Built' },
-  { target: 13, prefix: '', suffix: '+', label: 'Web Projects' },
+  { target: 18, prefix: '', suffix: '+', label: 'Web Projects' },
   { target: 4, prefix: '', suffix: '+', label: 'Years Full-Stack' },
   { target: 5, prefix: 'Top ', suffix: '%', label: 'Lyra Challenge' },
 ];
@@ -204,15 +204,19 @@ export default function About() {
 
             <div className="space-y-4">
               <p className="about-body font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/55 max-w-[52ch] opacity-0">
-                Computing and Software Systems major who builds web experiences
-                and automates workflows. CTO at{' '}
-                <span className="text-[#f0f0f0]/80">Baseaim</span> — a
-                marketing agency for accountants — and Partner at{' '}
-                <span className="text-[#f0f0f0]/80">CoFarming-Hub</span>, a
-                sustainable agriculture startup.
+                Computing and Software Systems student at the University of
+                Melbourne, and founder of{' '}
+                <span className="text-[#f0f0f0]/80">Ryder Digital</span>, a
+                studio building premium websites, custom client dashboards and
+                automation for local service businesses.
               </p>
               <p className="about-body font-sans text-[0.92rem] leading-relaxed text-[#f0f0f0]/55 max-w-[52ch] opacity-0">
-                Passionate about innovative solutions and community impact.
+                Previously CTO at{' '}
+                <span className="text-[#f0f0f0]/80">Baseaim</span>, a marketing
+                agency for accountants, where I built the AI chatbot, the voice
+                agent and the automated CRM. Also a Partner at{' '}
+                <span className="text-[#f0f0f0]/80">CoFarming-Hub</span>, a
+                sustainable agriculture startup.
               </p>
             </div>
 
@@ -221,7 +225,7 @@ export default function About() {
               {[
                 ['Location', 'Point Cook, VIC'],
                 ['Country', 'Australia'],
-                ['Currently', 'BSc Computing'],
+                ['Currently', 'Ryder Digital'],
                 ['University', 'UniMelb 2024'],
               ].map(([label, val]) => (
                 <div key={label}>
